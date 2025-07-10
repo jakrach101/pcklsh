@@ -256,7 +256,7 @@
                 <div class="step-content space-y-6">
                     <div id="summary-card" class="summary-card">
                         <div class="flex justify-around text-center">
-                            <div><p class="summary-label">Current Total MEDD</p><p id="current-medd" class="summary-value">0.0</p></div>
+                            <div><p class="summary-label">Current Basal MEDD</p><p id="current-medd" class="summary-value">0.0</p></div>
                             <div class="border-l border-white/30"></div>
                             <div><p class="summary-label">New Total MEDD</p><p id="new-medd" class="summary-value text-amber-300">0.0</p></div>
                         </div>
@@ -489,8 +489,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.pps < 50) {
             recommendations.push("PPS < 50: ผู้ป่วยอาจกลืนลำบาก ควรพิจารณาให้ยาทาง SC/IV หรือแผ่นแปะ (ตัวเลือกยากินจะลดความสว่างลง)");
         }
-        if (state.gfr < 30) {
-            recommendations.push("GFR < 30: แนะนำให้ใช้ Fentanyl หรือลดขนาด Morphine ลง 50% (แอปได้คำนวณส่วนลดให้แล้ว)");
+        if (state.gfr < 10) {
+            recommendations.push("GFR < 10: แนะนำลด Morphine 75%, Fentanyl 50% (แอปได้คำนวณส่วนลดให้แล้ว)");
+        } else if (state.gfr <= 30) {
+            recommendations.push("GFR 10-30: แนะนำลด Morphine 50%, Fentanyl 25% (แอปได้คำนวณส่วนลดให้แล้ว)");
+        } else if (state.gfr <= 50) {
+            recommendations.push("GFR 31-50: แนะนำลด Morphine 25% (แอปได้คำนวณส่วนลดให้แล้ว)");
         }
         if (state.isElderly) {
             recommendations.push("ผู้ป่วยสูงอายุ: ควรระมัดระวังผลข้างเคียง (แอปได้คำนวณลดขนาดยา Morphine ลง 25% แล้ว)");
@@ -509,13 +513,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getDoseAdjustmentFactor(drugKey) {
         let factor = 1.0;
+        const gfr = state.gfr;
+
         if (drugKey.includes('morphine')) {
-            if (state.gfr < 30) {
-                factor *= 0.5;
-            }
-            if (state.isElderly) {
-                factor *= 0.75;
-            }
+            if (gfr < 10) factor *= 0.25; // 75% reduction
+            else if (gfr <= 30) factor *= 0.50; // 50% reduction
+            else if (gfr <= 50) factor *= 0.75; // 25% reduction
+            
+            if (state.isElderly) factor *= 0.75; // 25% reduction for elderly
+        } else if (drugKey.includes('fentanyl')) {
+            if (gfr < 10) factor *= 0.50; // 50% reduction
+            else if (gfr <= 30) factor *= 0.75; // 25% reduction
         }
         return factor;
     }
@@ -567,9 +575,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderNewRegimenOptions(newMedd) {
         const basalDoses = {
             basal_oral_mst: { label: "MST/Kapanol", dose: newMedd, unit: "mg/day", isOral: true },
-            basal_morphine_csci: { label: "Morphine CSCI (Syringe)", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 22, defaultDur: 24, concPresets: {'1:1': 10, '2:1': 20} } },
-            basal_morphine_iv: { label: "Morphine IV Drip", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 100, defaultDur: 24, concPresets: {'1mg/ml': 1, '2mg/ml': 2} } },
-            basal_fentanyl_iv: { label: "Fentanyl IV Drip", dose: newMedd / 0.3, unit: "mcg/day", mixing: { defaultVol: 100, defaultDur: 24, concPresets: {'10mcg/ml': 10, '20mcg/ml': 20, '50mcg/ml': 50} } },
+            basal_morphine_csci: { label: "Morphine CSCI (Syringe)", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 22, defaultDur: 24, concPresets: {'1:1 (10mg/ml)': 10, '2:1 (20mg/ml)': 20} } },
+            basal_morphine_iv: { label: "Morphine IV Drip", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 100, defaultDur: 24, concPresets: {'0.5mg/ml': 0.5, '1mg/ml': 1, '2mg/ml': 2} } },
+            basal_fentanyl_iv: { label: "Fentanyl IV Drip", dose: newMedd / 0.3, unit: "mcg/day", mixing: { defaultVol: 100, defaultDur: 24, concPresets: {'10mcg/ml': 10, '25mcg/ml': 25, '50mcg/ml': 50} } },
             basal_fentanyl_patch: { label: "Fentanyl Patch", dose: newMedd / 2.4, unit: "mcg/hr" }
         };
         elements.basalOptionsSection.innerHTML = '';
@@ -740,8 +748,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         let notes = [];
-        if (state.gfr < 30) notes.push("- GFR < 30: Recommended Fentanyl or Morphine dose reduction.");
-        if (state.isElderly) notes.push("- Elderly patient: Recommended Morphine dose reduction.");
+        if (state.gfr < 50) notes.push("- Renal impairment: Dose adjusted.");
+        if (state.isElderly) notes.push("- Elderly patient: Dose adjusted.");
         if (notes.length > 0) {
             orderText += `\n--- Clinical Notes ---\n${notes.join('\n')}`;
         }
@@ -856,8 +864,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.mixingParams[key] = { ...state.mixingParams[key], vol, dur };
                 render();
             }
-            else if (target.classList.contains('final-rate-input')) {
-                 const finalRate = parseFloat(target.value) || 0;
+        });
+        
+        elements.basalOptionsSection.addEventListener('input', (e) => {
+            if (e.target.classList.contains('final-rate-input')) {
+                 const key = e.target.dataset.key;
+                 const finalRate = parseFloat(e.target.value) || 0;
                  state.mixingParams[key] = { ...state.mixingParams[key], finalRate };
                  render();
             }
