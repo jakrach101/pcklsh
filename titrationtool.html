@@ -3,30 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palliative Opioid Titration & Conversion Tool</title>
+    <title>Opioid Quick Reference Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans Thai', sans-serif; }
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f4f8;
         }
-        @media (min-width: 1024px) {
-            .main-container {
-                grid-template-columns: 1fr 1fr;
-            }
+        .step-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: #0891b2;
+            color: white;
+            font-weight: 700;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .step-content {
+            padding: 1.5rem;
         }
         .input-field {
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            padding: 0.5rem;
-            text-align: center;
             width: 100%;
-            background-color: #f9fafb;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            transition: all 0.2s ease-in-out;
         }
         .input-field:focus {
             background-color: white;
@@ -34,77 +62,145 @@
             box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
             outline: none;
         }
-        .output-card {
-            background-color: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            height: fit-content;
-        }
-        .readonly-field {
-            background-color: #e5e7eb;
-            color: #4b5563;
-            font-weight: 500;
-        }
-        .copy-button {
+        .toggle-switch {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            background-color: #0891b2;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .copy-button:hover {
-            background-color: #0e7490;
-        }
-        .copy-button.copied {
-            background-color: #059669;
-        }
-        .radio-label {
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
             border-radius: 0.5rem;
             cursor: pointer;
-            transition: all 0.2s;
-            background-color: white;
+            background-color: #f8fafc;
+            transition: all 0.2s ease-in-out;
         }
-        input[type="radio"]:checked + .radio-label {
+        .toggle-switch.active {
             border-color: #0891b2;
             background-color: #cffafe;
+            box-shadow: 0 0 0 1px #0891b2;
+        }
+        .toggle-handle {
+            position: relative;
+            display: inline-block;
+            width: 2.5rem;
+            height: 1.5rem;
+            background-color: #94a3b8;
+            border-radius: 9999px;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .toggle-handle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+        .toggle-switch.active .toggle-handle {
+            background-color: #0891b2;
+        }
+        .toggle-switch.active .toggle-handle::after {
+            transform: translateX(1rem);
+        }
+        .info-message {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            border-left-width: 4px;
+        }
+        .info-message.red { background-color: #fee2e2; color: #b91c1c; border-color: #ef4444; }
+        .info-message.blue { background-color: #e0f2fe; color: #0369a1; border-color: #0ea5e9; }
+        .info-message.orange { background-color: #fff7ed; color: #c2410c; border-color: #f97316; }
+        .summary-card {
+            position: sticky;
+            top: 1rem;
+            z-index: 10;
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .summary-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        .summary-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .option-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            height: 100%;
+            position: relative;
+        }
+        .option-card:hover { border-color: #93c5fd; }
+        input[type="radio"]:checked + .option-card, input[type="checkbox"]:checked + .option-card {
+            border-color: #0891b2;
+            background-color: #f0f9ff;
             box-shadow: 0 0 0 2px #0891b2;
         }
-        input[type="radio"] {
-            display: none;
+        .de-emphasized {
+            opacity: 0.5;
+            pointer-events: none;
         }
-        #order-preview-area {
-            width: 100%;
-            min-height: 150px;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            font-family: monospace;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            background-color: #f9fafb;
+        .de-emphasized-badge {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background-color: #f59e0b;
+            color: white;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            z-index: 5;
         }
-        .drip-options {
-            display: none;
-            padding-top: 0.75rem;
-            padding-left: 1rem;
-            border-left: 2px solid #e5e7eb;
-            margin-left: 0.5rem;
+        .adjusted-dose-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #fb923c;
+            color: white;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
         }
-        input[type="radio"]:checked + .radio-label + .drip-options {
-            display: block;
+        .helper-details > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin: 0.5rem -0.5rem -0.5rem -0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            color: #0369a1;
+        }
+        .helper-details > summary::-webkit-details-marker { display: none; }
+        .helper-details > summary::after {
+            content: '▼';
+            float: right;
+            transition: transform 0.2s;
+        }
+        .helper-details[open] > summary::after { transform: rotate(180deg); }
+        .helper-content {
+            background-color: #e0f2fe;
+            padding: 1rem;
+            margin: 0.5rem -1rem -1rem -1rem; /* Extend to card edges */
+            border-radius: 0 0 0.375rem 0.375rem;
+            border-top: 1px solid #bae6fd;
         }
         .percent-button {
             padding: 0.5rem 1rem;
@@ -118,591 +214,704 @@
         }
         .percent-button.active, .percent-button:hover {
             background-color: #cffafe;
-            border-color: #0891b2;
+            color: #0e7490;
         }
-        .toggle-switch {
+        .copy-button {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 1rem;
             border-radius: 0.5rem;
+            background-color: #0d9488;
+            color: white;
+            font-weight: 600;
             cursor: pointer;
-            background-color: #f9fafb;
+            transition: background-color 0.2s;
         }
-        .toggle-switch.active {
-            border-color: #0891b2;
-            background-color: #cffafe;
-        }
-        .hidden {
-            display: none;
-        }
-        .action-button {
-             padding: 0.5rem 0.75rem;
-             border-radius: 0.375rem;
-             border: 1px solid #d1d5db;
-             background-color: #f9fafb;
-             font-weight: 500;
-             cursor: pointer;
-             transition: all 0.2s;
-             display: inline-flex;
-             align-items: center;
-             gap: 0.25rem;
-             font-size: 0.875rem;
-        }
-        .action-button:hover {
-            background-color: #f3f4f6;
-        }
+        .copy-button:hover { background-color: #0f766e; }
+        .copy-button.copied { background-color: #059669; }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="p-4 md:p-6 lg:p-8">
 
-    <div class="w-full max-w-7xl bg-white rounded-xl shadow-lg p-4 sm:p-6 space-y-6">
-        <header class="text-center">
-            <h1 class="text-2xl sm:text-3xl font-bold text-cyan-700">Opioid Titration & Conversion Tool</h1>
-            <p class="text-gray-500">สำหรับ Palliative Care</p>
+    <div class="max-w-3xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-cyan-800">Opioid Quick Reference</h1>
+            <p class="text-gray-600 mt-1">เครื่องมือช่วยตัดสินใจและคำนวณยา Opioid</p>
         </header>
 
-        <div class="main-container">
-            <!-- Left Column: Inputs -->
-            <div class="bg-white p-4 sm:p-6 rounded-lg border space-y-6">
-                 <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-800">1. ยาที่ผู้ป่วยได้รับใน 24 ชม.</h2>
-                        <div class="flex gap-2">
-                             <button id="test-button" class="action-button">🧪 สุ่ม Input</button>
-                             <button id="reset-button" class="action-button">🔄 ผู้ป่วยใหม่</button>
+        <main>
+            <!-- Step 1: Current Medications -->
+            <div class="step-card">
+                <div class="step-header"><div class="step-number">1</div><h2 class="step-title">ยาที่ได้รับ (Current Medications)</h2></div>
+                <div class="step-content space-y-4" id="current-meds-section"></div>
+            </div>
+
+            <!-- Step 2: Dose Adjustment -->
+            <div class="step-card">
+                 <div class="step-header"><div class="step-number">2</div><h2 class="step-title">การปรับขนาดยา (Dose Adjustment)</h2></div>
+                <div class="step-content space-y-6">
+                    <div id="summary-card" class="summary-card">
+                        <div class="flex justify-around text-center">
+                            <div><p class="summary-label">Current Total MEDD</p><p id="current-medd" class="summary-value">0.0</p></div>
+                            <div class="border-l border-white/30"></div>
+                            <div><p class="summary-label">New Total MEDD</p><p id="new-medd" class="summary-value text-amber-300">0.0</p></div>
                         </div>
                     </div>
-                    <div class="space-y-4" id="from-section"></div>
-                </div>
-                <hr>
-                <div class="space-y-4">
-                    <div id="prn-toggle-button" class="toggle-switch">
-                        <span class="font-medium text-gray-900">มีการใช้ยา PRN</span>
-                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <div class="toggle-switch-handle block w-6 h-6 rounded-full bg-white shadow-md transform duration-200 ease-in-out"></div>
+                    
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-gray-700 mb-3">เลือกวิธีการปรับเพิ่มยา (Dose Escalation)</h4>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <label class="flex-1"><input type="radio" name="escalation-method" value="prn" checked class="hidden"><div class="option-card text-center"><p class="font-semibold">ปรับตาม PRN ที่ใช้</p><p class="text-sm text-gray-500">(เมื่อใช้ PRN ≥ 3 ครั้ง)</p></div></label>
+                            <label class="flex-1"><input type="radio" name="escalation-method" value="percent" class="hidden"><div class="option-card text-center"><p class="font-semibold">ปรับเพิ่มตาม %</p><p class="text-sm text-gray-500">(New MEDD = Basal + %)</p></div></label>
                         </div>
-                    </div>
-                    <div id="prn-given-section" class="hidden">
-                        <div>
-                            <h3 class="font-semibold text-gray-600">ยาที่ให้เพิ่มระหว่างวัน (PRN Given)</h3>
-                            <p class="text-sm text-gray-500">(จะถูกนำไปคำนวณเพื่อปรับยา เมื่อใช้รวมกัน 3 ครั้งขึ้นไป)</p>
+                        <div id="prn-escalation-section" class="hidden mt-4 space-y-3">
+                            <h5 class="font-semibold text-gray-600 text-center">ยาเสริม (PRN) ที่ใช้ใน 24 ชม.</h5>
+                            <div id="prn-inputs-section" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                            <div id="escalation-info" class="info-message blue"></div>
                         </div>
-                        <div class="p-3 border rounded-lg space-y-4"></div>
-                        <div id="dose-escalation-section" class="p-4 mt-4 border rounded-lg bg-cyan-50/50 hidden">
-                            <h3 class="font-semibold text-gray-700 mb-3">ปรับเพิ่มขนาดยา (Dose Escalation)</h3>
-                             <div class="space-y-3">
-                                <div class="flex items-center gap-2">
-                                    <button class="percent-button" data-percent="25">25%</button>
-                                    <button class="percent-button" data-percent="30">30%</button>
-                                    <button class="percent-button" data-percent="50">50%</button>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <label for="dose-escalation-percent" class="text-sm">หรือกำหนดเอง:</label>
-                                    <input type="number" id="dose-escalation-percent" value="0" class="input-field !w-24">
-                                    <span class="text-sm">%</span>
-                                </div>
+                        <div id="percent-escalation-options" class="hidden mt-4 space-y-3">
+                            <div class="flex items-center justify-center gap-2 flex-wrap">
+                                <button class="percent-button" data-percent="30">30%</button>
+                                <button class="percent-button" data-percent="50">50%</button>
+                                <button class="percent-button" data-percent="75">75%</button>
+                                <button class="percent-button" data-percent="100">100%</button>
+                            </div>
+                            <div class="flex items-center justify-center gap-2 text-sm">
+                                <label for="escalation-percent-input">หรือกำหนดเอง:</label>
+                                <input type="number" id="escalation-percent-input" class="input-field !w-20 text-center" placeholder="50"><span>%</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Calculations & Tools -->
-            <div class="output-card space-y-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">2. ผลการคำนวณ & เครื่องมือ</h2>
-                
-                <div class="p-4 border rounded-lg bg-white">
-                    <h3 class="font-semibold text-gray-700 mb-3">สรุปขนาดยา</h3>
-                    <div>
-                        <p class="text-sm text-gray-600">Current Total MEDD</p>
-                        <p><span id="current-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
+            <!-- Step 3: Choose New Drug & Create Order -->
+            <div class="step-card">
+                 <div class="step-header"><div class="step-number">3</div><h2 class="step-title">เลือกยาใหม่และสร้าง Order</h2></div>
+                 <div class="step-content space-y-6">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                         <h4 class="font-semibold text-gray-700 mb-3">ปัจจัยผู้ป่วยและคำแนะนำ</h4>
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="pps-score" class="font-medium text-sm text-gray-700 block mb-1">PPS Score (%)</label>
+                                <select id="pps-score" class="input-field">
+                                    <option value="100">100</option><option value="90">90</option><option value="80">80</option><option value="70" selected>70</option><option value="60">60</option><option value="50">50</option><option value="40">40</option><option value="30">30</option><option value="20">20</option><option value="10">10</option><option value="0">0</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="gfr-input" class="font-medium text-sm text-gray-700 block mb-1">eGFR (ml/min)</label>
+                                <input type="number" id="gfr-input" class="input-field" placeholder="90" value="90">
+                            </div>
+                            <div class="flex items-center md:col-span-2">
+                                 <div id="elderly-toggle" class="toggle-switch w-full">
+                                    <span class="font-medium text-gray-800">ผู้สูงอายุ (>65 ปี)</span>
+                                    <div class="toggle-handle"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="clinical-recommendation-section" class="hidden mt-4 p-4 bg-orange-50 border-l-4 border-orange-400 rounded">
+                            <ul id="clinical-recommendation-list" class="list-disc list-inside text-orange-700 text-sm space-y-1"></ul>
+                        </div>
                     </div>
-                     <div class="mt-2">
-                        <p class="text-sm text-gray-600">New Total MEDD (ยาใหม่ทั้งหมด)</p>
-                        <p><span id="new-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
-                    </div>
-                </div>
 
-                <div class="p-4 border rounded-lg bg-white">
-                    <h3 class="font-semibold text-gray-700 mb-3">3. จัดแผนการรักษาและคัดลอก Order</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="font-medium text-gray-600 mb-2">เลือกยาพื้นฐาน (Basal Dose)</h4>
-                            <div id="basal-options" class="space-y-2"></div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-3">ยาพื้นฐานใหม่ (New Basal Dose)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="basal-options-section"></div>
+                    </div>
+                     <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-semibold text-lg text-gray-800">ยาเสริมใหม่ (New PRN Dose)</h3>
+                            <div class="text-sm">
+                                <label>คำนวณที่:</label>
+                                <select id="prn-calc-method" class="input-field !w-auto !inline-block !p-1">
+                                    <option value="16.67" selected>1/6 (16.7%)</option>
+                                    <option value="15">15%</option>
+                                    <option value="10">10%</option>
+                                </select>
+                            </div>
                         </div>
-                        <hr>
-                        <div>
-                            <h4 class="font-medium text-gray-600 mb-2">เลือกยา PRN (PRN Dose)</h4>
-                            <div id="prn-options" class="space-y-2"></div>
-                        </div>
-                        <hr>
-                        <div>
-                            <h4 class="font-medium text-gray-600 mb-2">ดูตัวอย่างและแก้ไข Order</h4>
-                             <textarea id="order-preview-area" rows="8"></textarea>
-                        </div>
-                        <button id="copy-order-button" class="copy-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            <span id="copy-button-text">คัดลอก Order</span>
-                        </button>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="prn-options-section"></div>
                     </div>
                 </div>
             </div>
-        </div>
+            
+            <!-- Step 4: Final Order -->
+            <div class="step-card">
+                <div class="step-header"><div class="step-number">4</div><h2 class="step-title">สรุปและคัดลอก Order</h2></div>
+                <div class="step-content space-y-4">
+                    <textarea id="order-preview-area" rows="10" class="input-field w-full font-mono text-sm bg-gray-100" readonly></textarea>
+                    <button id="copy-order-button" class="copy-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span id="copy-button-text">คัดลอก Order</span>
+                    </button>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <script>
-        // --- CONFIGURATION ---
-        const CONVERSION_FACTORS = {
-            'oral_morphine_lr': { factor: 1, unit: 'mg/day' },
-            'sc_morphine': { factor: 3, unit: 'mg/day' },
-            'iv_morphine': { factor: 3, unit: 'mg/day' },
-            'patch_fentanyl': { factor: 2.4, unit: 'mcg/hr' },
-            'iv_fentanyl': { factor: 0.3, unit: 'mcg/day' },
-            'oral_tramadol': { factor: 0.1, unit: 'mg/day' },
-            'iv_tramadol': { factor: 0.2, unit: 'mg/day' }
-        };
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIGURATION ---
+    const CONVERSION_FACTORS = {
+        'oral_morphine_lr': { factor: 1, unit: 'mg' },
+        'sc_iv_morphine': { factor: 3, unit: 'mg' },
+        'patch_fentanyl': { factor: 2.4, unit: 'mcg/hr' },
+        'iv_fentanyl': { factor: 0.3, unit: 'mcg' },
+        'oral_tramadol': { factor: 0.1, unit: 'mg' },
+    };
 
-        const DRUG_LABELS = {
-            'oral_morphine_lr': 'MST / Kapanol',
-            'sc_morphine': 'Morphine SC',
-            'iv_morphine': 'Morphine IV',
-            'patch_fentanyl': 'Fentanyl Patch',
-            'iv_fentanyl': 'Fentanyl IV',
-            'oral_tramadol': 'Tramadol Oral',
-            'iv_tramadol': 'Tramadol IV'
-        };
+    const DRUGS = {
+        'oral_morphine_lr': 'Morphine (MST/Kapanol)',
+        'sc_iv_morphine': 'Morphine (SC/IV)',
+        'patch_fentanyl': 'Fentanyl Patch',
+        'iv_fentanyl': 'Fentanyl IV',
+        'oral_tramadol': 'Tramadol',
+    };
+    
+    const PRN_DRUGS = {
+        'prn_ir': { label: 'Morphine IR (10 mg/tab)', unit: 'mg' },
+        'prn_syrup': { label: 'Morphine Syrup (2mg/mL)', unit: 'ml' },
+        'prn_sc_iv': { label: 'Morphine (SC/IV)', unit: 'mg' }
+    };
+    
+    const MM_PER_ML_CSCI = 24; // Approximate conversion for syringe driver
 
-        const PRN_DRUG_LABELS = {
-            'prn_sc': 'Morphine SC PRN',
-            'prn_ir': 'Morphine IR PRN',
-            'prn_syrup': 'Morphine Syrup PRN'
-        };
+    // --- STATE ---
+    let state = {
+        pps: 70,
+        gfr: 90,
+        isElderly: false,
+        escalationMethod: 'prn',
+        escalationPercent: 0,
+        meds: {},
+        prns: {},
+        selectedBasal: 'basal_oral_mst',
+        selectedPrns: ['prn_option_ir'],
+        mixingParams: {},
+        prnCalcPercentage: 16.67,
+    };
+
+    // --- DOM ELEMENTS ---
+    const elements = {
+        ppsScore: document.getElementById('pps-score'),
+        gfrInput: document.getElementById('gfr-input'),
+        elderlyToggle: document.getElementById('elderly-toggle'),
+        currentMedsSection: document.getElementById('current-meds-section'),
+        prnEscalationSection: document.getElementById('prn-escalation-section'),
+        prnInputsSection: document.getElementById('prn-inputs-section'),
+        escalationSection: document.getElementById('escalation-section'),
+        escalationInfo: document.getElementById('escalation-info'),
+        percentEscalationOptions: document.getElementById('percent-escalation-options'),
+        escalationPercentInput: document.getElementById('escalation-percent-input'),
+        clinicalRecommendationSection: document.getElementById('clinical-recommendation-section'),
+        clinicalRecommendationList: document.getElementById('clinical-recommendation-list'),
+        currentMeddDisplay: document.getElementById('current-medd'),
+        newMeddDisplay: document.getElementById('new-medd'),
+        basalOptionsSection: document.getElementById('basal-options-section'),
+        prnCalcMethod: document.getElementById('prn-calc-method'),
+        prnOptionsSection: document.getElementById('prn-options-section'),
+        orderPreviewArea: document.getElementById('order-preview-area'),
+        copyOrderButton: document.getElementById('copy-order-button'),
+        copyButtonText: document.getElementById('copy-button-text'),
+    };
+
+    // --- UI RENDERING ---
+    function createDrugInputs() {
+        elements.currentMedsSection.innerHTML = ` <h3 class="font-semibold text-gray-800 mb-2">ยาพื้นฐาน (Regular)</h3>`;
+        for (const key in DRUGS) {
+            const config = CONVERSION_FACTORS[key];
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <label for="dose-${key}" class="font-medium text-sm text-gray-700 block mb-1">${DRUGS[key]}</label>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="dose-${key}" data-key="${key}" class="input-field drug-input" placeholder="0">
+                    <span class="text-gray-600">${config.unit}</span>
+                    <div class="text-right flex-1">
+                        <span id="live-conv-${key}" class="font-semibold text-cyan-600">0.0</span>
+                        <span class="text-sm text-gray-500">MEDD</span>
+                    </div>
+                </div>`;
+            elements.currentMedsSection.appendChild(div);
+        }
         
-        const PRN_REGIMENS = {
-            'prn-sc': { label: 'Morphine SC', template: (dose) => `Morphine ${dose} mg PRN SC for pain q 4 hr` },
-            'prn-iv': { label: 'Morphine IV', template: (dose) => `Morphine ${dose} mg PRN IV for pain q 4 hr` },
-            'prn-ir': { label: 'Morphine IR', template: (dose) => `Morphine IR ${dose} mg PRN PO for pain q 2 hr` },
-            'prn-syrup': { label: 'Morphine Syrup', template: (dose) => `Morphine Syrup ${dose} ml PRN PO for pain q 2 hr` },
-            'prn-fentanyl-iv': { label: 'Fentanyl IV PRN', template: (dose) => `Fentanyl ${dose} mcg PRN IV for pain q 2 hr` }
+        elements.prnInputsSection.innerHTML = '';
+        const orderedPrnDrugs = {
+            'prn_ir': PRN_DRUGS['prn_ir'],
+            'prn_syrup': PRN_DRUGS['prn_syrup'],
+            'prn_sc_iv': PRN_DRUGS['prn_sc_iv']
         };
 
-        const ORAL_TO_SC_RATIO = 3;
-        const MORPHINE_SYRUP_CONCENTRATION = 2; // 2 mg/ml
+        for (const key in orderedPrnDrugs) {
+            const drug = orderedPrnDrugs[key];
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <div>
+                    <label for="${key}-dose" class="font-medium text-sm text-gray-700 block mb-1">${drug.label}</label>
+                    <div class="flex items-center gap-2">
+                         <input type="number" id="${key}-dose" data-key="${key}" data-type="dose" class="input-field prn-input" placeholder="Dose (${drug.unit})">
+                         <input type="number" id="${key}-times" data-key="${key}" data-type="times" class="input-field prn-input" placeholder="จำนวนครั้ง">
+                    </div>
+                </div>`;
+            elements.prnInputsSection.appendChild(div);
+        }
+    }
 
-        // --- STATE ---
-        let isCalculating = false;
-
-        // --- MAIN CALCULATION LOGIC ---
-        function calculateAll() {
-            if (isCalculating) return;
-            isCalculating = true;
-
-            let basalMedd = 0;
-            Object.keys(DRUG_LABELS).forEach(key => {
-                const dose = parseFloat(document.getElementById(`dose-${key}`).value) || 0;
-                if (dose > 0) basalMedd += dose * CONVERSION_FACTORS[key].factor;
-            });
-            updateLiveBasalConversion(basalMedd);
-
-            let prnMedd = 0;
-            let totalPrnTimes = 0;
-            const prnToggle = document.getElementById('prn-toggle-button');
-            if (prnToggle.classList.contains('active')) {
-                const prnScTimes = parseFloat(document.getElementById('prn_sc-times').value) || 0;
-                const prnIrTimes = parseFloat(document.getElementById('prn_ir-times').value) || 0;
-                const prnSyrupTimes = parseFloat(document.getElementById('prn_syrup-times').value) || 0;
-                totalPrnTimes = prnScTimes + prnIrTimes + prnSyrupTimes;
-
-                if (totalPrnTimes >= 3) {
-                    const prnScSize = parseFloat(document.getElementById('prn_sc-size').value) || 0;
-                    if (prnScSize > 0) prnMedd += (prnScSize * CONVERSION_FACTORS['sc_morphine'].factor) * prnScTimes;
-
-                    const prnIrSize = parseFloat(document.getElementById('prn_ir-size').value) || 0;
-                    if (prnIrSize > 0) prnMedd += prnIrSize * prnIrTimes;
-                    
-                    const prnSyrupSizeMl = parseFloat(document.getElementById('prn_syrup-size').value) || 0;
-                    if (prnSyrupSizeMl > 0) {
-                        prnMedd += (prnSyrupSizeMl * MORPHINE_SYRUP_CONCENTRATION) * prnSyrupTimes;
-                    }
-                }
-            }
-            
-            const escalationSection = document.getElementById('dose-escalation-section');
-            if (totalPrnTimes >= 3) {
-                escalationSection.classList.remove('hidden');
+    function render() {
+        elements.elderlyToggle.classList.toggle('active', state.isElderly);
+        
+        const { currentMedd, newMedd, totalPrnTimes } = calculateMedd();
+        
+        elements.prnEscalationSection.classList.toggle('hidden', state.escalationMethod !== 'prn');
+        elements.percentEscalationOptions.classList.toggle('hidden', state.escalationMethod !== 'percent');
+        
+        if (state.escalationMethod === 'prn') {
+            if (totalPrnTimes < 3) {
+                elements.escalationInfo.textContent = `ใช้ยา PRN ${totalPrnTimes} ครั้ง (< 3) การปรับยาตาม PRN จะไม่เพิ่มขนาดยาพื้นฐาน`;
             } else {
-                escalationSection.classList.add('hidden');
-                document.getElementById('dose-escalation-percent').value = 0;
-                 document.querySelectorAll('.percent-button.active').forEach(b => b.classList.remove('active'));
+                elements.escalationInfo.textContent = `ใช้ยา PRN ${totalPrnTimes} ครั้ง (≥ 3) จะนำไปรวมเพื่อคำนวณ New MEDD`;
             }
-
-            const currentTotalMedd = basalMedd + prnMedd;
-            document.getElementById('current-medd').textContent = currentTotalMedd.toFixed(1);
-
-            const escalationPercent = parseFloat(document.getElementById('dose-escalation-percent').value) || 0;
-            const newTotalMedd = currentTotalMedd * (1 + (escalationPercent / 100));
-            document.getElementById('new-medd').textContent = newTotalMedd.toFixed(1);
-
-            updateTitrationResults(newTotalMedd);
-            
-            isCalculating = false;
         }
 
-        function updateLiveBasalConversion(basalMedd) {
-             Object.keys(DRUG_LABELS).forEach(key => {
-                const displayField = document.getElementById(`live-conv-${key}`);
-                const equivalentDose = basalMedd > 0 ? basalMedd / CONVERSION_FACTORS[key].factor : 0;
-                displayField.value = equivalentDose.toFixed(1);
-            });
+        elements.currentMeddDisplay.textContent = currentMedd.toFixed(1);
+        elements.newMeddDisplay.textContent = newMedd.toFixed(1);
+
+        renderClinicalRecommendations(newMedd);
+        renderNewRegimenOptions(newMedd);
+        renderOrderPreview();
+    }
+    
+    function renderClinicalRecommendations(newMedd) {
+        const recommendations = [];
+        if (state.pps < 50) {
+            recommendations.push("PPS < 50: ผู้ป่วยอาจกลืนลำบาก ควรพิจารณาให้ยาทาง SC/IV หรือแผ่นแปะ (ตัวเลือกยากินจะลดความสว่างลง)");
+        }
+        if (state.gfr < 30) {
+            recommendations.push("GFR < 30: แนะนำให้ใช้ Fentanyl หรือลดขนาด Morphine ลง 50% (แอปได้คำนวณส่วนลดให้แล้ว)");
+        }
+        if (state.isElderly) {
+            recommendations.push("ผู้ป่วยสูงอายุ: ควรระมัดระวังผลข้างเคียง (แอปได้คำนวณลดขนาดยา Morphine ลง 25% แล้ว)");
+        }
+        if (newMedd > 120) {
+            recommendations.push("ขนาดยาสูง (MEDD > 120): อาจพิจารณาใช้ยาพื้นฐานเป็น Fentanyl Patch/Drip ร่วมกับยา PRN ที่ออกฤทธิ์เร็ว");
         }
 
-        function updateTitrationResults(totalMedd) {
-            // --- New Basal Doses ---
-            const newBasalMorphineSC = totalMedd / CONVERSION_FACTORS['sc_morphine'].factor;
-            const newBasalMorphineIV = totalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
-            const newBasalFentanylIV = totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
-            const newBasalFentanylPatch = totalMedd / CONVERSION_FACTORS['patch_fentanyl'].factor;
-            
-            document.getElementById('basal-morphine-sc-val').textContent = `${newBasalMorphineSC.toFixed(1)} mg/day`;
-            document.getElementById('basal-morphine-iv-val').textContent = `${newBasalMorphineIV.toFixed(1)} mg/day`;
-            document.getElementById('basal-fentanyl-iv-val').textContent = `${newBasalFentanylIV.toFixed(1)} mcg/day`;
-            document.getElementById('basal-fentanyl-patch-val').textContent = `${newBasalFentanylPatch.toFixed(1)} mcg/hr`;
-            
-            const roundedFentanylPatch = Math.round(newBasalFentanylPatch / 12.5) * 12.5;
-            document.getElementById('basal-morphine-sc').dataset.orderText = `Morphine ${Math.round(newBasalMorphineSC)} mg + NSS up to 22 mL CSCI drip in 24 hr`;
-            document.getElementById('basal-fentanyl-patch').dataset.orderText = `Fentanyl Patch ${roundedFentanylPatch.toFixed(1)} mcg/hr q 72 hr`;
-            updateIvDripOrder('morphine');
-            updateIvDripOrder('fentanyl');
-
-            // --- New PRN Doses ---
-            const prnOralMg = totalMedd / 6;
-            const prnScMg = prnOralMg / ORAL_TO_SC_RATIO;
-            const prnIvMg = prnOralMg / ORAL_TO_SC_RATIO;
-            const prnSyrupMl = prnOralMg / MORPHINE_SYRUP_CONCENTRATION;
-            const rawPrnFentanylIV = (totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor) / 6;
-
-            document.getElementById('prn-ir-val').textContent = `${prnOralMg.toFixed(1)} mg`;
-            document.getElementById('prn-sc-val').textContent = `${prnScMg.toFixed(1)} mg`;
-            document.getElementById('prn-iv-val').textContent = `${prnIvMg.toFixed(1)} mg`;
-            document.getElementById('prn-syrup-val').textContent = `${prnSyrupMl.toFixed(1)} ml`;
-            document.getElementById('prn-fentanyl-iv-val').textContent = `${rawPrnFentanylIV.toFixed(1)} mcg`;
-            
-            const roundedPrnIr = Math.round(prnOralMg / 5) * 5;
-            const roundedPrnSc = Math.round(prnScMg);
-            const roundedPrnIv = Math.round(prnIvMg);
-            const roundedPrnSyrup = Math.round(prnSyrupMl);
-            let roundedPrnFentanylIV = Math.round(rawPrnFentanylIV / 25) * 25;
-            if (roundedPrnFentanylIV === 0 && rawPrnFentanylIV > 0) {
-                roundedPrnFentanylIV = 25;
-            }
-            
-            document.getElementById('prn-ir').dataset.orderText = PRN_REGIMENS['prn-ir'].template(roundedPrnIr.toFixed(0));
-            document.getElementById('prn-sc').dataset.orderText = PRN_REGIMENS['prn-sc'].template(roundedPrnSc.toFixed(0));
-            document.getElementById('prn-iv').dataset.orderText = PRN_REGIMENS['prn-iv'].template(roundedPrnIv.toFixed(0));
-            document.getElementById('prn-syrup').dataset.orderText = PRN_REGIMENS['prn-syrup'].template(roundedPrnSyrup.toFixed(0));
-            document.getElementById('prn-fentanyl-iv').dataset.orderText = PRN_REGIMENS['prn-fentanyl-iv'].template(roundedPrnFentanylIV.toFixed(0));
-
-            updateOrderPreview();
+        if (recommendations.length > 0) {
+            elements.clinicalRecommendationList.innerHTML = recommendations.map(r => `<li>${r}</li>`).join('');
+            elements.clinicalRecommendationSection.classList.remove('hidden');
+        } else {
+            elements.clinicalRecommendationSection.classList.add('hidden');
         }
+    }
 
-        function formatRatio(ratio) {
-            return Number.isInteger(ratio) ? ratio.toString() : ratio.toFixed(2);
+    function getDoseAdjustmentFactor(drugKey) {
+        let factor = 1.0;
+        if (drugKey.includes('morphine')) {
+            if (state.gfr < 30) {
+                factor *= 0.5;
+            }
+            if (state.isElderly) {
+                factor *= 0.75;
+            }
         }
-
-        function updateIvDripOrder(drug) {
-            const newTotalMedd = parseFloat(document.getElementById('new-medd').textContent) || 0;
-            let dose, volume, duration, rate, concentration, orderText, concentrationRatio;
-
-            const concentrationSelect = document.getElementById(`${drug}-iv-drip-concentration`);
-            const customConcentrationInput = document.getElementById(`${drug}-iv-drip-concentration-custom`);
-            let concentrationValue = concentrationSelect.value;
-            if (concentrationValue === 'other') {
-                concentrationValue = customConcentrationInput.value;
+        return factor;
+    }
+    
+    function getFentanylPatchCombination(dose) {
+        const patchStrengths = [25, 12.5];
+        let remainingDose = dose;
+        let combination = {};
+        
+        for (const strength of patchStrengths) {
+            const count = Math.floor(remainingDose / strength);
+            if (count > 0) {
+                combination[strength] = count;
+                remainingDose -= count * strength;
             }
-            
-            const ratioParts = concentrationValue.split(':');
-            concentrationRatio = ratioParts.length === 2 ? parseFloat(ratioParts[1]) : 1;
-            
-            if (drug === 'morphine') {
-                const newBasalMorphineIV = newTotalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
-                dose = Math.round(newBasalMorphineIV);
-                volume = dose * concentrationRatio;
-                duration = parseFloat(document.getElementById('morphine-iv-drip-duration').value) || 24;
-                rate = duration > 0 ? volume / duration : 0;
-                document.getElementById('morphine-iv-drip-volume').textContent = `${volume.toFixed(1)} mL`;
-                document.getElementById('morphine-iv-drip-rate').textContent = `${rate.toFixed(1)} mL/hr`;
-                orderText = `Morphine ${dose} mg (1:${formatRatio(concentrationRatio)}) + NSS up to ${volume.toFixed(1)} mL IV drip at ${Math.round(rate)} mL/hr`;
-                document.getElementById('basal-morphine-iv').dataset.orderText = orderText;
-            } else if (drug === 'fentanyl') {
-                const newBasalFentanylIV = newTotalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
-                dose = Math.round(newBasalFentanylIV);
-                volume = dose * concentrationRatio;
-                duration = parseFloat(document.getElementById('fentanyl-iv-drip-duration').value) || 24;
-                rate = duration > 0 ? volume / duration : 0;
-                document.getElementById('fentanyl-iv-drip-volume').textContent = `${volume.toFixed(1)} mL`;
-                document.getElementById('fentanyl-iv-drip-rate').textContent = `${rate.toFixed(1)} mL/hr`;
-                orderText = `Fentanyl ${dose} mcg (1:${formatRatio(concentrationRatio)}) + NSS up to ${volume.toFixed(1)} mL IV drip at ${Math.round(rate)} mL/hr`;
-                document.getElementById('basal-fentanyl-iv').dataset.orderText = orderText;
-            }
-            updateOrderPreview();
         }
         
-        function updateOrderPreview() {
-            const selectedBasal = document.querySelector('input[name="basal-regimen"]:checked');
-            const selectedPrn = document.querySelector('input[name="prn-regimen"]:checked');
-
-            const basalText = selectedBasal ? `- ${selectedBasal.dataset.orderText}` : '';
-            const prnText = selectedPrn ? `- ${selectedPrn.dataset.orderText}` : '';
-            
-            const now = new Date();
-            const timestamp = now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
-
-            const orderTextToCopy = `
-📋 แผนการให้ยาใหม่
-⏰ (${timestamp})
--------------------------
-${basalText}
-${prnText}
-            `.trim().replace(/^\s+/gm, '');
-
-            document.getElementById('order-preview-area').value = orderTextToCopy;
+        if (remainingDose > 6.25) { // Round up if more than half of the smallest patch
+            const smallestPatch = 12.5;
+            if (!combination[smallestPatch]) combination[smallestPatch] = 0;
+            combination[smallestPatch]++;
         }
 
-        function copyOrderToClipboard() {
-            const textToCopy = document.getElementById('order-preview-area').value;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const button = document.getElementById('copy-order-button');
-                const buttonText = document.getElementById('copy-button-text');
-                const originalText = buttonText.textContent;
-
-                button.classList.add('copied');
-                buttonText.textContent = 'คัดลอกแล้ว!';
-
-                setTimeout(() => {
-                    button.classList.remove('copied');
-                    buttonText.textContent = originalText;
-                }, 2000);
-            }).catch(err => console.error('Failed to copy text: ', err));
+        let text = Object.keys(combination).length > 0 ? 
+                   Object.entries(combination).map(([strength, count]) => `${strength} mcg/hr (${count} แผ่น)`).join(' + ') :
+                   "ไม่แนะนำให้ใช้แผ่นแปะสำหรับขนาดนี้";
+                   
+        if (Object.values(combination).reduce((a, b) => a + b, 0) > 2) {
+            text += '<br><strong class="text-red-600">คำเตือน: ใช้แผ่นแปะมากกว่า 2 ชิ้น ควรปรึกษาผู้เชี่ยวชาญ</strong>';
         }
+        return text;
+    }
 
-        function resetAll() {
-            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
-            const prnToggleButton = document.getElementById('prn-toggle-button');
-            if (prnToggleButton.classList.contains('active')) {
-                prnToggleButton.click();
+    function getOralCombination(dose) {
+        const strengths = [30, 10];
+        let remainingDose = Math.round(dose / 10) * 10; // Round to nearest 10
+        let combination = {};
+        
+        for(const strength of strengths) {
+            const count = Math.floor(remainingDose / strength);
+            if(count > 0) {
+                combination[strength] = count;
+                remainingDose -= count * strength;
             }
-            calculateAll();
         }
+        return Object.entries(combination).map(([s, c]) => `${s}mg x ${c}`).join(' + ');
+    }
 
-        function randomizeInputs() {
-            // Clear all first
-            resetAll();
-            
-            // Randomly select one basal drug to input
-            const basalKeys = Object.keys(DRUG_LABELS);
-            const randomBasalKey = basalKeys[Math.floor(Math.random() * basalKeys.length)];
-            let randomDose = 0;
-            if (randomBasalKey.includes('morphine')) {
-                randomDose = Math.floor(Math.random() * 10) * 10; // 0-90
-            } else if (randomBasalKey.includes('fentanyl')) {
-                randomDose = (Math.floor(Math.random() * 5) * 12.5); // 0, 12.5, 25, 37.5, 50
-            } else { // tramadol
-                randomDose = Math.floor(Math.random() * 5) * 50; // 0-200
+    function renderNewRegimenOptions(newMedd) {
+        const basalDoses = {
+            basal_oral_mst: { label: "MST/Kapanol", dose: newMedd, unit: "mg/day", isOral: true },
+            basal_morphine_csci: { label: "Morphine CSCI (Syringe)", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 22, defaultDur: 24 } },
+            basal_morphine_iv: { label: "Morphine IV Drip", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 100, defaultDur: 24 } },
+            basal_fentanyl_iv: { label: "Fentanyl IV Drip", dose: newMedd / 0.3, unit: "mcg/day", mixing: { defaultVol: 100, defaultDur: 24 } },
+            basal_fentanyl_patch: { label: "Fentanyl Patch", dose: newMedd / 2.4, unit: "mcg/hr" }
+        };
+        elements.basalOptionsSection.innerHTML = '';
+        for (const key in basalDoses) {
+            const option = basalDoses[key];
+            const adjustmentFactor = getDoseAdjustmentFactor(key);
+            const adjustedDose = option.dose * adjustmentFactor;
+
+            if (!state.mixingParams[key] && option.mixing) {
+                state.mixingParams[key] = { vol: option.mixing.defaultVol, dur: option.mixing.defaultDur, finalRate: 0 };
             }
-            document.getElementById(`dose-${randomBasalKey}`).value = randomDose;
-
-            // Randomly decide to use PRN
-            if (Math.random() > 0.3) { // 70% chance to use PRN
-                const prnToggleButton = document.getElementById('prn-toggle-button');
-                if (!prnToggleButton.classList.contains('active')) {
-                    prnToggleButton.click();
-                }
-
-                // Randomly select one PRN drug and set times to >= 3 to trigger escalation
-                const prnKeys = Object.keys(PRN_DRUG_LABELS);
-                const randomPrnKey = prnKeys[Math.floor(Math.random() * prnKeys.length)];
-                
-                document.getElementById(`${randomPrnKey}-times`).value = Math.floor(Math.random() * 3) + 3; // 3-5 times
-                document.getElementById(`${randomPrnKey}-size`).value = Math.floor(Math.random() * 5) + 1; // 1-5 mg/ml
-                
-                // Randomly escalate
-                if (Math.random() > 0.5) {
-                    const percentButtons = document.querySelectorAll('.percent-button');
-                    const randomPercentButton = percentButtons[Math.floor(Math.random() * percentButtons.length)];
-                    randomPercentButton.click();
-                }
-            }
+            const isChecked = state.selectedBasal === key;
+            const div = document.createElement('div');
+            let helperHtml = '';
+            let badgeHtml = adjustmentFactor < 1 ? `<div class="adjusted-dose-badge">ปรับลด</div>` : '';
+            let deEmphasizedClass = (state.pps < 50 && option.isOral) ? 'de-emphasized' : '';
             
-            calculateAll();
-        }
-
-        // --- UI INITIALIZATION ---
-        function createUiElements() {
-            const fromContainer = document.getElementById('from-section');
-            const prnGivenContainer = document.querySelector('#prn-given-section > div');
-            const basalOptionsContainer = document.getElementById('basal-options');
-            const prnOptionsContainer = document.getElementById('prn-options');
-
-            fromContainer.innerHTML = '<h3 class="font-semibold text-gray-600">ยาพื้นฐาน (Basal Dose) & Live Conversion</h3>';
-            prnGivenContainer.innerHTML = '';
-            basalOptionsContainer.innerHTML = '';
-            prnOptionsContainer.innerHTML = '';
-
-            // Create Basal Dose Inputs and Live Conversion Displays
-            Object.keys(DRUG_LABELS).forEach(key => {
-                const { unit, label } = { unit: CONVERSION_FACTORS[key].unit, label: DRUG_LABELS[key] };
-                const inputDiv = document.createElement('div');
-                let stepAttr = 'step="any"';
-                if (key === 'oral_morphine_lr') {
-                    stepAttr = 'step="1"';
-                } else if (key === 'patch_fentanyl') {
-                    stepAttr = 'step="12.5"';
+            if (key === 'basal_oral_mst') {
+                 helperHtml = `
+                 <details class="helper-details mt-2">
+                    <summary>ตัวช่วยจัดยา</summary>
+                    <div class="helper-content text-sm text-cyan-800">
+                        <p>แบ่งให้: ${getOralCombination(adjustedDose)}</p>
+                    </div>
+                 </details>`;
+            } else if (key === 'basal_fentanyl_patch') {
+                 helperHtml = `
+                 <details class="helper-details mt-2">
+                    <summary>ตัวช่วยเลือกแผ่นแปะ</summary>
+                    <div class="helper-content text-sm text-cyan-800">
+                        <p>${getFentanylPatchCombination(adjustedDose)}</p>
+                    </div>
+                 </details>`;
+            } else if(option.mixing) {
+                const params = state.mixingParams[key];
+                const drugVol = key.includes('fentanyl') ? adjustedDose / 100 : adjustedDose / 10;
+                let csciWarning = '';
+                if(key.includes('csci') && drugVol > params.vol) {
+                    csciWarning = `<p class="text-red-600 font-bold mt-2">คำเตือน: ขนาดยาสูงเกินกว่าจะผสมใน Syringe ${params.vol} mL ได้</p>`;
                 }
-                inputDiv.className = 'space-y-1';
-                inputDiv.innerHTML = `
-                    <label for="dose-${key}" class="font-semibold text-sm text-gray-700">${label}</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr,auto] gap-2 items-center">
-                        <input type="number" inputmode="decimal" id="dose-${key}" class="input-field" placeholder="0.0" ${stepAttr}>
-                        <span class="font-bold text-gray-400 sm:inline hidden">→</span>
-                        <input type="text" id="live-conv-${key}" class="input-field readonly-field" value="0.0" readonly>
-                        <span class="font-medium text-gray-600">${unit}</span>
-                    </div>`;
-                fromContainer.appendChild(inputDiv);
-                const inputEl = document.getElementById(`dose-${key}`);
-                inputEl.addEventListener('input', calculateAll);
-                if (key === 'oral_morphine_lr') {
-                    inputEl.addEventListener('blur', (e) => {
-                        e.target.value = Math.round(parseFloat(e.target.value) || 0);
-                        calculateAll();
-                    });
-                } else if (key === 'patch_fentanyl') {
-                     inputEl.addEventListener('blur', (e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        e.target.value = (Math.round(val / 12.5) * 12.5).toFixed(1);
-                        calculateAll();
-                    });
+                const calculatedRateMl = params.dur > 0 ? (params.vol / params.dur) : 0;
+                const calculatedRateMm = calculatedRateMl * MM_PER_ML_CSCI;
+                let actualDoseHtml = '';
+                if(params.finalRate > 0){
+                    const concentration = adjustedDose / params.vol;
+                    const actualDosePerDay = params.finalRate * params.dur * concentration;
+                    actualDoseHtml = `<p class="text-green-600 font-bold">Dose จริง: ${actualDosePerDay.toFixed(1)} ${option.unit}</p>`;
                 }
-            });
 
-            // Create PRN Given Inputs
-            Object.keys(PRN_DRUG_LABELS).forEach(key => {
-                const label = PRN_DRUG_LABELS[key];
-                const unit = key.includes('syrup') ? 'ml' : 'mg';
-                const div = document.createElement('div');
-                div.className = 'space-y-1';
-                div.innerHTML = `<label class="font-semibold text-sm text-gray-700">${label}</label><div class="grid grid-cols-[1fr,auto,1fr] gap-2 items-center"><input type="number" inputmode="decimal" id="${key}-size" class="input-field" placeholder="Dose (${unit})"><span class="font-bold text-gray-500">x</span><input type="number" inputmode="decimal" id="${key}-times" class="input-field" placeholder="จำนวนครั้ง"></div>`;
-                prnGivenContainer.appendChild(div);
-                document.getElementById(`${key}-size`).addEventListener('input', calculateAll);
-                document.getElementById(`${key}-times`).addEventListener('input', calculateAll);
-            });
-
-            // Create Regimen Selection UI
-            const basalRegimens = {
-                'basal-morphine-sc': { label: 'Morphine SC Drip' },
-                'basal-morphine-iv': { label: 'Morphine IV Drip', hasOptions: true, drug: 'morphine', presets: ['1:1', '1:5', '1:10'] },
-                'basal-fentanyl-iv': { label: 'Fentanyl IV Drip', hasOptions: true, drug: 'fentanyl', presets: ['1:0.1', '1:0.5', '1:1', '1:5'] },
-                'basal-fentanyl-patch': { label: 'Fentanyl Patch' }
-            };
-            Object.keys(basalRegimens).forEach((key, index) => {
-                const regimen = basalRegimens[key];
-                const div = document.createElement('div');
-                let optionsHtml = '';
-                if (regimen.hasOptions) {
-                    const presetOptions = regimen.presets.map(p => `<option value="${p}">${p}</option>`).join('');
-                    optionsHtml = `
-                        <div class="drip-options space-y-2 mt-2">
-                            <div class="grid grid-cols-[auto,1fr] gap-x-2 gap-y-2 items-center">
-                                <label for="${regimen.drug}-iv-drip-concentration" class="text-sm">Concentration:</label>
-                                <div class="flex items-center gap-2">
-                                    <select id="${regimen.drug}-iv-drip-concentration" class="input-field !w-28">${presetOptions}<option value="other">อื่นๆ</option></select>
-                                    <input type="text" id="${regimen.drug}-iv-drip-concentration-custom" class="input-field !w-24 hidden" placeholder="1:x">
-                                </div>
-                                <label for="${regimen.drug}-iv-drip-duration" class="text-sm">Duration:</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" id="${regimen.drug}-iv-drip-duration" value="24" class="input-field !w-24">
-                                    <span class="text-sm">hr</span>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-600">Calculated Volume: <span id="${regimen.drug}-iv-drip-volume" class="font-bold">0.0 mL</span></p>
-                            <p class="text-sm text-gray-600">Calculated Rate: <span id="${regimen.drug}-iv-drip-rate" class="font-bold">0.0 mL/hr</span></p>
+                helperHtml = `
+                <details class="helper-details mt-2">
+                    <summary>ตัวช่วยผสมยา</summary>
+                    <div class="helper-content text-sm text-cyan-800 space-y-2">
+                        <div class="grid grid-cols-2 gap-2 items-center">
+                            <label for="${key}-vol">Total Vol. (ml)</label>
+                            <input type="number" id="${key}-vol" data-key="${key}" class="input-field !p-2 mixing-input" value="${params.vol}">
+                            <label for="${key}-dur">Duration (hr)</label>
+                            <input type="number" id="${key}-dur" data-key="${key}" class="input-field !p-2 mixing-input" value="${params.dur}">
                         </div>
-                    `;
-                }
-                div.innerHTML = `
-                    <input type="radio" id="${key}" name="basal-regimen" ${index === 0 ? 'checked' : ''} data-order-text="">
-                    <label for="${key}" class="radio-label font-semibold"><span>${regimen.label}</span><span id="${key}-val" class="font-bold text-cyan-700">0.0</span></label>
-                    ${optionsHtml}
-                `;
-                basalOptionsContainer.appendChild(div);
-                document.getElementById(key).addEventListener('change', updateOrderPreview);
-            });
-            
-            ['morphine', 'fentanyl'].forEach(drug => {
-                const concentrationSelect = document.getElementById(`${drug}-iv-drip-concentration`);
-                const customInput = document.getElementById(`${drug}-iv-drip-concentration-custom`);
-                concentrationSelect.addEventListener('change', (e) => {
-                    customInput.classList.toggle('hidden', e.target.value !== 'other');
-                    updateIvDripOrder(drug);
-                });
-                customInput.addEventListener('input', () => updateIvDripOrder(drug));
-                document.getElementById(`${drug}-iv-drip-duration`).addEventListener('input', () => updateIvDripOrder(drug));
-            });
-
-
-            Object.keys(PRN_REGIMENS).forEach((key, index) => {
-                const { label } = PRN_REGIMENS[key];
-                const div = document.createElement('div');
-                div.innerHTML = `
-                    <input type="radio" id="${key}" name="prn-regimen" ${index === 0 ? 'checked' : ''} data-order-text="">
-                    <label for="${key}" class="radio-label font-semibold"><span>${label}</span><span id="${key}-val" class="float-right font-bold text-cyan-700">0.0</span></label>
-                `;
-                prnOptionsContainer.appendChild(div);
-                document.getElementById(key).addEventListener('change', updateOrderPreview);
-            });
-
-            document.getElementById('prn-toggle-button').addEventListener('click', (e) => {
-                const button = e.currentTarget;
-                button.classList.toggle('active');
-                button.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full');
-                document.getElementById('prn-given-section').classList.toggle('hidden');
-                if (!button.classList.contains('active')) {
-                    document.querySelectorAll('#prn-given-section input[type="number"]').forEach(input => input.value = '');
-                }
-                calculateAll();
-            });
-
-            document.querySelectorAll('.percent-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const escalationInput = document.getElementById('dose-escalation-percent');
-                    const currentButton = e.target;
-                    
-                    if (currentButton.classList.contains('active')) {
-                        currentButton.classList.remove('active');
-                        escalationInput.value = 0;
-                    } else {
-                        document.querySelectorAll('.percent-button.active').forEach(b => b.classList.remove('active'));
-                        currentButton.classList.add('active');
-                        escalationInput.value = currentButton.dataset.percent;
-                    }
-                    calculateAll();
-                });
-            });
-            document.getElementById('dose-escalation-percent').addEventListener('input', () => {
-                 document.querySelectorAll('.percent-button.active').forEach(b => b.classList.remove('active'));
-                 calculateAll();
-            });
-
-            document.getElementById('reset-button').addEventListener('click', resetAll);
-            document.getElementById('test-button').addEventListener('click', randomizeInputs);
+                        <p class="text-right font-semibold">Rate คำนวณ: ${calculatedRateMl.toFixed(1)} ml/hr ${key.includes('csci') ? `(~${calculatedRateMm.toFixed(1)} mm/hr)` : ''}</p>
+                        ${csciWarning}
+                        <hr class="border-cyan-200 my-2">
+                        <div class="grid grid-cols-2 gap-2 items-center">
+                             <label for="${key}-final-rate">ปรับ Rate ที่ต้องการ (ml/hr)</label>
+                             <input type="number" id="${key}-final-rate" data-key="${key}" class="input-field !p-2 final-rate-input" placeholder="เช่น 4.0">
+                        </div>
+                        <div class="text-right mt-1">${actualDoseHtml}</div>
+                    </div>
+                </details>`;
+            }
+            div.innerHTML = `
+                <label class="${deEmphasizedClass}">
+                    <input type="radio" name="basal-option" value="${key}" class="hidden" ${isChecked ? 'checked' : ''}>
+                    <div class="option-card">
+                        ${deEmphasizedClass ? '<div class="de-emphasized-badge">⚠️</div>' : ''}
+                        ${badgeHtml}
+                        <p class="font-semibold text-gray-800">${option.label}</p>
+                        <p class="text-xl font-bold text-cyan-700">${adjustedDose.toFixed(1)} <span class="text-base font-medium text-gray-600">${option.unit}</span></p>
+                        ${helperHtml}
+                    </div>
+                </label>`;
+            elements.basalOptionsSection.appendChild(div);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            createUiElements();
-            calculateAll();
-            document.getElementById('copy-order-button').addEventListener('click', copyOrderToClipboard);
+        const prnDoses = {
+            prn_option_ir: { label: "Morphine IR (10 mg/tab)", dose: newMedd * (state.prnCalcPercentage / 100), unit: "mg", isOral: true },
+            prn_option_syrup: { label: "Morphine Syrup (2mg/mL)", dose: (newMedd * (state.prnCalcPercentage / 100)) / 2, unit: "ml", isOral: true },
+            prn_option_sc_iv: { label: "Morphine SC/IV", dose: (newMedd * (state.prnCalcPercentage / 100)) / 3, unit: "mg" },
+            prn_option_fentanyl_iv: { label: "Fentanyl IV", dose: (newMedd / 0.3) * (state.prnCalcPercentage / 100), unit: "mcg" }
+        };
+        elements.prnOptionsSection.innerHTML = '';
+        for (const key in prnDoses) {
+            const option = prnDoses[key];
+            const adjustmentFactor = getDoseAdjustmentFactor(key);
+            const adjustedDose = option.dose * adjustmentFactor;
+            let badgeHtml = adjustmentFactor < 1 ? `<div class="adjusted-dose-badge">ปรับลด</div>` : '';
+            let deEmphasizedClass = (state.pps < 50 && option.isOral) ? 'de-emphasized' : '';
+            const isChecked = state.selectedPrns.includes(key);
+            const div = document.createElement('div');
+            div.innerHTML = `
+                 <label class="${deEmphasizedClass}">
+                    <input type="checkbox" name="prn-option" value="${key}" class="hidden" ${isChecked ? 'checked' : ''}>
+                    <div class="option-card">
+                        ${deEmphasizedClass ? '<div class="de-emphasized-badge">⚠️</div>' : ''}
+                        ${badgeHtml}
+                        <p class="font-semibold text-gray-800">${option.label}</p>
+                        <p class="text-xl font-bold text-cyan-700">${adjustedDose.toFixed(1)} <span class="text-base font-medium text-gray-600">${option.unit}</span></p>
+                    </div>
+                </label>`;
+            elements.prnOptionsSection.appendChild(div);
+        }
+    }
+    
+    function renderOrderPreview() {
+        let orderText = `--- Palliative Care Order ---\n`;
+        const timestamp = new Date().toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
+        orderText += `(Generated: ${timestamp})\n\n`;
+
+        const { newMedd } = calculateMedd();
+        if (newMedd === 0 && Object.keys(state.meds).length === 0) {
+             orderText += `กรุณาใส่ข้อมูลยาที่ได้รับเพื่อเริ่มการคำนวณ`;
+        } else {
+            const basalOptionEl = document.querySelector('input[name="basal-option"]:checked');
+            if (basalOptionEl) {
+                const key = basalOptionEl.value;
+                const adjustmentFactor = getDoseAdjustmentFactor(key);
+                let dose, orderFn;
+                const params = state.mixingParams[key];
+                const finalRate = params?.finalRate > 0 ? params.finalRate : (params && params.dur > 0 ? (params.vol / params.dur) : 0);
+                const finalRateMm = finalRate * MM_PER_ML_CSCI;
+
+                if (key === 'basal_oral_mst') {
+                    dose = newMedd * adjustmentFactor;
+                    orderFn = (d) => `MST or Kapanol ${Math.floor(d/10)*10} mg PO ...`;
+                } else if (key === 'basal_morphine_csci') {
+                    dose = (newMedd / 3) * adjustmentFactor;
+                    orderFn = (d) => `Morphine ${Math.floor(d)} mg + NSS to ${params.vol} mL for 24-hr CSCI (Rate ${finalRate.toFixed(1)} ml/hr or ${finalRateMm.toFixed(1)} mm/hr).`;
+                } else if (key === 'basal_morphine_iv') {
+                    dose = (newMedd / 3) * adjustmentFactor;
+                    orderFn = (d) => `Morphine ${Math.floor(d)} mg + NSS to ${params.vol} mL IV drip in ${params.dur} hr (Rate ${finalRate.toFixed(1)} ml/hr).`;
+                } else if (key === 'basal_fentanyl_iv') {
+                    dose = (newMedd / 0.3) * adjustmentFactor;
+                    orderFn = (d) => `Fentanyl ${Math.floor(d)} mcg + NSS to ${params.vol} mL IV drip in ${params.dur} hr (Rate ${finalRate.toFixed(1)} ml/hr).`;
+                } else if (key === 'basal_fentanyl_patch') {
+                    dose = (newMedd / 2.4) * adjustmentFactor;
+                    orderFn = (d) => `Fentanyl Patch ${getFentanylPatchCombination(d)}, change q 72 hr.`;
+                }
+                if (orderFn) orderText += `New Basal Dose:\n1. ${orderFn(dose)}\n`;
+            }
+
+            const prnOptionEls = document.querySelectorAll('input[name="prn-option"]:checked');
+            if (prnOptionEls.length > 0) {
+                orderText += `\nNew PRN Dose (from New MEDD ${newMedd.toFixed(1)} mg/day):\n`;
+                prnOptionEls.forEach((el, index) => {
+                    const key = el.value;
+                    const adjustmentFactor = getDoseAdjustmentFactor(key);
+                    const prnPercentage = state.prnCalcPercentage / 100;
+                    let dose, orderFn;
+                    if (key === 'prn_option_ir') {
+                        dose = (newMedd * prnPercentage) * adjustmentFactor;
+                        orderFn = (d) => `Morphine IR ${Math.floor(d/5)*5 || 5} mg PO q 4-6 hr PRN for pain.`;
+                    } else if (key === 'prn_option_sc_iv') {
+                        dose = ((newMedd * prnPercentage) / 3) * adjustmentFactor;
+                        orderFn = (d) => `Morphine ${Math.floor(d) || 1} mg SC/IV q 4-6 hr PRN for pain.`;
+                    } else if (key === 'prn_option_syrup') {
+                        dose = ((newMedd * prnPercentage) / 2) * adjustmentFactor;
+                        orderFn = (d) => `Morphine Syrup ${Math.floor(d) || 2.5} ml PO q 4-6 hr PRN for pain.`;
+                    } else if (key === 'prn_option_fentanyl_iv') {
+                        dose = ((newMedd / 0.3) * prnPercentage) * adjustmentFactor;
+                        orderFn = (d) => `Fentanyl ${Math.floor(d/25)*25 || 25} mcg IV q 1-2 hr PRN for pain.`;
+                    }
+                    if(orderFn) orderText += `${index + 1}. ${orderFn(dose)}\n`;
+                });
+            }
+        }
+        
+        let notes = [];
+        if (state.gfr < 30) notes.push("- GFR < 30: Recommended Fentanyl or Morphine dose reduction.");
+        if (state.isElderly) notes.push("- Elderly patient: Recommended Morphine dose reduction.");
+        if (notes.length > 0) {
+            orderText += `\n--- Clinical Notes ---\n${notes.join('\n')}`;
+        }
+
+        elements.orderPreviewArea.value = orderText.trim();
+    }
+
+    function calculateMedd() {
+        // 1. Calculate Basal MEDD from regular medications
+        let basalMedd = 0;
+        for (const key in state.meds) {
+            basalMedd += (state.meds[key] || 0) * CONVERSION_FACTORS[key].factor;
+        }
+
+        // 2. Calculate total PRN MEDD and times
+        let prnMedd = 0;
+        let totalPrnTimes = 0;
+        for (const key in state.prns) {
+            const times = state.prns[key]?.times || 0;
+            const dose = state.prns[key]?.dose || 0;
+            totalPrnTimes += times;
+            if (key === 'prn_ir') {
+                prnMedd += dose * times;
+            } else if (key === 'prn_syrup') {
+                prnMedd += (dose * 2) * times;
+            } else if (key === 'prn_sc_iv') {
+                prnMedd += (dose * 3) * times;
+            }
+        }
+
+        // 3. Define Current Total MEDD as ONLY the basal dose.
+        const currentMedd = basalMedd;
+
+        // 4. Calculate New Total MEDD based on the chosen escalation method
+        let newMedd = basalMedd; // Default to basal MEDD
+        if (state.escalationMethod === 'prn') {
+            if (totalPrnTimes >= 3) {
+                // New dose is the sum of the old basal dose plus all PRN doses taken
+                newMedd = basalMedd + prnMedd;
+            } else {
+                // Not enough PRN doses, so no escalation. New dose remains the same as basal.
+                newMedd = basalMedd;
+            }
+        } else if (state.escalationMethod === 'percent') {
+            // Percentage increase is based on the basal dose only
+            newMedd = basalMedd * (1 + (state.escalationPercent / 100));
+        }
+
+        return { currentMedd, newMedd, totalPrnTimes };
+    }
+
+    function initializeEventListeners() {
+        elements.ppsScore.addEventListener('change', (e) => { state.pps = parseFloat(e.target.value) || 70; render(); });
+        elements.gfrInput.addEventListener('input', (e) => { state.gfr = parseFloat(e.target.value) || 90; render(); });
+        elements.elderlyToggle.addEventListener('click', () => { state.isElderly = !state.isElderly; render(); });
+        
+        elements.currentMedsSection.addEventListener('input', (e) => {
+            if (e.target.classList.contains('drug-input')) {
+                const key = e.target.dataset.key;
+                state.meds[key] = parseFloat(e.target.value) || 0;
+                document.getElementById(`live-conv-${key}`).textContent = (state.meds[key] * CONVERSION_FACTORS[key].factor).toFixed(1);
+                render();
+            }
         });
-    </script>
+        elements.currentMedsSection.addEventListener('blur', (e) => {
+            if (e.target.id === 'dose-patch_fentanyl') {
+                const val = parseFloat(e.target.value) || 0;
+                const roundedVal = Math.round(val / 12.5) * 12.5;
+                e.target.value = roundedVal;
+                state.meds['patch_fentanyl'] = roundedVal;
+                render();
+            }
+        }, true);
+        
+        elements.prnInputsSection.addEventListener('input', (e) => {
+            if (e.target.classList.contains('prn-input')) {
+                const key = e.target.dataset.key;
+                const type = e.target.dataset.type;
+                if (!state.prns[key]) state.prns[key] = {};
+                state.prns[key][type] = parseFloat(e.target.value) || 0;
+                render();
+            }
+        });
+        
+        document.body.addEventListener('change', (e) => {
+            if (e.target.name === 'escalation-method') {
+                state.escalationMethod = e.target.value;
+                render();
+            }
+            if (e.target.name === 'basal-option' || e.target.name === 'prn-option') {
+                state.selectedBasal = document.querySelector('input[name="basal-option"]:checked').value;
+                state.selectedPrns = Array.from(document.querySelectorAll('input[name="prn-option"]:checked')).map(el => el.value);
+                render();
+            }
+        });
+
+        elements.prnCalcMethod.addEventListener('change', (e) => {
+            state.prnCalcPercentage = parseFloat(e.target.value);
+            render();
+        });
+
+        elements.basalOptionsSection.addEventListener('input', (e) => {
+            if (e.target.classList.contains('mixing-input')) {
+                const key = e.target.dataset.key;
+                const vol = parseFloat(document.getElementById(`${key}-vol`).value) || 0;
+                const dur = parseFloat(document.getElementById(`${key}-dur`).value) || 0;
+                state.mixingParams[key] = { ...state.mixingParams[key], vol, dur };
+                render();
+            }
+            if (e.target.classList.contains('final-rate-input')) {
+                 const key = e.target.dataset.key;
+                 const finalRate = parseFloat(e.target.value) || 0;
+                 state.mixingParams[key] = { ...state.mixingParams[key], finalRate };
+                 render();
+            }
+        });
+
+        elements.escalationPercentInput.addEventListener('input', (e) => {
+            document.querySelector('input[name="escalation-method"][value="percent"]').checked = true;
+            state.escalationMethod = 'percent';
+            state.escalationPercent = parseFloat(e.target.value) || 0;
+            document.querySelectorAll('.percent-button').forEach(b => b.classList.remove('active'));
+            render();
+        });
+
+        document.querySelectorAll('.percent-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                document.querySelector('input[name="escalation-method"][value="percent"]').checked = true;
+                state.escalationMethod = 'percent';
+                const percent = e.target.dataset.percent;
+
+                if (e.target.classList.contains('active')) {
+                    e.target.classList.remove('active');
+                    state.escalationPercent = 0;
+                    elements.escalationPercentInput.value = '';
+                } else {
+                    document.querySelectorAll('.percent-button').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    state.escalationPercent = parseFloat(percent);
+                    elements.escalationPercentInput.value = percent;
+                }
+                render();
+            });
+        });
+        
+        elements.copyOrderButton.addEventListener('click', () => {
+            elements.orderPreviewArea.select();
+            document.execCommand('copy');
+            elements.copyButtonText.textContent = 'คัดลอกแล้ว!';
+            elements.copyOrderButton.classList.add('copied');
+            setTimeout(() => {
+                elements.copyButtonText.textContent = 'คัดลอก Order';
+                elements.copyOrderButton.classList.remove('copied');
+            }, 2000);
+        });
+    }
+
+    // --- INITIALIZATION ---
+    createDrugInputs();
+    initializeEventListeners();
+    render();
+});
+</script>
+
 </body>
 </html>
