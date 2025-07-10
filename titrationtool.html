@@ -116,8 +116,42 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .percent-button:hover {
-            background-color: #f0f9ff;
+        .percent-button.active, .percent-button:hover {
+            background-color: #cffafe;
+            border-color: #0891b2;
+        }
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            background-color: #f9fafb;
+        }
+        .toggle-switch.active {
+            border-color: #0891b2;
+            background-color: #cffafe;
+        }
+        .hidden {
+            display: none;
+        }
+        .action-button {
+             padding: 0.5rem 0.75rem;
+             border-radius: 0.375rem;
+             border: 1px solid #d1d5db;
+             background-color: #f9fafb;
+             font-weight: 500;
+             cursor: pointer;
+             transition: all 0.2s;
+             display: inline-flex;
+             align-items: center;
+             gap: 0.25rem;
+             font-size: 0.875rem;
+        }
+        .action-button:hover {
+            background-color: #f3f4f6;
         }
     </style>
 </head>
@@ -131,55 +165,68 @@
 
         <div class="main-container">
             <!-- Left Column: Inputs -->
-            <div class="bg-white p-4 sm:p-6 rounded-lg border">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">1. ยาที่ผู้ป่วยได้รับใน 24 ชม.</h2>
-                <div class="space-y-4" id="from-section"></div>
-                <hr class="my-6">
-                <div class="space-y-4" id="prn-given-section">
-                    <h3 class="font-semibold text-gray-600">ยาที่ให้เพิ่มระหว่างวัน (PRN Given)</h3>
-                    <p class="text-sm text-gray-500 -mt-3">(จะถูกนำไปคำนวณเพื่อปรับยา เมื่อใช้รวมกัน 3 ครั้งขึ้นไป)</p>
-                    <div class="p-3 border rounded-lg space-y-4"></div>
+            <div class="bg-white p-4 sm:p-6 rounded-lg border space-y-6">
+                 <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">1. ยาที่ผู้ป่วยได้รับใน 24 ชม.</h2>
+                        <div class="flex gap-2">
+                             <button id="test-button" class="action-button">🧪 สุ่ม Input</button>
+                             <button id="reset-button" class="action-button">🔄 ผู้ป่วยใหม่</button>
+                        </div>
+                    </div>
+                    <div class="space-y-4" id="from-section"></div>
+                </div>
+                <hr>
+                <div class="space-y-4">
+                    <div id="prn-toggle-button" class="toggle-switch">
+                        <span class="font-medium text-gray-900">มีการใช้ยา PRN</span>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <div class="toggle-switch-handle block w-6 h-6 rounded-full bg-white shadow-md transform duration-200 ease-in-out"></div>
+                        </div>
+                    </div>
+                    <div id="prn-given-section" class="hidden">
+                        <div>
+                            <h3 class="font-semibold text-gray-600">ยาที่ให้เพิ่มระหว่างวัน (PRN Given)</h3>
+                            <p class="text-sm text-gray-500">(จะถูกนำไปคำนวณเพื่อปรับยา เมื่อใช้รวมกัน 3 ครั้งขึ้นไป)</p>
+                        </div>
+                        <div class="p-3 border rounded-lg space-y-4"></div>
+                        <div id="dose-escalation-section" class="p-4 mt-4 border rounded-lg bg-cyan-50/50 hidden">
+                            <h3 class="font-semibold text-gray-700 mb-3">ปรับเพิ่มขนาดยา (Dose Escalation)</h3>
+                             <div class="space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <button class="percent-button" data-percent="25">25%</button>
+                                    <button class="percent-button" data-percent="30">30%</button>
+                                    <button class="percent-button" data-percent="50">50%</button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="dose-escalation-percent" class="text-sm">หรือกำหนดเอง:</label>
+                                    <input type="number" id="dose-escalation-percent" value="0" class="input-field !w-24">
+                                    <span class="text-sm">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Right Column: Calculations & Tools -->
             <div class="output-card space-y-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-2">2. ผลการคำนวณ & เครื่องมือ</h2>
+                
                 <div class="p-4 border rounded-lg bg-white">
-                    <h3 class="font-semibold text-gray-700 mb-3">Live Basal Dose Conversion</h3>
-                    <div class="space-y-4" id="live-conversion-section"></div>
-                </div>
-
-                <div class="p-4 border rounded-lg bg-white">
-                    <h3 class="font-semibold text-gray-700 mb-3">คำนวณขนาดยาปัจจุบัน</h3>
+                    <h3 class="font-semibold text-gray-700 mb-3">สรุปขนาดยา</h3>
                     <div>
                         <p class="text-sm text-gray-600">Current Total MEDD</p>
                         <p><span id="current-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
                     </div>
-                </div>
-
-                <div class="p-4 border rounded-lg bg-white">
-                    <h3 class="font-semibold text-gray-700 mb-3">3. ปรับเพิ่มขนาดยา (Dose Escalation)</h3>
-                     <div class="space-y-3">
-                        <div class="flex items-center gap-2">
-                            <button class="percent-button" data-percent="25">25%</button>
-                            <button class="percent-button" data-percent="30">30%</button>
-                            <button class="percent-button" data-percent="50">50%</button>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label for="dose-escalation-percent" class="text-sm">หรือกำหนดเอง:</label>
-                            <input type="number" id="dose-escalation-percent" value="0" class="input-field !w-24">
-                            <span class="text-sm">%</span>
-                        </div>
-                         <div>
-                            <p class="text-sm text-gray-600">New Total MEDD (ยาใหม่ทั้งหมด)</p>
-                            <p><span id="new-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
-                        </div>
+                     <div class="mt-2">
+                        <p class="text-sm text-gray-600">New Total MEDD (ยาใหม่ทั้งหมด)</p>
+                        <p><span id="new-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
                     </div>
                 </div>
 
                 <div class="p-4 border rounded-lg bg-white">
-                    <h3 class="font-semibold text-gray-700 mb-3">4. จัดแผนการรักษาและคัดลอก Order</h3>
+                    <h3 class="font-semibold text-gray-700 mb-3">3. จัดแผนการรักษาและคัดลอก Order</h3>
                     <div class="space-y-4">
                         <div>
                             <h4 class="font-medium text-gray-600 mb-2">เลือกยาพื้นฐาน (Basal Dose)</h4>
@@ -259,23 +306,36 @@
             });
             updateLiveBasalConversion(basalMedd);
 
-            const prnScTimes = parseFloat(document.getElementById('prn_sc-times').value) || 0;
-            const prnIrTimes = parseFloat(document.getElementById('prn_ir-times').value) || 0;
-            const prnSyrupTimes = parseFloat(document.getElementById('prn_syrup-times').value) || 0;
-            const totalPrnTimes = prnScTimes + prnIrTimes + prnSyrupTimes;
-
             let prnMedd = 0;
-            if (totalPrnTimes >= 3) {
-                const prnScSize = parseFloat(document.getElementById('prn_sc-size').value) || 0;
-                if (prnScSize > 0) prnMedd += (prnScSize * CONVERSION_FACTORS['sc_morphine'].factor) * prnScTimes;
+            let totalPrnTimes = 0;
+            const prnToggle = document.getElementById('prn-toggle-button');
+            if (prnToggle.classList.contains('active')) {
+                const prnScTimes = parseFloat(document.getElementById('prn_sc-times').value) || 0;
+                const prnIrTimes = parseFloat(document.getElementById('prn_ir-times').value) || 0;
+                const prnSyrupTimes = parseFloat(document.getElementById('prn_syrup-times').value) || 0;
+                totalPrnTimes = prnScTimes + prnIrTimes + prnSyrupTimes;
 
-                const prnIrSize = parseFloat(document.getElementById('prn_ir-size').value) || 0;
-                if (prnIrSize > 0) prnMedd += prnIrSize * prnIrTimes;
-                
-                const prnSyrupSizeMl = parseFloat(document.getElementById('prn_syrup-size').value) || 0;
-                if (prnSyrupSizeMl > 0) {
-                    prnMedd += (prnSyrupSizeMl * MORPHINE_SYRUP_CONCENTRATION) * prnSyrupTimes;
+                if (totalPrnTimes >= 3) {
+                    const prnScSize = parseFloat(document.getElementById('prn_sc-size').value) || 0;
+                    if (prnScSize > 0) prnMedd += (prnScSize * CONVERSION_FACTORS['sc_morphine'].factor) * prnScTimes;
+
+                    const prnIrSize = parseFloat(document.getElementById('prn_ir-size').value) || 0;
+                    if (prnIrSize > 0) prnMedd += prnIrSize * prnIrTimes;
+                    
+                    const prnSyrupSizeMl = parseFloat(document.getElementById('prn_syrup-size').value) || 0;
+                    if (prnSyrupSizeMl > 0) {
+                        prnMedd += (prnSyrupSizeMl * MORPHINE_SYRUP_CONCENTRATION) * prnSyrupTimes;
+                    }
                 }
+            }
+            
+            const escalationSection = document.getElementById('dose-escalation-section');
+            if (totalPrnTimes >= 3) {
+                escalationSection.classList.remove('hidden');
+            } else {
+                escalationSection.classList.add('hidden');
+                document.getElementById('dose-escalation-percent').value = 0;
+                 document.querySelectorAll('.percent-button.active').forEach(b => b.classList.remove('active'));
             }
 
             const currentTotalMedd = basalMedd + prnMedd;
@@ -305,13 +365,11 @@
             const newBasalFentanylIV = totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
             const newBasalFentanylPatch = totalMedd / CONVERSION_FACTORS['patch_fentanyl'].factor;
             
-            // Display raw calculated values
             document.getElementById('basal-morphine-sc-val').textContent = `${newBasalMorphineSC.toFixed(1)} mg/day`;
             document.getElementById('basal-morphine-iv-val').textContent = `${newBasalMorphineIV.toFixed(1)} mg/day`;
             document.getElementById('basal-fentanyl-iv-val').textContent = `${newBasalFentanylIV.toFixed(1)} mcg/day`;
             document.getElementById('basal-fentanyl-patch-val').textContent = `${newBasalFentanylPatch.toFixed(1)} mcg/hr`;
             
-            // Set the order text with ROUNDED/formatted values for practical use
             const roundedFentanylPatch = Math.round(newBasalFentanylPatch / 12.5) * 12.5;
             document.getElementById('basal-morphine-sc').dataset.orderText = `Morphine ${Math.round(newBasalMorphineSC)} mg + NSS up to 22 mL CSCI drip in 24 hr`;
             document.getElementById('basal-fentanyl-patch').dataset.orderText = `Fentanyl Patch ${roundedFentanylPatch.toFixed(1)} mcg/hr q 72 hr`;
@@ -321,18 +379,16 @@
             // --- New PRN Doses ---
             const prnOralMg = totalMedd / 6;
             const prnScMg = prnOralMg / ORAL_TO_SC_RATIO;
-            const prnIvMg = prnOralMg / ORAL_TO_SC_RATIO; // Same as SC
+            const prnIvMg = prnOralMg / ORAL_TO_SC_RATIO;
             const prnSyrupMl = prnOralMg / MORPHINE_SYRUP_CONCENTRATION;
             const rawPrnFentanylIV = (totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor) / 6;
 
-            // Display raw calculated values
             document.getElementById('prn-ir-val').textContent = `${prnOralMg.toFixed(1)} mg`;
             document.getElementById('prn-sc-val').textContent = `${prnScMg.toFixed(1)} mg`;
             document.getElementById('prn-iv-val').textContent = `${prnIvMg.toFixed(1)} mg`;
             document.getElementById('prn-syrup-val').textContent = `${prnSyrupMl.toFixed(1)} ml`;
             document.getElementById('prn-fentanyl-iv-val').textContent = `${rawPrnFentanylIV.toFixed(1)} mcg`;
             
-            // Calculate and set the order text with ROUNDED, practical values
             const roundedPrnIr = Math.round(prnOralMg / 5) * 5;
             const roundedPrnSc = Math.round(prnScMg);
             const roundedPrnIv = Math.round(prnIvMg);
@@ -431,16 +487,65 @@ ${prnText}
             }).catch(err => console.error('Failed to copy text: ', err));
         }
 
+        function resetAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            const prnToggleButton = document.getElementById('prn-toggle-button');
+            if (prnToggleButton.classList.contains('active')) {
+                prnToggleButton.click();
+            }
+            calculateAll();
+        }
+
+        function randomizeInputs() {
+            // Clear all first
+            resetAll();
+            
+            // Randomly select one basal drug to input
+            const basalKeys = Object.keys(DRUG_LABELS);
+            const randomBasalKey = basalKeys[Math.floor(Math.random() * basalKeys.length)];
+            let randomDose = 0;
+            if (randomBasalKey.includes('morphine')) {
+                randomDose = Math.floor(Math.random() * 10) * 10; // 0-90
+            } else if (randomBasalKey.includes('fentanyl')) {
+                randomDose = (Math.floor(Math.random() * 5) * 12.5); // 0, 12.5, 25, 37.5, 50
+            } else { // tramadol
+                randomDose = Math.floor(Math.random() * 5) * 50; // 0-200
+            }
+            document.getElementById(`dose-${randomBasalKey}`).value = randomDose;
+
+            // Randomly decide to use PRN
+            if (Math.random() > 0.3) { // 70% chance to use PRN
+                const prnToggleButton = document.getElementById('prn-toggle-button');
+                if (!prnToggleButton.classList.contains('active')) {
+                    prnToggleButton.click();
+                }
+
+                // Randomly select one PRN drug and set times to >= 3 to trigger escalation
+                const prnKeys = Object.keys(PRN_DRUG_LABELS);
+                const randomPrnKey = prnKeys[Math.floor(Math.random() * prnKeys.length)];
+                
+                document.getElementById(`${randomPrnKey}-times`).value = Math.floor(Math.random() * 3) + 3; // 3-5 times
+                document.getElementById(`${randomPrnKey}-size`).value = Math.floor(Math.random() * 5) + 1; // 1-5 mg/ml
+                
+                // Randomly escalate
+                if (Math.random() > 0.5) {
+                    const percentButtons = document.querySelectorAll('.percent-button');
+                    const randomPercentButton = percentButtons[Math.floor(Math.random() * percentButtons.length)];
+                    randomPercentButton.click();
+                }
+            }
+            
+            calculateAll();
+        }
+
         // --- UI INITIALIZATION ---
         function createUiElements() {
             const fromContainer = document.getElementById('from-section');
-            const liveConvContainer = document.getElementById('live-conversion-section');
-            const prnGivenContainer = document.querySelector('#prn-given-section .p-3');
+            const prnGivenContainer = document.querySelector('#prn-given-section > div');
             const basalOptionsContainer = document.getElementById('basal-options');
             const prnOptionsContainer = document.getElementById('prn-options');
 
-            fromContainer.innerHTML = '<h3 class="font-semibold text-gray-600">ยาพื้นฐาน (Basal Dose)</h3>';
-            liveConvContainer.innerHTML = '';
+            fromContainer.innerHTML = '<h3 class="font-semibold text-gray-600">ยาพื้นฐาน (Basal Dose) & Live Conversion</h3>';
             prnGivenContainer.innerHTML = '';
             basalOptionsContainer.innerHTML = '';
             prnOptionsContainer.innerHTML = '';
@@ -456,7 +561,14 @@ ${prnText}
                     stepAttr = 'step="12.5"';
                 }
                 inputDiv.className = 'space-y-1';
-                inputDiv.innerHTML = `<label for="dose-${key}" class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" inputmode="decimal" id="dose-${key}" class="input-field" placeholder="0.0" ${stepAttr}><span class="font-medium text-gray-600">${unit}</span></div>`;
+                inputDiv.innerHTML = `
+                    <label for="dose-${key}" class="font-semibold text-sm text-gray-700">${label}</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr,auto] gap-2 items-center">
+                        <input type="number" inputmode="decimal" id="dose-${key}" class="input-field" placeholder="0.0" ${stepAttr}>
+                        <span class="font-bold text-gray-400 sm:inline hidden">→</span>
+                        <input type="text" id="live-conv-${key}" class="input-field readonly-field" value="0.0" readonly>
+                        <span class="font-medium text-gray-600">${unit}</span>
+                    </div>`;
                 fromContainer.appendChild(inputDiv);
                 const inputEl = document.getElementById(`dose-${key}`);
                 inputEl.addEventListener('input', calculateAll);
@@ -472,12 +584,6 @@ ${prnText}
                         calculateAll();
                     });
                 }
-
-
-                const displayDiv = document.createElement('div');
-                displayDiv.className = 'space-y-1';
-                displayDiv.innerHTML = `<label for="live-conv-${key}" class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="text" id="live-conv-${key}" class="input-field readonly-field" value="0.0" readonly><span class="font-medium text-gray-600">${unit}</span></div>`;
-                liveConvContainer.appendChild(displayDiv);
             });
 
             // Create PRN Given Inputs
@@ -486,7 +592,7 @@ ${prnText}
                 const unit = key.includes('syrup') ? 'ml' : 'mg';
                 const div = document.createElement('div');
                 div.className = 'space-y-1';
-                div.innerHTML = `<label class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" inputmode="decimal" id="${key}-size" class="input-field" placeholder="Dose (${unit})"><span class="font-bold text-gray-500">x</span><input type="number" inputmode="decimal" id="${key}-times" class="input-field" placeholder="จำนวนครั้ง"></div>`;
+                div.innerHTML = `<label class="font-semibold text-sm text-gray-700">${label}</label><div class="grid grid-cols-[1fr,auto,1fr] gap-2 items-center"><input type="number" inputmode="decimal" id="${key}-size" class="input-field" placeholder="Dose (${unit})"><span class="font-bold text-gray-500">x</span><input type="number" inputmode="decimal" id="${key}-times" class="input-field" placeholder="จำนวนครั้ง"></div>`;
                 prnGivenContainer.appendChild(div);
                 document.getElementById(`${key}-size`).addEventListener('input', calculateAll);
                 document.getElementById(`${key}-times`).addEventListener('input', calculateAll);
@@ -507,15 +613,17 @@ ${prnText}
                     const presetOptions = regimen.presets.map(p => `<option value="${p}">${p}</option>`).join('');
                     optionsHtml = `
                         <div class="drip-options space-y-2 mt-2">
-                            <div class="flex items-center gap-2">
+                            <div class="grid grid-cols-[auto,1fr] gap-x-2 gap-y-2 items-center">
                                 <label for="${regimen.drug}-iv-drip-concentration" class="text-sm">Concentration:</label>
-                                <select id="${regimen.drug}-iv-drip-concentration" class="input-field !w-28">${presetOptions}<option value="other">อื่นๆ</option></select>
-                                <input type="text" id="${regimen.drug}-iv-drip-concentration-custom" class="input-field !w-24 hidden" placeholder="1:x">
-                            </div>
-                            <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2">
+                                    <select id="${regimen.drug}-iv-drip-concentration" class="input-field !w-28">${presetOptions}<option value="other">อื่นๆ</option></select>
+                                    <input type="text" id="${regimen.drug}-iv-drip-concentration-custom" class="input-field !w-24 hidden" placeholder="1:x">
+                                </div>
                                 <label for="${regimen.drug}-iv-drip-duration" class="text-sm">Duration:</label>
-                                <input type="number" id="${regimen.drug}-iv-drip-duration" value="24" class="input-field !w-24">
-                                <span class="text-sm">hr</span>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="${regimen.drug}-iv-drip-duration" value="24" class="input-field !w-24">
+                                    <span class="text-sm">hr</span>
+                                </div>
                             </div>
                             <p class="text-sm text-gray-600">Calculated Volume: <span id="${regimen.drug}-iv-drip-volume" class="font-bold">0.0 mL</span></p>
                             <p class="text-sm text-gray-600">Calculated Rate: <span id="${regimen.drug}-iv-drip-rate" class="font-bold">0.0 mL/hr</span></p>
@@ -531,7 +639,6 @@ ${prnText}
                 document.getElementById(key).addEventListener('change', updateOrderPreview);
             });
             
-            // Add event listeners for IV Drip option inputs
             ['morphine', 'fentanyl'].forEach(drug => {
                 const concentrationSelect = document.getElementById(`${drug}-iv-drip-concentration`);
                 const customInput = document.getElementById(`${drug}-iv-drip-concentration-custom`);
@@ -555,14 +662,40 @@ ${prnText}
                 document.getElementById(key).addEventListener('change', updateOrderPreview);
             });
 
-            // Add event listeners for dose escalation
+            document.getElementById('prn-toggle-button').addEventListener('click', (e) => {
+                const button = e.currentTarget;
+                button.classList.toggle('active');
+                button.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full');
+                document.getElementById('prn-given-section').classList.toggle('hidden');
+                if (!button.classList.contains('active')) {
+                    document.querySelectorAll('#prn-given-section input[type="number"]').forEach(input => input.value = '');
+                }
+                calculateAll();
+            });
+
             document.querySelectorAll('.percent-button').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    document.getElementById('dose-escalation-percent').value = e.target.dataset.percent;
+                    const escalationInput = document.getElementById('dose-escalation-percent');
+                    const currentButton = e.target;
+                    
+                    if (currentButton.classList.contains('active')) {
+                        currentButton.classList.remove('active');
+                        escalationInput.value = 0;
+                    } else {
+                        document.querySelectorAll('.percent-button.active').forEach(b => b.classList.remove('active'));
+                        currentButton.classList.add('active');
+                        escalationInput.value = currentButton.dataset.percent;
+                    }
                     calculateAll();
                 });
             });
-            document.getElementById('dose-escalation-percent').addEventListener('input', calculateAll);
+            document.getElementById('dose-escalation-percent').addEventListener('input', () => {
+                 document.querySelectorAll('.percent-button.active').forEach(b => b.classList.remove('active'));
+                 calculateAll();
+            });
+
+            document.getElementById('reset-button').addEventListener('click', resetAll);
+            document.getElementById('test-button').addEventListener('click', randomizeInputs);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
