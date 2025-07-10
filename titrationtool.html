@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palliative Opioid Titration & Conversion Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans Thai', sans-serif; }
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .input-field {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            text-align: center;
+            width: 100%;
+            background-color: #f9fafb;
+        }
+        .input-field:focus {
+            background-color: white;
+            border-color: #0891b2;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+            outline: none;
+        }
+        .output-card {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+        .readonly-field {
+            background-color: #e5e7eb;
+            color: #4b5563;
+            font-weight: 500;
+        }
+        .copy-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: #0891b2;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-button:hover {
+            background-color: #0e7490;
+        }
+        .copy-button.copied {
+            background-color: #059669;
+        }
+        .radio-label {
+            display: block;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+        }
+        input[type="radio"]:checked + .radio-label {
+            border-color: #0891b2;
+            background-color: #cffafe;
+            box-shadow: 0 0 0 2px #0891b2;
+        }
+        input[type="radio"] {
+            display: none;
+        }
+        #order-preview-area {
+            width: 100%;
+            min-height: 150px;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-7xl bg-white rounded-xl shadow-lg p-4 sm:p-6 space-y-6">
+        <header class="text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold text-cyan-700">Opioid Titration & Conversion Tool</h1>
+            <p class="text-gray-500">สำหรับ Palliative Care</p>
+        </header>
+
+        <div class="main-container">
+            <!-- Left Column: Inputs -->
+            <div class="bg-white p-4 sm:p-6 rounded-lg border">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">1. ยาที่ผู้ป่วยได้รับใน 24 ชม.</h2>
+                <div class="space-y-4" id="from-section"></div>
+                <hr class="my-6">
+                <div class="space-y-4" id="prn-given-section">
+                    <h3 class="font-semibold text-gray-600">ยาที่ให้เพิ่มระหว่างวัน (PRN Given)</h3>
+                    <p class="text-sm text-gray-500 -mt-3">(จะถูกนำไปคำนวณเพื่อปรับยา เมื่อใช้รวมกัน 3 ครั้งขึ้นไป)</p>
+                    <div class="p-3 border rounded-lg space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Right Column: Calculations & Tools -->
+            <div class="output-card space-y-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">2. ผลการคำนวณ & เครื่องมือ</h2>
+                <div class="p-4 border rounded-lg bg-white">
+                    <h3 class="font-semibold text-gray-700 mb-3">Live Basal Dose Conversion</h3>
+                    <div class="space-y-4" id="live-conversion-section"></div>
+                </div>
+
+                <div class="p-4 border rounded-lg bg-white">
+                    <h3 class="font-semibold text-gray-700 mb-3">Titration Calculation</h3>
+                    <div>
+                        <p class="text-sm text-gray-600">Total MEDD (คำนวณจากยาทั้งหมด)</p>
+                        <p><span id="result-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
+                    </div>
+                </div>
+
+                <div class="p-4 border rounded-lg bg-white">
+                    <h3 class="font-semibold text-gray-700 mb-3">3. จัดแผนการรักษาและคัดลอก Order</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium text-gray-600 mb-2">เลือกยาพื้นฐาน (Basal Dose)</h4>
+                            <div id="basal-options" class="space-y-2"></div>
+                        </div>
+                        <hr>
+                        <div>
+                            <h4 class="font-medium text-gray-600 mb-2">เลือกยา PRN (PRN Dose)</h4>
+                            <div id="prn-options" class="space-y-2"></div>
+                        </div>
+                        <hr>
+                        <div>
+                            <h4 class="font-medium text-gray-600 mb-2">ดูตัวอย่างและแก้ไข Order</h4>
+                             <textarea id="order-preview-area" rows="8"></textarea>
+                        </div>
+                        <button id="copy-order-button" class="copy-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span id="copy-button-text">คัดลอก Order</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const CONVERSION_FACTORS = {
+            'oral_morphine_lr': { factor: 1, unit: 'mg/day' },
+            'iv_morphine': { factor: 3, unit: 'mg/day' },
+            'patch_fentanyl': { factor: 2.4, unit: 'mcg/hr' },
+            'iv_fentanyl': { factor: 0.3, unit: 'mcg/day' },
+            'oral_tramadol': { factor: 0.1, unit: 'mg/day' },
+            'iv_tramadol': { factor: 0.2, unit: 'mg/day' }
+        };
+
+        const DRUG_LABELS = {
+            'oral_morphine_lr': 'MST / Kapanol',
+            'iv_morphine': 'Morphine IV/SC',
+            'patch_fentanyl': 'Fentanyl Patch',
+            'iv_fentanyl': 'Fentanyl IV',
+            'oral_tramadol': 'Tramadol Oral',
+            'iv_tramadol': 'Tramadol IV'
+        };
+
+        const PRN_DRUG_LABELS = {
+            'prn_sc': 'Morphine SC PRN',
+            'prn_ir': 'Morphine IR PRN',
+            'prn_syrup': 'Morphine Syrup PRN'
+        };
+        
+        const PRN_REGIMENS = {
+            'prn-sc': { label: 'Morphine SC', template: (dose) => `Morphine ${dose} mg PRN SC for pain q 4 hr` },
+            'prn-ir': { label: 'Morphine IR', template: (dose) => `Morphine IR ${dose} mg PRN PO for pain q 2 hr` },
+            'prn-syrup': { label: 'Morphine Syrup', template: (dose) => `Morphine Syrup ${dose} ml PRN PO for pain q 2 hr` },
+            'prn-fentanyl-iv': { label: 'Fentanyl IV PRN', template: (dose) => `Fentanyl ${dose} mcg PRN IV for pain q 2 hr` }
+        };
+
+        const ORAL_TO_SC_RATIO = 3;
+        const MORPHINE_SYRUP_CONCENTRATION = 2; // 2 mg/ml
+
+        // --- STATE ---
+        let isCalculating = false;
+
+        // --- MAIN CALCULATION LOGIC ---
+        function calculateAll() {
+            if (isCalculating) return;
+            isCalculating = true;
+
+            let basalMedd = 0;
+            Object.keys(DRUG_LABELS).forEach(key => {
+                const dose = parseFloat(document.getElementById(`dose-${key}`).value) || 0;
+                if (dose > 0) basalMedd += dose * CONVERSION_FACTORS[key].factor;
+            });
+            updateLiveBasalConversion(basalMedd);
+
+            const prnScTimes = parseFloat(document.getElementById('prn_sc-times').value) || 0;
+            const prnIrTimes = parseFloat(document.getElementById('prn_ir-times').value) || 0;
+            const prnSyrupTimes = parseFloat(document.getElementById('prn_syrup-times').value) || 0;
+            const totalPrnTimes = prnScTimes + prnIrTimes + prnSyrupTimes;
+
+            let prnMedd = 0;
+            if (totalPrnTimes >= 3) {
+                const prnScSize = parseFloat(document.getElementById('prn_sc-size').value) || 0;
+                if (prnScSize > 0) prnMedd += (prnScSize * CONVERSION_FACTORS['iv_morphine'].factor) * prnScTimes;
+
+                const prnIrSize = parseFloat(document.getElementById('prn_ir-size').value) || 0;
+                if (prnIrSize > 0) prnMedd += prnIrSize * prnIrTimes;
+                
+                const prnSyrupSizeMl = parseFloat(document.getElementById('prn_syrup-size').value) || 0;
+                if (prnSyrupSizeMl > 0) {
+                    prnMedd += (prnSyrupSizeMl * MORPHINE_SYRUP_CONCENTRATION) * prnSyrupTimes;
+                }
+            }
+
+            const totalMedd = basalMedd + prnMedd;
+            updateTitrationResults(totalMedd);
+            
+            isCalculating = false;
+        }
+
+        function updateLiveBasalConversion(basalMedd) {
+             Object.keys(DRUG_LABELS).forEach(key => {
+                const displayField = document.getElementById(`live-conv-${key}`);
+                const equivalentDose = basalMedd > 0 ? basalMedd / CONVERSION_FACTORS[key].factor : 0;
+                displayField.value = equivalentDose.toFixed(1);
+            });
+        }
+
+        function updateTitrationResults(totalMedd) {
+            document.getElementById('result-medd').textContent = totalMedd.toFixed(1);
+
+            // --- New Basal Doses ---
+            const newBasalMorphine = totalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
+            const newBasalFentanylIV = totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
+            const newBasalFentanylPatch = totalMedd / CONVERSION_FACTORS['patch_fentanyl'].factor;
+            const roundedFentanylPatch = Math.round(newBasalFentanylPatch / 12.5) * 12.5;
+
+            // Display raw calculated values in the selection UI
+            document.getElementById('basal-morphine-val').textContent = `${newBasalMorphine.toFixed(1)} mg/day`;
+            document.getElementById('basal-fentanyl-iv-val').textContent = `${newBasalFentanylIV.toFixed(1)} mcg/day`;
+            document.getElementById('basal-fentanyl-patch-val').textContent = `${newBasalFentanylPatch.toFixed(1)} mcg/hr`;
+            
+            // Set the order text with the ROUNDED value for Fentanyl Patch and integer for Fentanyl IV
+            document.getElementById('basal-morphine').dataset.orderText = `Morphine IV/SC ${newBasalMorphine.toFixed(1)} mg/day`;
+            document.getElementById('basal-fentanyl-iv').dataset.orderText = `Fentanyl IV ${newBasalFentanylIV.toFixed(0)} mcg/day`;
+            document.getElementById('basal-fentanyl-patch').dataset.orderText = `Fentanyl Patch ${roundedFentanylPatch.toFixed(1)} mcg/hr q 72 hr`;
+
+            // --- New PRN Doses ---
+            const prnOralMg = totalMedd / 6;
+            const prnScMg = prnOralMg / ORAL_TO_SC_RATIO;
+            const prnSyrupMl = prnOralMg / MORPHINE_SYRUP_CONCENTRATION;
+            
+            const rawPrnFentanylIV = (totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor) / 6;
+            let roundedPrnFentanylIV = Math.round(rawPrnFentanylIV / 25) * 25;
+            if (roundedPrnFentanylIV === 0 && rawPrnFentanylIV > 0) {
+                roundedPrnFentanylIV = 25;
+            }
+
+            // Display raw calculated values in the selection UI
+            document.getElementById('prn-ir-val').textContent = `${prnOralMg.toFixed(1)} mg`;
+            document.getElementById('prn-sc-val').textContent = `${prnScMg.toFixed(1)} mg`;
+            document.getElementById('prn-syrup-val').textContent = `${prnSyrupMl.toFixed(1)} ml`;
+            document.getElementById('prn-fentanyl-iv-val').textContent = `${rawPrnFentanylIV.toFixed(1)} mcg`;
+            
+            // Set the order text with the ROUNDED value for Fentanyl IV PRN
+            document.getElementById('prn-ir').dataset.orderText = PRN_REGIMENS['prn-ir'].template(prnOralMg.toFixed(1));
+            document.getElementById('prn-sc').dataset.orderText = PRN_REGIMENS['prn-sc'].template(prnScMg.toFixed(1));
+            document.getElementById('prn-syrup').dataset.orderText = PRN_REGIMENS['prn-syrup'].template(prnSyrupMl.toFixed(1));
+            document.getElementById('prn-fentanyl-iv').dataset.orderText = PRN_REGIMENS['prn-fentanyl-iv'].template(roundedPrnFentanylIV.toFixed(0));
+
+            updateOrderPreview();
+        }
+        
+        function updateOrderPreview() {
+            const selectedBasal = document.querySelector('input[name="basal-regimen"]:checked');
+            const selectedPrn = document.querySelector('input[name="prn-regimen"]:checked');
+
+            const basalText = selectedBasal ? `- ${selectedBasal.dataset.orderText}` : '';
+            const prnText = selectedPrn ? `- ${selectedPrn.dataset.orderText}` : '';
+            
+            const now = new Date();
+            const timestamp = now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
+
+            const orderTextToCopy = `
+📋 แผนการให้ยาใหม่
+⏰ (${timestamp})
+-------------------------
+${basalText}
+${prnText}
+            `.trim().replace(/^\s+/gm, '');
+
+            document.getElementById('order-preview-area').value = orderTextToCopy;
+        }
+
+        function copyOrderToClipboard() {
+            const textToCopy = document.getElementById('order-preview-area').value;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const button = document.getElementById('copy-order-button');
+                const buttonText = document.getElementById('copy-button-text');
+                const originalText = buttonText.textContent;
+
+                button.classList.add('copied');
+                buttonText.textContent = 'คัดลอกแล้ว!';
+
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    buttonText.textContent = originalText;
+                }, 2000);
+            }).catch(err => console.error('Failed to copy text: ', err));
+        }
+
+        // --- UI INITIALIZATION ---
+        function createUiElements() {
+            const fromContainer = document.getElementById('from-section');
+            const liveConvContainer = document.getElementById('live-conversion-section');
+            const prnGivenContainer = document.querySelector('#prn-given-section .p-3');
+            const basalOptionsContainer = document.getElementById('basal-options');
+            const prnOptionsContainer = document.getElementById('prn-options');
+
+            fromContainer.innerHTML = '<h3 class="font-semibold text-gray-600">ยาพื้นฐาน (Basal Dose)</h3>';
+            liveConvContainer.innerHTML = '';
+            prnGivenContainer.innerHTML = '';
+            basalOptionsContainer.innerHTML = '';
+            prnOptionsContainer.innerHTML = '';
+
+            // Create Basal Dose Inputs and Live Conversion Displays
+            Object.keys(DRUG_LABELS).forEach(key => {
+                const { unit, label } = { unit: CONVERSION_FACTORS[key].unit, label: DRUG_LABELS[key] };
+                const inputDiv = document.createElement('div');
+                inputDiv.className = 'space-y-1';
+                inputDiv.innerHTML = `<label for="dose-${key}" class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" id="dose-${key}" class="input-field" placeholder="0.0" step="any"><span class="font-medium text-gray-600">${unit}</span></div>`;
+                fromContainer.appendChild(inputDiv);
+                document.getElementById(`dose-${key}`).addEventListener('input', calculateAll);
+
+                const displayDiv = document.createElement('div');
+                displayDiv.className = 'space-y-1';
+                displayDiv.innerHTML = `<label for="live-conv-${key}" class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="text" id="live-conv-${key}" class="input-field readonly-field" value="0.0" readonly><span class="font-medium text-gray-600">${unit}</span></div>`;
+                liveConvContainer.appendChild(displayDiv);
+            });
+
+            // Create PRN Given Inputs
+            Object.keys(PRN_DRUG_LABELS).forEach(key => {
+                const label = PRN_DRUG_LABELS[key];
+                const unit = key.includes('syrup') ? 'ml' : 'mg';
+                const div = document.createElement('div');
+                div.className = 'space-y-1';
+                div.innerHTML = `<label class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" id="${key}-size" class="input-field" placeholder="Dose (${unit})"><span class="font-bold text-gray-500">x</span><input type="number" id="${key}-times" class="input-field" placeholder="จำนวนครั้ง"></div>`;
+                prnGivenContainer.appendChild(div);
+                document.getElementById(`${key}-size`).addEventListener('input', calculateAll);
+                document.getElementById(`${key}-times`).addEventListener('input', calculateAll);
+            });
+
+            // Create Regimen Selection UI
+            const basalRegimens = {
+                'basal-morphine': { label: 'Morphine IV/SC' },
+                'basal-fentanyl-iv': { label: 'Fentanyl IV' },
+                'basal-fentanyl-patch': { label: 'Fentanyl Patch' }
+            };
+            Object.keys(basalRegimens).forEach((key, index) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <input type="radio" id="${key}" name="basal-regimen" ${index === 0 ? 'checked' : ''} data-order-text="">
+                    <label for="${key}" class="radio-label font-semibold">${basalRegimens[key].label} <span id="${key}-val" class="float-right font-bold text-cyan-700">0.0</span></label>
+                `;
+                basalOptionsContainer.appendChild(div);
+                document.getElementById(key).addEventListener('change', updateOrderPreview);
+            });
+
+            Object.keys(PRN_REGIMENS).forEach((key, index) => {
+                const { label } = PRN_REGIMENS[key];
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <input type="radio" id="${key}" name="prn-regimen" ${index === 0 ? 'checked' : ''} data-order-text="">
+                    <label for="${key}" class="radio-label font-semibold">${label} <span id="${key}-val" class="float-right font-bold text-cyan-700">0.0</span></label>
+                `;
+                prnOptionsContainer.appendChild(div);
+                document.getElementById(key).addEventListener('change', updateOrderPreview);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createUiElements();
+            calculateAll();
+            document.getElementById('copy-order-button').addEventListener('click', copyOrderToClipboard);
+        });
+    </script>
+</body>
+</html>
