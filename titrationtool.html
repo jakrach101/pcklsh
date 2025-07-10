@@ -282,7 +282,7 @@
                             </div>
                             <div class="flex items-center justify-center gap-2 text-sm">
                                 <label for="escalation-percent-input">หรือกำหนดเอง:</label>
-                                <input type="number" id="escalation-percent-input" class="input-field !w-20 text-center" placeholder="50"><span>%</span>
+                                <input type="number" inputmode="decimal" id="escalation-percent-input" class="input-field !w-20 text-center" placeholder="50"><span>%</span>
                             </div>
                         </div>
                     </div>
@@ -304,7 +304,7 @@
                             </div>
                             <div>
                                 <label for="gfr-input" class="font-medium text-sm text-gray-700 block mb-1">eGFR (ml/min)</label>
-                                <input type="number" id="gfr-input" class="input-field" placeholder="90" value="90">
+                                <input type="number" inputmode="decimal" id="gfr-input" class="input-field" placeholder="90" value="90">
                             </div>
                             <div class="flex items-center md:col-span-2">
                                  <div id="elderly-toggle" class="toggle-switch w-full">
@@ -428,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             div.innerHTML = `
                 <label for="dose-${key}" class="font-medium text-sm text-gray-700 block mb-1">${DRUGS[key]}</label>
                 <div class="flex items-center gap-2">
-                    <input type="number" id="dose-${key}" data-key="${key}" class="input-field drug-input" placeholder="0">
+                    <input type="number" inputmode="decimal" id="dose-${key}" data-key="${key}" class="input-field drug-input" placeholder="0">
                     <span class="text-gray-600">${config.unit}</span>
                     <div class="text-right flex-1">
                         <span id="live-conv-${key}" class="font-semibold text-cyan-600">0.0</span>
@@ -452,8 +452,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div>
                     <label for="${key}-dose" class="font-medium text-sm text-gray-700 block mb-1">${drug.label}</label>
                     <div class="flex items-center gap-2">
-                         <input type="number" id="${key}-dose" data-key="${key}" data-type="dose" class="input-field prn-input" placeholder="Dose (${drug.unit})">
-                         <input type="number" id="${key}-times" data-key="${key}" data-type="times" class="input-field prn-input" placeholder="จำนวนครั้ง">
+                         <input type="number" inputmode="decimal" id="${key}-dose" data-key="${key}" data-type="dose" class="input-field prn-input" placeholder="Dose (${drug.unit})">
+                         <input type="number" inputmode="decimal" id="${key}-times" data-key="${key}" data-type="times" class="input-field prn-input" placeholder="จำนวนครั้ง">
                     </div>
                 </div>`;
             elements.prnInputsSection.appendChild(div);
@@ -625,16 +625,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="helper-content text-sm text-cyan-800 space-y-2">
                         <div class="grid grid-cols-2 gap-2 items-center">
                             <label for="${key}-vol">Total Vol. (ml)</label>
-                            <input type="number" id="${key}-vol" data-key="${key}" class="input-field !p-2 mixing-input" value="${params.vol}">
+                            <input type="number" inputmode="decimal" id="${key}-vol" data-key="${key}" class="input-field !p-2 mixing-input" value="${params.vol}">
                             <label for="${key}-dur">Duration (hr)</label>
-                            <input type="number" id="${key}-dur" data-key="${key}" class="input-field !p-2 mixing-input" value="${params.dur}">
+                            <input type="number" inputmode="decimal" id="${key}-dur" data-key="${key}" class="input-field !p-2 mixing-input" value="${params.dur}">
                         </div>
                         <p class="text-right font-semibold">Rate คำนวณ: ${calculatedRateMl.toFixed(1)} ml/hr ${key.includes('csci') ? `(~${calculatedRateMm.toFixed(1)} mm/hr)` : ''}</p>
                         ${csciWarning}
                         <hr class="border-cyan-200 my-2">
                         <div class="grid grid-cols-2 gap-2 items-center">
                              <label for="${key}-final-rate">ปรับ Rate ที่ต้องการ (ml/hr)</label>
-                             <input type="number" id="${key}-final-rate" data-key="${key}" class="input-field !p-2 final-rate-input" placeholder="เช่น 4.0">
+                             <input type="number" inputmode="decimal" id="${key}-final-rate" data-key="${key}" class="input-field !p-2 final-rate-input" placeholder="เช่น 4.0">
                         </div>
                         <div class="text-right mt-1">${actualDoseHtml}</div>
                     </div>
