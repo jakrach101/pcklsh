@@ -323,7 +323,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="basal-options-section"></div>
                     </div>
                      <div>
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex flex-wrap justify-between items-center gap-y-2 mb-3">
                             <h3 class="font-semibold text-lg text-gray-800">ยาเสริมใหม่ (New PRN Dose)</h3>
                             <div class="text-sm">
                                 <label>คำนวณที่:</label>
@@ -567,9 +567,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderNewRegimenOptions(newMedd) {
         const basalDoses = {
             basal_oral_mst: { label: "MST/Kapanol", dose: newMedd, unit: "mg/day", isOral: true },
-            basal_morphine_csci: { label: "Morphine CSCI (Syringe)", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 22, defaultDur: 24 } },
-            basal_morphine_iv: { label: "Morphine IV Drip", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 100, defaultDur: 24 } },
-            basal_fentanyl_iv: { label: "Fentanyl IV Drip", dose: newMedd / 0.3, unit: "mcg/day", mixing: { defaultVol: 100, defaultDur: 24 } },
+            basal_morphine_csci: { label: "Morphine CSCI (Syringe)", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 22, defaultDur: 24, concPresets: {'1:1': 10, '2:1': 20} } },
+            basal_morphine_iv: { label: "Morphine IV Drip", dose: newMedd / 3, unit: "mg/day", mixing: { defaultVol: 100, defaultDur: 24, concPresets: {'1mg/ml': 1, '2mg/ml': 2} } },
+            basal_fentanyl_iv: { label: "Fentanyl IV Drip", dose: newMedd / 0.3, unit: "mcg/day", mixing: { defaultVol: 100, defaultDur: 24, concPresets: {'10mcg/ml': 10, '20mcg/ml': 20, '50mcg/ml': 50} } },
             basal_fentanyl_patch: { label: "Fentanyl Patch", dose: newMedd / 2.4, unit: "mcg/hr" }
         };
         elements.basalOptionsSection.innerHTML = '';
@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const adjustedDose = option.dose * adjustmentFactor;
 
             if (!state.mixingParams[key] && option.mixing) {
-                state.mixingParams[key] = { vol: option.mixing.defaultVol, dur: option.mixing.defaultDur, finalRate: 0 };
+                state.mixingParams[key] = { vol: option.mixing.defaultVol, dur: option.mixing.defaultDur, finalRate: 0, conc: Object.values(option.mixing.concPresets)[0] };
             }
             const isChecked = state.selectedBasal === key;
             const div = document.createElement('div');
@@ -605,38 +605,30 @@ document.addEventListener('DOMContentLoaded', () => {
                  </details>`;
             } else if(option.mixing) {
                 const params = state.mixingParams[key];
-                const drugVol = key.includes('fentanyl') ? adjustedDose / 100 : adjustedDose / 10;
+                const totalVolume = adjustedDose / params.conc;
                 let csciWarning = '';
-                if(key.includes('csci') && drugVol > params.vol) {
-                    csciWarning = `<p class="text-red-600 font-bold mt-2">คำเตือน: ขนาดยาสูงเกินกว่าจะผสมใน Syringe ${params.vol} mL ได้</p>`;
+                if(key.includes('csci') && totalVolume > params.vol) {
+                    csciWarning = `<p class="text-red-600 font-bold mt-2">คำเตือน: ปริมาตรยา (${totalVolume.toFixed(1)}ml) เกิน Syringe ${params.vol} mL</p>`;
                 }
-                const calculatedRateMl = params.dur > 0 ? (params.vol / params.dur) : 0;
+                const calculatedRateMl = params.dur > 0 ? (totalVolume / params.dur) : 0;
                 const calculatedRateMm = calculatedRateMl * MM_PER_ML_CSCI;
-                let actualDoseHtml = '';
-                if(params.finalRate > 0){
-                    const concentration = adjustedDose / params.vol;
-                    const actualDosePerDay = params.finalRate * params.dur * concentration;
-                    actualDoseHtml = `<p class="text-green-600 font-bold">Dose จริง: ${actualDosePerDay.toFixed(1)} ${option.unit}</p>`;
-                }
+                
+                const concOptions = Object.keys(option.mixing.concPresets).map(label => `<option value="${option.mixing.concPresets[label]}" ${option.mixing.concPresets[label] == params.conc ? 'selected' : ''}>${label}</option>`).join('');
 
                 helperHtml = `
                 <details class="helper-details mt-2">
                     <summary>ตัวช่วยผสมยา</summary>
                     <div class="helper-content text-sm text-cyan-800 space-y-2">
                         <div class="grid grid-cols-2 gap-2 items-center">
-                            <label for="${key}-vol">Total Vol. (ml)</label>
-                            <input type="number" inputmode="decimal" id="${key}-vol" data-key="${key}" class="input-field !p-2 mixing-input" value="${params.vol}">
+                            <label for="${key}-conc">Concentration</label>
+                            <select id="${key}-conc" data-key="${key}" class="input-field !p-2 mixing-input-conc">${concOptions}</select>
+                            <label>Total Vol. (ml)</label>
+                            <span class="font-bold">${totalVolume.toFixed(1)} ml</span>
                             <label for="${key}-dur">Duration (hr)</label>
                             <input type="number" inputmode="decimal" id="${key}-dur" data-key="${key}" class="input-field !p-2 mixing-input" value="${params.dur}">
                         </div>
                         <p class="text-right font-semibold">Rate คำนวณ: ${calculatedRateMl.toFixed(1)} ml/hr ${key.includes('csci') ? `(~${calculatedRateMm.toFixed(1)} mm/hr)` : ''}</p>
                         ${csciWarning}
-                        <hr class="border-cyan-200 my-2">
-                        <div class="grid grid-cols-2 gap-2 items-center">
-                             <label for="${key}-final-rate">ปรับ Rate ที่ต้องการ (ml/hr)</label>
-                             <input type="number" inputmode="decimal" id="${key}-final-rate" data-key="${key}" class="input-field !p-2 final-rate-input" placeholder="เช่น 4.0">
-                        </div>
-                        <div class="text-right mt-1">${actualDoseHtml}</div>
                     </div>
                 </details>`;
             }
@@ -698,7 +690,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const adjustmentFactor = getDoseAdjustmentFactor(key);
                 let dose, orderFn;
                 const params = state.mixingParams[key];
-                const finalRate = params?.finalRate > 0 ? params.finalRate : (params && params.dur > 0 ? (params.vol / params.dur) : 0);
+                const totalVolume = params ? (key.includes('fentanyl') ? (newMedd / 0.3 * adjustmentFactor) / params.conc : (newMedd / 3 * adjustmentFactor) / params.conc) : 0;
+                const finalRate = params && params.dur > 0 ? (totalVolume / params.dur) : 0;
                 const finalRateMm = finalRate * MM_PER_ML_CSCI;
 
                 if (key === 'basal_oral_mst') {
@@ -706,13 +699,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     orderFn = (d) => `MST or Kapanol ${Math.floor(d/10)*10} mg PO ...`;
                 } else if (key === 'basal_morphine_csci') {
                     dose = (newMedd / 3) * adjustmentFactor;
-                    orderFn = (d) => `Morphine ${Math.floor(d)} mg + NSS to ${params.vol} mL for 24-hr CSCI (Rate ${finalRate.toFixed(1)} ml/hr or ${finalRateMm.toFixed(1)} mm/hr).`;
+                    orderFn = (d) => `Morphine ${Math.floor(d)} mg + NSS to ${totalVolume.toFixed(1)} mL for 24-hr CSCI (Rate ${finalRate.toFixed(1)} ml/hr or ${finalRateMm.toFixed(1)} mm/hr).`;
                 } else if (key === 'basal_morphine_iv') {
                     dose = (newMedd / 3) * adjustmentFactor;
-                    orderFn = (d) => `Morphine ${Math.floor(d)} mg + NSS to ${params.vol} mL IV drip in ${params.dur} hr (Rate ${finalRate.toFixed(1)} ml/hr).`;
+                    orderFn = (d) => `Morphine ${Math.floor(d)} mg + NSS to ${totalVolume.toFixed(1)} mL IV drip in ${params.dur} hr (Rate ${finalRate.toFixed(1)} ml/hr).`;
                 } else if (key === 'basal_fentanyl_iv') {
                     dose = (newMedd / 0.3) * adjustmentFactor;
-                    orderFn = (d) => `Fentanyl ${Math.floor(d)} mcg + NSS to ${params.vol} mL IV drip in ${params.dur} hr (Rate ${finalRate.toFixed(1)} ml/hr).`;
+                    orderFn = (d) => `Fentanyl ${Math.floor(d)} mcg + NSS to ${totalVolume.toFixed(1)} mL IV drip in ${params.dur} hr (Rate ${finalRate.toFixed(1)} ml/hr).`;
                 } else if (key === 'basal_fentanyl_patch') {
                     dose = (newMedd / 2.4) * adjustmentFactor;
                     orderFn = (d) => `Fentanyl Patch ${getFentanylPatchCombination(d)}, change q 72 hr.`;
@@ -850,17 +843,21 @@ document.addEventListener('DOMContentLoaded', () => {
             render();
         });
 
-        elements.basalOptionsSection.addEventListener('input', (e) => {
-            if (e.target.classList.contains('mixing-input')) {
-                const key = e.target.dataset.key;
+        elements.basalOptionsSection.addEventListener('change', (e) => {
+            const target = e.target;
+            const key = target.dataset.key;
+            if (target.classList.contains('mixing-input-conc')) {
+                state.mixingParams[key] = { ...state.mixingParams[key], conc: parseFloat(target.value) };
+                render();
+            }
+            else if (target.classList.contains('mixing-input')) {
                 const vol = parseFloat(document.getElementById(`${key}-vol`).value) || 0;
                 const dur = parseFloat(document.getElementById(`${key}-dur`).value) || 0;
                 state.mixingParams[key] = { ...state.mixingParams[key], vol, dur };
                 render();
             }
-            if (e.target.classList.contains('final-rate-input')) {
-                 const key = e.target.dataset.key;
-                 const finalRate = parseFloat(e.target.value) || 0;
+            else if (target.classList.contains('final-rate-input')) {
+                 const finalRate = parseFloat(target.value) || 0;
                  state.mixingParams[key] = { ...state.mixingParams[key], finalRate };
                  render();
             }
