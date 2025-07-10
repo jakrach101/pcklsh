@@ -94,6 +94,16 @@
             line-height: 1.5;
             background-color: #f9fafb;
         }
+        .drip-options {
+            display: none;
+            padding-top: 0.75rem;
+            padding-left: 1rem;
+            border-left: 2px solid #e5e7eb;
+            margin-left: 0.5rem;
+        }
+        input[type="radio"]:checked + .radio-label + .drip-options {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -164,6 +174,7 @@
         // --- CONFIGURATION ---
         const CONVERSION_FACTORS = {
             'oral_morphine_lr': { factor: 1, unit: 'mg/day' },
+            'sc_morphine': { factor: 3, unit: 'mg/day' },
             'iv_morphine': { factor: 3, unit: 'mg/day' },
             'patch_fentanyl': { factor: 2.4, unit: 'mcg/hr' },
             'iv_fentanyl': { factor: 0.3, unit: 'mcg/day' },
@@ -173,7 +184,8 @@
 
         const DRUG_LABELS = {
             'oral_morphine_lr': 'MST / Kapanol',
-            'iv_morphine': 'Morphine IV/SC',
+            'sc_morphine': 'Morphine SC',
+            'iv_morphine': 'Morphine IV',
             'patch_fentanyl': 'Fentanyl Patch',
             'iv_fentanyl': 'Fentanyl IV',
             'oral_tramadol': 'Tramadol Oral',
@@ -188,6 +200,7 @@
         
         const PRN_REGIMENS = {
             'prn-sc': { label: 'Morphine SC', template: (dose) => `Morphine ${dose} mg PRN SC for pain q 4 hr` },
+            'prn-iv': { label: 'Morphine IV', template: (dose) => `Morphine ${dose} mg PRN IV for pain q 4 hr` },
             'prn-ir': { label: 'Morphine IR', template: (dose) => `Morphine IR ${dose} mg PRN PO for pain q 2 hr` },
             'prn-syrup': { label: 'Morphine Syrup', template: (dose) => `Morphine Syrup ${dose} ml PRN PO for pain q 2 hr` },
             'prn-fentanyl-iv': { label: 'Fentanyl IV PRN', template: (dose) => `Fentanyl ${dose} mcg PRN IV for pain q 2 hr` }
@@ -219,7 +232,7 @@
             let prnMedd = 0;
             if (totalPrnTimes >= 3) {
                 const prnScSize = parseFloat(document.getElementById('prn_sc-size').value) || 0;
-                if (prnScSize > 0) prnMedd += (prnScSize * CONVERSION_FACTORS['iv_morphine'].factor) * prnScTimes;
+                if (prnScSize > 0) prnMedd += (prnScSize * CONVERSION_FACTORS['sc_morphine'].factor) * prnScTimes;
 
                 const prnIrSize = parseFloat(document.getElementById('prn_ir-size').value) || 0;
                 if (prnIrSize > 0) prnMedd += prnIrSize * prnIrTimes;
@@ -248,48 +261,96 @@
             document.getElementById('result-medd').textContent = totalMedd.toFixed(1);
 
             // --- New Basal Doses ---
-            const newBasalMorphine = totalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
+            const newBasalMorphineSC = totalMedd / CONVERSION_FACTORS['sc_morphine'].factor;
+            const newBasalMorphineIV = totalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
             const newBasalFentanylIV = totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
             const newBasalFentanylPatch = totalMedd / CONVERSION_FACTORS['patch_fentanyl'].factor;
             
-            // Display raw calculated values in the selection UI
-            document.getElementById('basal-morphine-val').textContent = `${newBasalMorphine.toFixed(1)} mg/day`;
+            // Display raw calculated values
+            document.getElementById('basal-morphine-sc-val').textContent = `${newBasalMorphineSC.toFixed(1)} mg/day`;
+            document.getElementById('basal-morphine-iv-val').textContent = `${newBasalMorphineIV.toFixed(1)} mg/day`;
             document.getElementById('basal-fentanyl-iv-val').textContent = `${newBasalFentanylIV.toFixed(1)} mcg/day`;
             document.getElementById('basal-fentanyl-patch-val').textContent = `${newBasalFentanylPatch.toFixed(1)} mcg/hr`;
             
-            // Set the order text with ROUNDED values for practical use
+            // Set the order text with ROUNDED/formatted values for practical use
             const roundedFentanylPatch = Math.round(newBasalFentanylPatch / 12.5) * 12.5;
-            document.getElementById('basal-morphine').dataset.orderText = `Morphine IV/SC ${newBasalMorphine.toFixed(1)} mg/day`;
-            document.getElementById('basal-fentanyl-iv').dataset.orderText = `Fentanyl IV ${newBasalFentanylIV.toFixed(0)} mcg/day`;
+            document.getElementById('basal-morphine-sc').dataset.orderText = `Morphine ${Math.round(newBasalMorphineSC)} mg + NSS up to 22 mL CSCI drip in 24 hr`;
             document.getElementById('basal-fentanyl-patch').dataset.orderText = `Fentanyl Patch ${roundedFentanylPatch.toFixed(1)} mcg/hr q 72 hr`;
+            updateIvDripOrder('morphine');
+            updateIvDripOrder('fentanyl');
 
             // --- New PRN Doses ---
-            // 1. Calculate raw values
             const prnOralMg = totalMedd / 6;
             const prnScMg = prnOralMg / ORAL_TO_SC_RATIO;
+            const prnIvMg = prnOralMg / ORAL_TO_SC_RATIO; // Same as SC
             const prnSyrupMl = prnOralMg / MORPHINE_SYRUP_CONCENTRATION;
             const rawPrnFentanylIV = (totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor) / 6;
 
-            // 2. Display raw calculated values in the selection UI
+            // Display raw calculated values
             document.getElementById('prn-ir-val').textContent = `${prnOralMg.toFixed(1)} mg`;
             document.getElementById('prn-sc-val').textContent = `${prnScMg.toFixed(1)} mg`;
+            document.getElementById('prn-iv-val').textContent = `${prnIvMg.toFixed(1)} mg`;
             document.getElementById('prn-syrup-val').textContent = `${prnSyrupMl.toFixed(1)} ml`;
             document.getElementById('prn-fentanyl-iv-val').textContent = `${rawPrnFentanylIV.toFixed(1)} mcg`;
             
-            // 3. Calculate and set the order text with ROUNDED, practical values
+            // Calculate and set the order text with ROUNDED, practical values
             const roundedPrnIr = Math.round(prnOralMg / 5) * 5;
-            const roundedPrnSc = (Math.round(prnScMg / 0.5) * 0.5).toFixed(1);
-            const roundedPrnSyrup = (Math.round(prnSyrupMl / 0.5) * 0.5).toFixed(1);
+            const roundedPrnSc = Math.round(prnScMg);
+            const roundedPrnIv = Math.round(prnIvMg);
+            const roundedPrnSyrup = Math.round(prnSyrupMl);
             let roundedPrnFentanylIV = Math.round(rawPrnFentanylIV / 25) * 25;
             if (roundedPrnFentanylIV === 0 && rawPrnFentanylIV > 0) {
                 roundedPrnFentanylIV = 25;
             }
             
             document.getElementById('prn-ir').dataset.orderText = PRN_REGIMENS['prn-ir'].template(roundedPrnIr.toFixed(0));
-            document.getElementById('prn-sc').dataset.orderText = PRN_REGIMENS['prn-sc'].template(roundedPrnSc);
-            document.getElementById('prn-syrup').dataset.orderText = PRN_REGIMENS['prn-syrup'].template(roundedPrnSyrup);
+            document.getElementById('prn-sc').dataset.orderText = PRN_REGIMENS['prn-sc'].template(roundedPrnSc.toFixed(0));
+            document.getElementById('prn-iv').dataset.orderText = PRN_REGIMENS['prn-iv'].template(roundedPrnIv.toFixed(0));
+            document.getElementById('prn-syrup').dataset.orderText = PRN_REGIMENS['prn-syrup'].template(roundedPrnSyrup.toFixed(0));
             document.getElementById('prn-fentanyl-iv').dataset.orderText = PRN_REGIMENS['prn-fentanyl-iv'].template(roundedPrnFentanylIV.toFixed(0));
 
+            updateOrderPreview();
+        }
+
+        function formatRatio(ratio) {
+            return Number(ratio.toFixed(2)).toString();
+        }
+
+        function updateIvDripOrder(drug) {
+            const totalMedd = parseFloat(document.getElementById('result-medd').textContent) || 0;
+            let dose, volume, duration, rate, concentration, orderText, concentrationRatio;
+
+            const concentrationSelect = document.getElementById(`${drug}-iv-drip-concentration`);
+            const customConcentrationInput = document.getElementById(`${drug}-iv-drip-concentration-custom`);
+            let concentrationValue = concentrationSelect.value;
+            if (concentrationValue === 'other') {
+                concentrationValue = customConcentrationInput.value;
+            }
+            
+            const ratioParts = concentrationValue.split(':');
+            concentrationRatio = ratioParts.length === 2 ? parseFloat(ratioParts[1]) : 1;
+            
+            if (drug === 'morphine') {
+                const newBasalMorphineIV = totalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
+                dose = Math.round(newBasalMorphineIV);
+                volume = dose * concentrationRatio;
+                duration = parseFloat(document.getElementById('morphine-iv-drip-duration').value) || 24;
+                rate = duration > 0 ? volume / duration : 0;
+                document.getElementById('morphine-iv-drip-volume').textContent = `${volume.toFixed(1)} mL`;
+                document.getElementById('morphine-iv-drip-rate').textContent = `${rate.toFixed(1)} mL/hr`;
+                orderText = `Morphine ${dose} mg (1:${formatRatio(concentrationRatio)}) + NSS up to ${volume.toFixed(1)} mL IV drip at ${Math.round(rate)} mL/hr`;
+                document.getElementById('basal-morphine-iv').dataset.orderText = orderText;
+            } else if (drug === 'fentanyl') {
+                const newBasalFentanylIV = totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
+                dose = Math.round(newBasalFentanylIV);
+                volume = dose * concentrationRatio;
+                duration = parseFloat(document.getElementById('fentanyl-iv-drip-duration').value) || 24;
+                rate = duration > 0 ? volume / duration : 0;
+                document.getElementById('fentanyl-iv-drip-volume').textContent = `${volume.toFixed(1)} mL`;
+                document.getElementById('fentanyl-iv-drip-rate').textContent = `${rate.toFixed(1)} mL/hr`;
+                orderText = `Fentanyl ${dose} mcg (1:${formatRatio(concentrationRatio)}) + NSS up to ${volume.toFixed(1)} mL IV drip at ${Math.round(rate)} mL/hr`;
+                document.getElementById('basal-fentanyl-iv').dataset.orderText = orderText;
+            }
             updateOrderPreview();
         }
         
@@ -349,10 +410,30 @@ ${prnText}
             Object.keys(DRUG_LABELS).forEach(key => {
                 const { unit, label } = { unit: CONVERSION_FACTORS[key].unit, label: DRUG_LABELS[key] };
                 const inputDiv = document.createElement('div');
+                let stepAttr = 'step="any"';
+                if (key === 'oral_morphine_lr') {
+                    stepAttr = 'step="1"';
+                } else if (key === 'patch_fentanyl') {
+                    stepAttr = 'step="12.5"';
+                }
                 inputDiv.className = 'space-y-1';
-                inputDiv.innerHTML = `<label for="dose-${key}" class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" inputmode="decimal" id="dose-${key}" class="input-field" placeholder="0.0" step="any"><span class="font-medium text-gray-600">${unit}</span></div>`;
+                inputDiv.innerHTML = `<label for="dose-${key}" class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" inputmode="decimal" id="dose-${key}" class="input-field" placeholder="0.0" ${stepAttr}><span class="font-medium text-gray-600">${unit}</span></div>`;
                 fromContainer.appendChild(inputDiv);
-                document.getElementById(`dose-${key}`).addEventListener('input', calculateAll);
+                const inputEl = document.getElementById(`dose-${key}`);
+                inputEl.addEventListener('input', calculateAll);
+                if (key === 'oral_morphine_lr') {
+                    inputEl.addEventListener('blur', (e) => {
+                        e.target.value = Math.round(parseFloat(e.target.value) || 0);
+                        calculateAll();
+                    });
+                } else if (key === 'patch_fentanyl') {
+                     inputEl.addEventListener('blur', (e) => {
+                        const val = parseFloat(e.target.value) || 0;
+                        e.target.value = (Math.round(val / 12.5) * 12.5).toFixed(1);
+                        calculateAll();
+                    });
+                }
+
 
                 const displayDiv = document.createElement('div');
                 displayDiv.className = 'space-y-1';
@@ -374,19 +455,55 @@ ${prnText}
 
             // Create Regimen Selection UI
             const basalRegimens = {
-                'basal-morphine': { label: 'Morphine IV/SC' },
-                'basal-fentanyl-iv': { label: 'Fentanyl IV' },
+                'basal-morphine-sc': { label: 'Morphine SC Drip' },
+                'basal-morphine-iv': { label: 'Morphine IV Drip', hasOptions: true, drug: 'morphine', presets: ['1:1', '1:5', '1:10'] },
+                'basal-fentanyl-iv': { label: 'Fentanyl IV Drip', hasOptions: true, drug: 'fentanyl', presets: ['1:0.1', '1:0.5', '1:1', '1:5'] },
                 'basal-fentanyl-patch': { label: 'Fentanyl Patch' }
             };
             Object.keys(basalRegimens).forEach((key, index) => {
+                const regimen = basalRegimens[key];
                 const div = document.createElement('div');
+                let optionsHtml = '';
+                if (regimen.hasOptions) {
+                    const presetOptions = regimen.presets.map(p => `<option value="${p}">${p}</option>`).join('');
+                    optionsHtml = `
+                        <div class="drip-options space-y-2 mt-2">
+                            <div class="flex items-center gap-2">
+                                <label for="${regimen.drug}-iv-drip-concentration" class="text-sm">Concentration:</label>
+                                <select id="${regimen.drug}-iv-drip-concentration" class="input-field !w-28">${presetOptions}<option value="other">อื่นๆ</option></select>
+                                <input type="text" id="${regimen.drug}-iv-drip-concentration-custom" class="input-field !w-24 hidden" placeholder="1:x">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="${regimen.drug}-iv-drip-duration" class="text-sm">Duration:</label>
+                                <input type="number" id="${regimen.drug}-iv-drip-duration" value="24" class="input-field !w-24">
+                                <span class="text-sm">hr</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Calculated Volume: <span id="${regimen.drug}-iv-drip-volume" class="font-bold">0.0 mL</span></p>
+                            <p class="text-sm text-gray-600">Calculated Rate: <span id="${regimen.drug}-iv-drip-rate" class="font-bold">0.0 mL/hr</span></p>
+                        </div>
+                    `;
+                }
                 div.innerHTML = `
                     <input type="radio" id="${key}" name="basal-regimen" ${index === 0 ? 'checked' : ''} data-order-text="">
-                    <label for="${key}" class="radio-label font-semibold">${basalRegimens[key].label} <span id="${key}-val" class="float-right font-bold text-cyan-700">0.0</span></label>
+                    <label for="${key}" class="radio-label font-semibold">${regimen.label} <span id="${key}-val" class="float-right font-bold text-cyan-700">0.0</span></label>
+                    ${optionsHtml}
                 `;
                 basalOptionsContainer.appendChild(div);
                 document.getElementById(key).addEventListener('change', updateOrderPreview);
             });
+            
+            // Add event listeners for IV Drip option inputs
+            ['morphine', 'fentanyl'].forEach(drug => {
+                const concentrationSelect = document.getElementById(`${drug}-iv-drip-concentration`);
+                const customInput = document.getElementById(`${drug}-iv-drip-concentration-custom`);
+                concentrationSelect.addEventListener('change', (e) => {
+                    customInput.classList.toggle('hidden', e.target.value !== 'other');
+                    updateIvDripOrder(drug);
+                });
+                customInput.addEventListener('input', () => updateIvDripOrder(drug));
+                document.getElementById(`${drug}-iv-drip-duration`).addEventListener('input', () => updateIvDripOrder(drug));
+            });
+
 
             Object.keys(PRN_REGIMENS).forEach((key, index) => {
                 const { label } = PRN_REGIMENS[key];
