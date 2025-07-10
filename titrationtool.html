@@ -67,7 +67,9 @@
             background-color: #059669;
         }
         .radio-label {
-            display: block;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 0.75rem;
             border: 1px solid #d1d5db;
             border-radius: 0.5rem;
@@ -104,6 +106,19 @@
         input[type="radio"]:checked + .radio-label + .drip-options {
             display: block;
         }
+        .percent-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #0891b2;
+            color: #0891b2;
+            background-color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .percent-button:hover {
+            background-color: #f0f9ff;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -136,15 +151,35 @@
                 </div>
 
                 <div class="p-4 border rounded-lg bg-white">
-                    <h3 class="font-semibold text-gray-700 mb-3">Titration Calculation</h3>
+                    <h3 class="font-semibold text-gray-700 mb-3">คำนวณขนาดยาปัจจุบัน</h3>
                     <div>
-                        <p class="text-sm text-gray-600">Total MEDD (คำนวณจากยาทั้งหมด)</p>
-                        <p><span id="result-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
+                        <p class="text-sm text-gray-600">Current Total MEDD</p>
+                        <p><span id="current-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
                     </div>
                 </div>
 
                 <div class="p-4 border rounded-lg bg-white">
-                    <h3 class="font-semibold text-gray-700 mb-3">3. จัดแผนการรักษาและคัดลอก Order</h3>
+                    <h3 class="font-semibold text-gray-700 mb-3">3. ปรับเพิ่มขนาดยา (Dose Escalation)</h3>
+                     <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <button class="percent-button" data-percent="25">25%</button>
+                            <button class="percent-button" data-percent="30">30%</button>
+                            <button class="percent-button" data-percent="50">50%</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="dose-escalation-percent" class="text-sm">หรือกำหนดเอง:</label>
+                            <input type="number" id="dose-escalation-percent" value="0" class="input-field !w-24">
+                            <span class="text-sm">%</span>
+                        </div>
+                         <div>
+                            <p class="text-sm text-gray-600">New Total MEDD (ยาใหม่ทั้งหมด)</p>
+                            <p><span id="new-medd" class="text-2xl font-bold text-cyan-700">0.0</span> mg/day</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border rounded-lg bg-white">
+                    <h3 class="font-semibold text-gray-700 mb-3">4. จัดแผนการรักษาและคัดลอก Order</h3>
                     <div class="space-y-4">
                         <div>
                             <h4 class="font-medium text-gray-600 mb-2">เลือกยาพื้นฐาน (Basal Dose)</h4>
@@ -243,8 +278,14 @@
                 }
             }
 
-            const totalMedd = basalMedd + prnMedd;
-            updateTitrationResults(totalMedd);
+            const currentTotalMedd = basalMedd + prnMedd;
+            document.getElementById('current-medd').textContent = currentTotalMedd.toFixed(1);
+
+            const escalationPercent = parseFloat(document.getElementById('dose-escalation-percent').value) || 0;
+            const newTotalMedd = currentTotalMedd * (1 + (escalationPercent / 100));
+            document.getElementById('new-medd').textContent = newTotalMedd.toFixed(1);
+
+            updateTitrationResults(newTotalMedd);
             
             isCalculating = false;
         }
@@ -258,8 +299,6 @@
         }
 
         function updateTitrationResults(totalMedd) {
-            document.getElementById('result-medd').textContent = totalMedd.toFixed(1);
-
             // --- New Basal Doses ---
             const newBasalMorphineSC = totalMedd / CONVERSION_FACTORS['sc_morphine'].factor;
             const newBasalMorphineIV = totalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
@@ -313,11 +352,11 @@
         }
 
         function formatRatio(ratio) {
-            return Number(ratio.toFixed(2)).toString();
+            return Number.isInteger(ratio) ? ratio.toString() : ratio.toFixed(2);
         }
 
         function updateIvDripOrder(drug) {
-            const totalMedd = parseFloat(document.getElementById('result-medd').textContent) || 0;
+            const newTotalMedd = parseFloat(document.getElementById('new-medd').textContent) || 0;
             let dose, volume, duration, rate, concentration, orderText, concentrationRatio;
 
             const concentrationSelect = document.getElementById(`${drug}-iv-drip-concentration`);
@@ -331,7 +370,7 @@
             concentrationRatio = ratioParts.length === 2 ? parseFloat(ratioParts[1]) : 1;
             
             if (drug === 'morphine') {
-                const newBasalMorphineIV = totalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
+                const newBasalMorphineIV = newTotalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
                 dose = Math.round(newBasalMorphineIV);
                 volume = dose * concentrationRatio;
                 duration = parseFloat(document.getElementById('morphine-iv-drip-duration').value) || 24;
@@ -341,7 +380,7 @@
                 orderText = `Morphine ${dose} mg (1:${formatRatio(concentrationRatio)}) + NSS up to ${volume.toFixed(1)} mL IV drip at ${Math.round(rate)} mL/hr`;
                 document.getElementById('basal-morphine-iv').dataset.orderText = orderText;
             } else if (drug === 'fentanyl') {
-                const newBasalFentanylIV = totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
+                const newBasalFentanylIV = newTotalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
                 dose = Math.round(newBasalFentanylIV);
                 volume = dose * concentrationRatio;
                 duration = parseFloat(document.getElementById('fentanyl-iv-drip-duration').value) || 24;
@@ -485,7 +524,7 @@ ${prnText}
                 }
                 div.innerHTML = `
                     <input type="radio" id="${key}" name="basal-regimen" ${index === 0 ? 'checked' : ''} data-order-text="">
-                    <label for="${key}" class="radio-label font-semibold">${regimen.label} <span id="${key}-val" class="float-right font-bold text-cyan-700">0.0</span></label>
+                    <label for="${key}" class="radio-label font-semibold"><span>${regimen.label}</span><span id="${key}-val" class="font-bold text-cyan-700">0.0</span></label>
                     ${optionsHtml}
                 `;
                 basalOptionsContainer.appendChild(div);
@@ -510,11 +549,20 @@ ${prnText}
                 const div = document.createElement('div');
                 div.innerHTML = `
                     <input type="radio" id="${key}" name="prn-regimen" ${index === 0 ? 'checked' : ''} data-order-text="">
-                    <label for="${key}" class="radio-label font-semibold">${label} <span id="${key}-val" class="float-right font-bold text-cyan-700">0.0</span></label>
+                    <label for="${key}" class="radio-label font-semibold"><span>${label}</span><span id="${key}-val" class="float-right font-bold text-cyan-700">0.0</span></label>
                 `;
                 prnOptionsContainer.appendChild(div);
                 document.getElementById(key).addEventListener('change', updateOrderPreview);
             });
+
+            // Add event listeners for dose escalation
+            document.querySelectorAll('.percent-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    document.getElementById('dose-escalation-percent').value = e.target.dataset.percent;
+                    calculateAll();
+                });
+            });
+            document.getElementById('dose-escalation-percent').addEventListener('input', calculateAll);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
