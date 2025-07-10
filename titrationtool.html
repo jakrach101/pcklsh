@@ -251,39 +251,43 @@
             const newBasalMorphine = totalMedd / CONVERSION_FACTORS['iv_morphine'].factor;
             const newBasalFentanylIV = totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor;
             const newBasalFentanylPatch = totalMedd / CONVERSION_FACTORS['patch_fentanyl'].factor;
-            const roundedFentanylPatch = Math.round(newBasalFentanylPatch / 12.5) * 12.5;
-
+            
             // Display raw calculated values in the selection UI
             document.getElementById('basal-morphine-val').textContent = `${newBasalMorphine.toFixed(1)} mg/day`;
             document.getElementById('basal-fentanyl-iv-val').textContent = `${newBasalFentanylIV.toFixed(1)} mcg/day`;
             document.getElementById('basal-fentanyl-patch-val').textContent = `${newBasalFentanylPatch.toFixed(1)} mcg/hr`;
             
-            // Set the order text with the ROUNDED value for Fentanyl Patch and integer for Fentanyl IV
+            // Set the order text with ROUNDED values for practical use
+            const roundedFentanylPatch = Math.round(newBasalFentanylPatch / 12.5) * 12.5;
             document.getElementById('basal-morphine').dataset.orderText = `Morphine IV/SC ${newBasalMorphine.toFixed(1)} mg/day`;
             document.getElementById('basal-fentanyl-iv').dataset.orderText = `Fentanyl IV ${newBasalFentanylIV.toFixed(0)} mcg/day`;
             document.getElementById('basal-fentanyl-patch').dataset.orderText = `Fentanyl Patch ${roundedFentanylPatch.toFixed(1)} mcg/hr q 72 hr`;
 
             // --- New PRN Doses ---
+            // 1. Calculate raw values
             const prnOralMg = totalMedd / 6;
             const prnScMg = prnOralMg / ORAL_TO_SC_RATIO;
             const prnSyrupMl = prnOralMg / MORPHINE_SYRUP_CONCENTRATION;
-            
             const rawPrnFentanylIV = (totalMedd / CONVERSION_FACTORS['iv_fentanyl'].factor) / 6;
-            let roundedPrnFentanylIV = Math.round(rawPrnFentanylIV / 25) * 25;
-            if (roundedPrnFentanylIV === 0 && rawPrnFentanylIV > 0) {
-                roundedPrnFentanylIV = 25;
-            }
 
-            // Display raw calculated values in the selection UI
+            // 2. Display raw calculated values in the selection UI
             document.getElementById('prn-ir-val').textContent = `${prnOralMg.toFixed(1)} mg`;
             document.getElementById('prn-sc-val').textContent = `${prnScMg.toFixed(1)} mg`;
             document.getElementById('prn-syrup-val').textContent = `${prnSyrupMl.toFixed(1)} ml`;
             document.getElementById('prn-fentanyl-iv-val').textContent = `${rawPrnFentanylIV.toFixed(1)} mcg`;
             
-            // Set the order text with the ROUNDED value for Fentanyl IV PRN
-            document.getElementById('prn-ir').dataset.orderText = PRN_REGIMENS['prn-ir'].template(prnOralMg.toFixed(1));
-            document.getElementById('prn-sc').dataset.orderText = PRN_REGIMENS['prn-sc'].template(prnScMg.toFixed(1));
-            document.getElementById('prn-syrup').dataset.orderText = PRN_REGIMENS['prn-syrup'].template(prnSyrupMl.toFixed(1));
+            // 3. Calculate and set the order text with ROUNDED, practical values
+            const roundedPrnIr = Math.round(prnOralMg / 5) * 5;
+            const roundedPrnSc = (Math.round(prnScMg / 0.5) * 0.5).toFixed(1);
+            const roundedPrnSyrup = (Math.round(prnSyrupMl / 0.5) * 0.5).toFixed(1);
+            let roundedPrnFentanylIV = Math.round(rawPrnFentanylIV / 25) * 25;
+            if (roundedPrnFentanylIV === 0 && rawPrnFentanylIV > 0) {
+                roundedPrnFentanylIV = 25;
+            }
+            
+            document.getElementById('prn-ir').dataset.orderText = PRN_REGIMENS['prn-ir'].template(roundedPrnIr.toFixed(0));
+            document.getElementById('prn-sc').dataset.orderText = PRN_REGIMENS['prn-sc'].template(roundedPrnSc);
+            document.getElementById('prn-syrup').dataset.orderText = PRN_REGIMENS['prn-syrup'].template(roundedPrnSyrup);
             document.getElementById('prn-fentanyl-iv').dataset.orderText = PRN_REGIMENS['prn-fentanyl-iv'].template(roundedPrnFentanylIV.toFixed(0));
 
             updateOrderPreview();
