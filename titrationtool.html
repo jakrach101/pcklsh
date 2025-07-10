@@ -346,7 +346,7 @@ ${prnText}
                 const { unit, label } = { unit: CONVERSION_FACTORS[key].unit, label: DRUG_LABELS[key] };
                 const inputDiv = document.createElement('div');
                 inputDiv.className = 'space-y-1';
-                inputDiv.innerHTML = `<label for="dose-${key}" class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" id="dose-${key}" class="input-field" placeholder="0.0" step="any"><span class="font-medium text-gray-600">${unit}</span></div>`;
+                inputDiv.innerHTML = `<label for="dose-${key}" class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" inputmode="decimal" id="dose-${key}" class="input-field" placeholder="0.0" step="any"><span class="font-medium text-gray-600">${unit}</span></div>`;
                 fromContainer.appendChild(inputDiv);
                 document.getElementById(`dose-${key}`).addEventListener('input', calculateAll);
 
@@ -362,7 +362,7 @@ ${prnText}
                 const unit = key.includes('syrup') ? 'ml' : 'mg';
                 const div = document.createElement('div');
                 div.className = 'space-y-1';
-                div.innerHTML = `<label class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" id="${key}-size" class="input-field" placeholder="Dose (${unit})"><span class="font-bold text-gray-500">x</span><input type="number" id="${key}-times" class="input-field" placeholder="จำนวนครั้ง"></div>`;
+                div.innerHTML = `<label class="font-semibold text-sm text-gray-700">${label}</label><div class="flex items-center gap-2"><input type="number" inputmode="decimal" id="${key}-size" class="input-field" placeholder="Dose (${unit})"><span class="font-bold text-gray-500">x</span><input type="number" inputmode="decimal" id="${key}-times" class="input-field" placeholder="จำนวนครั้ง"></div>`;
                 prnGivenContainer.appendChild(div);
                 document.getElementById(`${key}-size`).addEventListener('input', calculateAll);
                 document.getElementById(`${key}-times`).addEventListener('input', calculateAll);
