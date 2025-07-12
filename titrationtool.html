@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opioid Equianalgesic Calculator</title>
+    <title>Opioid Calculator draft edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@
         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-lg space-y-4">
             
             <div class="flex flex-wrap justify-between items-center gap-4">
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Opioid Equianalgesic Calculator</h1>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Opioid Calculator draft edition</h1>
                 <div class="flex items-center gap-2">
                     <button id="safety-checklist-btn" class="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 font-semibold py-2 px-3 sm:px-4 rounded-lg transition-colors text-sm flex items-center gap-2">
                         <i class="fas fa-check-circle"></i>
@@ -159,7 +159,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="drug-info-modal" class="modal-overlay">
         <div class="modal-content space-y-3">
             <button id="close-drug-info-modal-btn" class="action-btn modal-close-btn text-gray-500 hover:bg-gray-200">&times;</button>
@@ -303,11 +302,11 @@
                 <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
                     <li>MST (10mg, 30mg)</li>
                     <li>Kapanol (20mg)</li>
-                    <li>Morphine IR (10mg)</li>
-                    <li>Morphine Syrup (2mg/ml)</li>
                     <li>Morphine injection 10mg/ampule</li>
                     <li>Fentanyl patch (25mcg/hr)</li>
                     <li>Fentanyl injection 100mcg/ampule</li>
+                    <li>Morphine IR (10mg)</li>
+                    <li>Morphine Syrup (2mg/ml)</li>
                 </ul>
             </div>
         </div>
@@ -1351,23 +1350,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-" in the Canvas. I would like you to make the following changes:
-
-1. In the "Clinical Pearls / Safety" modal, under the "ตัวอย่างรายการยา Opioid ในโรงพยาบาล (Formulary)" section, add a new list item: `Pethidine injection 50mg/ampule`.
-2. In the `DRUG_CONFIG` JavaScript object, add a new entry for `pethidine_iv_sc`. This new entry should have the following properties:
-   - `name`: 'Pethidine IV/SC (mg/day)'
-   - `factor`: 0.1
-   - `unit`: 'mg/day'
-   - `type`: 'injectable'
-   - `isBasal`: `true`
-   - `isBreakthrough`: `true`
-   - `info`: A string containing the following HTML:
-     ```html
-     <p><strong>Onset:</strong> IV ~5-10 นาที, SC ~15-30 นาที</p>
-     <p><strong>ข้อควรระวัง:</strong></p>
-     <ul class="list-disc list-inside pl-4">
-         <li>ไม่แนะนำให้ใช้ต่อเนื่องนานเกิน 48 ชั่วโมง หรือในขนาดสูง (มากกว่า 600mg/day)</li>
-         <li>Metabolite (Norpethedine) มีฤทธิ์กระตุ้นระบบประสาทส่วนกลาง อาจทำให้เกิดอาการสั่น, ชัก, หรือสับสนได้</li>
-         <li>ควรหลีกเลี่ยงการใช้ในผู้ป่วยไตวาย (Renal Impairment) และผู้สูงอายุ</li>
-     </ul>
-     
