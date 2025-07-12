@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opioid Converter - Unified Palliative Care Tool v2</title>
+    <title>Opioid Converter - Unified Palliative Care Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,6 +50,8 @@
         }
         .adjustment-section { transition: opacity 0.3s; }
         .adjustment-section.disabled { opacity: 0.4; pointer-events: none; }
+        
+        /* New Styles from Part 34 merged */
         .option-card {
             border: 2px solid #e2e8f0;
             border-radius: 0.5rem;
@@ -73,6 +75,25 @@
             font-size: 0.7rem;
             font-weight: 600;
             border-radius: 9999px;
+        }
+        .helper-details > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin: 0.5rem -0.5rem -0.5rem -0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            color: #0369a1;
+        }
+        .helper-details > summary::-webkit-details-marker { display: none; }
+        .helper-details > summary::after { content: '▼'; float: right; transition: transform 0.2s; }
+        .helper-details[open] > summary::after { transform: rotate(180deg); }
+        .helper-content {
+            background-color: #e0f2fe;
+            padding: 1rem;
+            margin: 0.5rem -1rem -1rem -1rem;
+            border-radius: 0 0 0.375rem 0.375rem;
+            border-top: 1px solid #bae6fd;
         }
         .copy-button {
             display: flex; align-items: center; justify-content: center; gap: 0.75rem;
@@ -152,7 +173,7 @@
 
                         <div class="p-4 border rounded-lg space-y-4 bg-slate-50">
                              <div>
-                                <h3 class="text-lg font-semibold text-gray-700 mb-3">2. Dose Titration (การไทเทรตยา)</h3>
+                                <h3 class="text-lg font-semibold text-gray-700 mb-3">2. วิธีการปรับเพิ่มยา (Escalation)</h3>
                                 <div class="flex gap-4">
                                     <label class="flex-1"><input type="radio" name="adjustment-method" value="prn" checked class="sr-only peer"><div class="w-full text-center p-3 rounded-md border-2 bg-white border-gray-300 peer-checked:border-cyan-500 peer-checked:bg-cyan-50 cursor-pointer">ปรับตาม PRN</div></label>
                                     <label class="flex-1"><input type="radio" name="adjustment-method" value="percent" class="sr-only peer"><div class="w-full text-center p-3 rounded-md border-2 bg-white border-gray-300 peer-checked:border-cyan-500 peer-checked:bg-cyan-50 cursor-pointer">ปรับตาม %</div></label>
@@ -160,31 +181,35 @@
                             </div>
 
                             <div id="prn-adjustment-section" class="adjustment-section space-y-3">
+                                <h4 class="font-semibold text-gray-600">ยาเสริม (Breakthrough / PRN)</h4>
                                 <div id="prn-inputs-section" class="space-y-3"></div>
                                 <p id="prn-warning" class="text-sm text-center text-orange-600 hidden">ใช้ยา PRN ไม่ถึง 3 ครั้ง จะไม่นำมาคำนวณเพิ่มใน New MEDD</p>
                             </div>
                             
                             <div id="percent-adjustment-section" class="adjustment-section space-y-3">
-                                 <div class="flex items-center gap-2">
+                                <h4 class="font-semibold text-gray-600">ปรับเพิ่มตาม % (Escalate by %)</h4>
+                                <div class="grid grid-cols-3 gap-2">
                                     <button class="action-btn percent-btn" data-percent="30">30%</button>
                                     <button class="action-btn percent-btn" data-percent="50">50%</button>
                                     <button class="action-btn percent-btn" data-percent="100">100%</button>
-                                    <input type="number" id="custom-percent-input" class="input-field !w-24 text-center" placeholder="อื่นๆ"><span class="text-sm">%</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="p-4 border rounded-lg space-y-4 bg-slate-50">
                             <h3 class="text-lg font-semibold text-gray-700">3. การปรับลดเพื่อความปลอดภัยโดยรวม</h3>
+                            <div id="safety-warning-message" class="hidden p-3 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-r-lg">
+                                <p class="font-bold">ตรวจพบปัจจัยเสี่ยง!</p>
+                                <p class="text-sm">แนะนำให้พิจารณาปรับลดขนาดยาเพื่อความปลอดภัย</p>
+                            </div>
                              <div id="double-dip-warning" class="hidden p-3 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-r-lg">
                                 <p class="font-bold">ข้อควรระวัง!</p>
                                 <p class="text-sm">ขนาดยาใหม่จะถูกปรับลดตามค่าไต/อายุโดยอัตโนมัติ การลดในส่วนนี้จะเป็นการลดเพิ่มเติมจากส่วนนั้น</p>
                             </div>
-                            <div class="flex items-center gap-2">
+                            <div class="grid grid-cols-3 gap-2">
                                 <button class="action-btn reduction-btn" data-factor="0.75">-25%</button>
                                 <button class="action-btn reduction-btn" data-factor="0.65">-35%</button>
                                 <button class="action-btn reduction-btn" data-factor="0.50">-50%</button>
-                                <input type="number" id="custom-reduction-input" class="input-field !w-24 text-center" placeholder="อื่นๆ"><span class="text-sm">%</span>
                             </div>
                         </div>
                     </div>
@@ -253,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- DOM ELEMENTS ---
     const elements = {
+        // ... (All getElementById calls will be here for organization)
         mainContainer: document.querySelector('main'),
         currentMedsSection: document.getElementById('current-meds-section'),
         prnInputsSection: document.getElementById('prn-inputs-section'),
@@ -264,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         prnAdjustmentSection: document.getElementById('prn-adjustment-section'),
         percentAdjustmentSection: document.getElementById('percent-adjustment-section'),
         prnWarning: document.getElementById('prn-warning'),
+        safetyWarningMessage: document.getElementById('safety-warning-message'),
         doubleDipWarning: document.getElementById('double-dip-warning'),
         rotationOutcomeSection: document.getElementById('rotation-outcome-section'),
         finalOrderSection: document.getElementById('final-order-section'),
@@ -274,8 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
         copyButtonText: document.getElementById('copy-button-text'),
         clinicalRecommendationSection: document.getElementById('clinical-recommendation-section'),
         clinicalRecommendationList: document.getElementById('clinical-recommendation-list'),
-        customPercentInput: document.getElementById('custom-percent-input'),
-        customReductionInput: document.getElementById('custom-reduction-input'),
     };
 
     // --- STATE ---
@@ -334,14 +359,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const age = state.patient.age;
 
         if (drugFamily === 'morphine') {
-            if (gfr < 10) factor *= 0.25;
-            else if (gfr <= 30) factor *= 0.50;
-            else if (gfr <= 50) factor *= 0.75;
+            if (gfr < 10) factor *= 0.25; // 75% reduction
+            else if (gfr <= 30) factor *= 0.50; // 50% reduction
+            else if (gfr <= 50) factor *= 0.75; // 25% reduction
             
-            if (age > 75) factor *= 0.75;
+            if (age > 75) factor *= 0.75; // 25% reduction for elderly
         } else if (drugFamily === 'fentanyl') {
-            if (gfr < 10) factor *= 0.50;
-            else if (gfr <= 30) factor *= 0.75;
+            if (gfr < 10) factor *= 0.50; // 50% reduction
+            else if (gfr <= 30) factor *= 0.75; // 25% reduction
         }
         return factor;
     }
@@ -395,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderRiskAssessment() {
+        // Auto-check based on inputs
         const age = state.patient.age;
         const gfr = state.patient.gfr;
         const ageRiskCheckbox = document.getElementById('check-age_risk');
@@ -413,35 +439,104 @@ document.addEventListener('DOMContentLoaded', () => {
             if(isRenalRisk) state.patient.risks.add('renal_risk'); else state.patient.risks.delete('renal_risk');
         }
         
+        // Show/hide warnings
+        elements.safetyWarningMessage.classList.toggle('hidden', state.patient.risks.size === 0);
         state.isAutoReduced = (age > 75 || (gfr !== null && gfr < 50));
         elements.doubleDipWarning.classList.toggle('hidden', !state.isAutoReduced);
 
+        // Clinical recommendations
         const recommendations = [];
         if (state.patient.pps < 50) recommendations.push("PPS < 50: ผู้ป่วยอาจกลืนลำบาก ควรพิจารณาให้ยาทาง SC/IV หรือแผ่นแปะ");
-        if (gfr < 10) recommendations.push("GFR < 10: ขนาดยาจะถูกปรับลดอัตโนมัติ");
-        else if (gfr <= 50) recommendations.push("GFR 31-50: ขนาดยาจะถูกปรับลดอัตโนมัติ");
-        if (age > 75) recommendations.push("ผู้สูงอายุ (>75 ปี): ขนาดยาจะถูกปรับลดอัตโนมัติ");
+        if (gfr < 10) recommendations.push("GFR < 10: ขนาดยา Morphine/Fentanyl จะถูกปรับลดอัตโนมัติ");
+        else if (gfr <= 30) recommendations.push("GFR 10-30: ขนาดยา Morphine/Fentanyl จะถูกปรับลดอัตโนมัติ");
+        else if (gfr <= 50) recommendations.push("GFR 31-50: ขนาดยา Morphine จะถูกปรับลดอัตโนมัติ");
+        if (age > 75) recommendations.push("ผู้ป่วยสูงอายุ (>75 ปี): ขนาดยา Morphine จะถูกปรับลดอัตโนมัติ");
         
         elements.clinicalRecommendationList.innerHTML = recommendations.map(r => `<li>${r}</li>`).join('');
         elements.clinicalRecommendationSection.classList.toggle('hidden', recommendations.length === 0);
     }
 
     function renderNewRegimenOptions() {
-        // ... (This function remains largely the same as the previous version)
         const newMedd = state.newTotalMEDD;
         if (newMedd <= 0) {
             elements.basalOptionsSection.innerHTML = '';
             elements.prnOptionsSection.innerHTML = '';
             return;
         }
-        // For brevity, this is a simplified render. The actual implementation would be more detailed.
-        elements.basalOptionsSection.innerHTML = `<p class="text-gray-500 col-span-full">คำนวณขนาดยาใหม่... </p>`;
-        elements.prnOptionsSection.innerHTML = '';
+
+        const basalDoses = {
+            basal_oral_mst: { ...BASE_DRUGS.oral_morphine_lr, baseDose: newMedd },
+            basal_morphine_csci: { ...BASE_DRUGS.sc_iv_morphine, name: 'Morphine CSCI', baseDose: newMedd / 3 },
+            basal_fentanyl_patch: { ...BASE_DRUGS.patch_fentanyl, baseDose: newMedd / 2.4 },
+        };
+
+        elements.basalOptionsSection.innerHTML = Object.keys(basalDoses).map(key => {
+            const option = basalDoses[key];
+            const patientAdjFactor = getPatientAdjustmentFactor(option.family);
+            const adjustedDose = option.baseDose * patientAdjFactor;
+            let badgeHtml = '';
+            if (patientAdjFactor < 1) badgeHtml += `<div class="badge !bg-sky-600" title="ปรับลดอัตโนมัติตามค่าไต/อายุ">ไต/อายุ</div>`;
+            if (state.safetyReductionFactor < 1) badgeHtml += `<div class="badge" title="ปรับลดโดยรวมที่เลือกไว้">ลด ${((1-state.safetyReductionFactor)*100).toFixed(0)}%</div>`;
+            
+            return `<label>
+                <input type="radio" name="basal-option" value="${key}" class="hidden" ${state.selectedBasal === key ? 'checked' : ''}>
+                <div class="option-card">
+                    <div class="badge-container">${badgeHtml}</div>
+                    <p class="font-semibold text-gray-800">${option.name}</p>
+                    <p class="text-xl font-bold text-cyan-700">${adjustedDose.toFixed(1)} <span class="text-base font-medium text-gray-600">${option.unit}</span></p>
+                </div>
+            </label>`;
+        }).join('');
+        
+        const prnDoses = {
+            prn_option_ir: { ...PRN_DRUGS.prn_ir, name: "Morphine IR (Tab)", baseDose: newMedd * (state.prnCalcPercentage / 100) },
+            prn_option_sc_iv: { ...PRN_DRUGS.prn_morphine_iv, name: "Morphine SC/IV", baseDose: (newMedd * (state.prnCalcPercentage / 100)) / 3 },
+            prn_option_fentanyl_iv: { ...PRN_DRUGS.prn_fentanyl_iv, name: "Fentanyl IV", baseDose: (newMedd / (BASE_DRUGS.iv_fentanyl.factor*1000)) * (state.prnCalcPercentage / 100) },
+        };
+
+        elements.prnOptionsSection.innerHTML = Object.keys(prnDoses).map(key => {
+             const option = prnDoses[key];
+            const patientAdjFactor = getPatientAdjustmentFactor(option.family);
+            const adjustedDose = option.baseDose * patientAdjFactor;
+            let badgeHtml = '';
+            if (patientAdjFactor < 1) badgeHtml += `<div class="badge !bg-sky-600" title="ปรับลดอัตโนมัติตามค่าไต/อายุ">ไต/อายุ</div>`;
+            
+            return `<label>
+                <input type="checkbox" name="prn-option" value="${key}" class="hidden" ${state.selectedPrns.includes(key) ? 'checked' : ''}>
+                <div class="option-card">
+                    <div class="badge-container">${badgeHtml}</div>
+                    <p class="font-semibold text-gray-800">${option.name}</p>
+                    <p class="text-xl font-bold text-cyan-700">${adjustedDose.toFixed(1)} <span class="text-base font-medium text-gray-600">${option.doseUnit}</span></p>
+                </div>
+            </label>`;
+        }).join('');
     }
 
     function renderOrderPreview() {
-        // ... (This function remains largely the same as the previous version)
-        elements.orderPreviewArea.value = `กำลังสร้าง Order สำหรับ New MEDD ${state.newTotalMEDD.toFixed(1)}...`;
+        let orderText = `--- Palliative Care Order ---\n`;
+        const timestamp = new Date().toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
+        orderText += `(Generated: ${timestamp})\n\n`;
+        orderText += `Based on New Total MEDD: ${state.newTotalMEDD.toFixed(1)} mg/day\n\n`;
+
+        if (state.selectedBasal) {
+             orderText += `New Basal Dose:\n1. [Order for ${state.selectedBasal}]\n`;
+        }
+        if (state.selectedPrns.length > 0) {
+            orderText += `\nNew PRN Dose:\n`;
+            state.selectedPrns.forEach((key, index) => {
+                 orderText += `${index + 1}. [Order for ${key}]\n`;
+            });
+        }
+        
+        let notes = [];
+        if (state.patient.gfr < 50) notes.push(`- Dose adjusted for renal function (eGFR ${state.patient.gfr}).`);
+        if (state.patient.age > 75) notes.push(`- Dose adjusted for elderly patient (Age ${state.patient.age}).`);
+        if (state.safetyReductionFactor < 1) notes.push(`- Overall ${(100 - state.safetyReductionFactor * 100)}% safety reduction applied.`);
+        if (notes.length > 0) {
+            orderText += `\n--- Clinical Notes ---\n${notes.join('\n')}`;
+        }
+
+        elements.orderPreviewArea.value = orderText.trim();
     }
     
     // --- EVENT LISTENERS ---
@@ -452,21 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculateAndRenderAll();
             } else if (target.matches('#age-input, #gfr-input, #pps-score')) {
                 state.patient[target.id.split('-')[0]] = parseFloat(target.value) || null;
-                calculateAndRenderAll();
-            } 
-            // --- NEW: Handle custom inputs ---
-            else if (target.id === 'custom-percent-input') {
-                document.querySelectorAll('.percent-btn').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('.reduction-btn').forEach(btn => btn.classList.remove('active'));
-                state.safetyReductionFactor = 1.0;
-                state.escalationPercent = parseFloat(target.value) || 0;
-                calculateAndRenderAll();
-            } else if (target.id === 'custom-reduction-input') {
-                document.querySelectorAll('.reduction-btn').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('.percent-btn').forEach(btn => btn.classList.remove('active'));
-                state.escalationPercent = 0;
-                const reductionPercent = parseFloat(target.value) || 0;
-                state.safetyReductionFactor = 1 - (Math.max(0, Math.min(100, reductionPercent)) / 100);
                 calculateAndRenderAll();
             }
         });
@@ -482,46 +562,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (target.checked) state.patient.risks.add(target.dataset.id);
                 else state.patient.risks.delete(target.dataset.id);
                 calculateAndRenderAll();
-            } else if (target.name === 'basal-option' || target.name === 'prn-option' || target.id === 'prn-calc-method') {
-                // Update state and re-render order part
-                state.prnCalcPercentage = parseFloat(document.getElementById('prn-calc-method').value);
-                state.selectedBasal = document.querySelector('input[name="basal-option"]:checked')?.value;
+            } else if (target.name === 'basal-option') {
+                state.selectedBasal = target.value;
+                renderOrderPreview();
+            } else if (target.name === 'prn-option') {
                 state.selectedPrns = Array.from(document.querySelectorAll('input[name="prn-option"]:checked')).map(el => el.value);
-                renderOrderPreview(); // Quick render for order only
+                renderOrderPreview();
+            } else if(target.id === 'prn-calc-method') {
+                state.prnCalcPercentage = parseFloat(target.value);
+                calculateAndRenderAll();
             }
         });
 
-        // --- UPDATED: Click handler with mutual exclusivity and toggle ---
         elements.mainContainer.addEventListener('click', (e) => {
             const target = e.target.closest('.action-btn');
             if (!target) return;
 
             if (target.matches('.percent-btn')) {
-                // Unselect reduction buttons
-                document.querySelectorAll('.reduction-btn').forEach(btn => btn.classList.remove('active'));
-                state.safetyReductionFactor = 1.0;
-                elements.customReductionInput.value = '';
-
-                // Toggle logic
-                if (target.classList.contains('active')) {
-                    target.classList.remove('active');
-                    state.escalationPercent = 0;
-                } else {
-                    document.querySelectorAll('.percent-btn').forEach(btn => btn.classList.remove('active'));
-                    target.classList.add('active');
-                    state.escalationPercent = parseFloat(target.dataset.percent);
-                }
-                elements.customPercentInput.value = '';
-                calculateAndRenderAll();
-
-            } else if (target.matches('.reduction-btn')) {
-                // Unselect escalation buttons
                 document.querySelectorAll('.percent-btn').forEach(btn => btn.classList.remove('active'));
-                state.escalationPercent = 0;
-                elements.customPercentInput.value = '';
-
-                // Toggle logic
-                if (target.classList.contains('active')) {
+                target.classList.add('active');
+                state.escalationPercent = parseFloat(target.dataset.percent);
+                calculateAndRenderAll();
+            } else if (target.matches('.reduction-btn')) {
+                 if (target.classList.contains('active')) {
                     target.classList.remove('active');
                     state.safetyReductionFactor = 1.0;
                 } else {
@@ -529,12 +592,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     target.classList.add('active');
                     state.safetyReductionFactor = parseFloat(target.dataset.factor);
                 }
-                elements.customReductionInput.value = '';
                 calculateAndRenderAll();
             }
         });
 
         elements.clearAllBtn.addEventListener('click', () => {
+            // Full reset logic here
             window.location.reload();
         });
         
@@ -555,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createPrnInputs();
     createRiskChecklist();
     initializeEventListeners();
-    calculateAndRenderAll(); 
+    calculateAndRenderAll(); // Initial calculation
     elements.prnAdjustmentSection.classList.toggle('disabled', state.adjustmentMethod !== 'prn');
     elements.percentAdjustmentSection.classList.toggle('disabled', state.adjustmentMethod !== 'percent');
 });
