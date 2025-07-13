@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opioid Calculator (Material Design)</title>
+    <title>Opioid Calculator (with Theme Selector)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- Material Design Inspired Theme --- */
-        :root {
+        /* --- Base Styles --- */
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            transition: background-color 0.3s;
+        }
+
+        /* --- Material Design Theme (Default) --- */
+        .theme-material {
             --bg-color: #f7f8fa;
             --card-bg-color: #ffffff;
             --primary-color: #0284c7; /* sky-600 */
@@ -20,37 +26,89 @@
             --text-color: #374151; /* gray-700 */
             --text-light: #6b7280; /* gray-500 */
             --border-color: #e5e7eb; /* gray-200 */
-            --card-radius: 0.75rem; /* 12px */
-            --input-radius: 0.5rem; /* 8px */
+            --card-radius: 0.75rem;
+            --input-radius: 0.5rem;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --modal-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --modal-bg: rgba(17, 24, 39, 0.6);
+            --modal-backdrop-blur: blur(4px);
         }
-
-        body { 
-            font-family: 'Sarabun', sans-serif; 
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-
-        /* Card Style */
-        .card {
+        .theme-material .card {
             background: var(--card-bg-color);
             border-radius: var(--card-radius);
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            box-shadow: var(--card-shadow);
             border: 1px solid var(--border-color);
         }
-        
-        /* Input & Select Field Styles */
+        .theme-material .input-field, .theme-material .select-field {
+            border: 1px solid var(--border-color);
+            border-radius: var(--input-radius);
+            background-color: #f9fafb;
+        }
+        .theme-material .input-field:focus, .theme-material .select-field:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+            background-color: var(--card-bg-color);
+        }
+        .theme-material .btn { border: 1px solid transparent; }
+        .theme-material .btn-primary { background-color: var(--primary-color); }
+        .theme-material .btn-primary:hover { background-color: var(--primary-color-dark); }
+        .theme-material .btn-secondary { border-color: var(--border-color); }
+        .theme-material .btn-secondary:hover { background-color: #f0f9ff; border-color: #bae6fd; }
+        .theme-material .btn-icon:hover { background-color: #f3f4f6; }
+        .theme-material .pin-btn.pinned { color: #dc2626; background-color: #fef2f2; } /* Red for pinned */
+
+        /* --- Neumorphic Theme --- */
+        .theme-neumorphic {
+            --bg-color: #eef0f4;
+            --card-bg-color: #eef0f4;
+            --primary-color: #0891b2;
+            --primary-color-dark: #0e7490;
+            --primary-text: #0e7490;
+            --text-color: #4b5563;
+            --text-light: #6b7280;
+            --border-color: transparent;
+            --dark-shadow: #d1d9e6;
+            --light-shadow: #ffffff;
+            --card-radius: 1.25rem;
+            --input-radius: 0.75rem;
+            --card-shadow: 8px 8px 16px var(--dark-shadow), -8px -8px 16px var(--light-shadow);
+            --modal-shadow: 12px 12px 24px rgba(0,0,0,0.2), -12px -12px 24px rgba(255,255,255,0.7);
+            --modal-bg: rgba(0, 0, 0, 0.4);
+            --modal-backdrop-blur: blur(8px);
+        }
+        .theme-neumorphic .card {
+            background: var(--card-bg-color);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+        .theme-neumorphic .input-field, .theme-neumorphic .select-field {
+            border: none;
+            border-radius: var(--input-radius);
+            background: var(--bg-color);
+            box-shadow: inset 5px 5px 10px var(--dark-shadow), inset -5px -5px 10px var(--light-shadow);
+        }
+        .theme-neumorphic .input-field:focus, .theme-neumorphic .select-field:focus {
+            box-shadow: inset 2px 2px 4px var(--dark-shadow), inset -2px -2px 4px var(--light-shadow), 0 0 0 2px var(--primary-color);
+        }
+        .theme-neumorphic .btn {
+            background: var(--bg-color);
+            box-shadow: 4px 4px 8px var(--dark-shadow), -4px -4px 8px var(--light-shadow);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .theme-neumorphic .btn:active {
+            box-shadow: inset 3px 3px 6px var(--dark-shadow), inset -3px -3px 6px var(--light-shadow);
+        }
+        .theme-neumorphic .btn-primary { background-color: var(--primary-color); }
+        .theme-neumorphic .btn-primary:hover { background-color: var(--primary-color-dark); }
+        .theme-neumorphic .pin-btn.pinned { color: #dc2626; box-shadow: inset 3px 3px 6px #fecdd3, inset -3px -3px 6px #ffffff; } /* Red for pinned */
+
+        /* --- Common Styles (apply to both themes) --- */
+        body { background-color: var(--bg-color); color: var(--text-color); }
         .input-field, .select-field {
-            width: 100%; 
-            border: 1px solid var(--border-color); 
-            border-radius: var(--input-radius); 
-            padding: 0.6rem 0.75rem; 
-            background-color: #f9fafb; 
-            transition: all 0.2s ease-in-out; 
-            font-size: 16px; /* iOS zoom fix */
+            width: 100%; padding: 0.6rem 0.75rem; transition: all 0.2s ease-in-out; font-size: 16px;
         }
-        @media (min-width: 640px) {
-            .input-field, .select-field { font-size: 0.875rem; }
-        }
+        @media (min-width: 640px) { .input-field, .select-field { font-size: 0.875rem; } }
         .select-field { 
             -webkit-appearance: none; -moz-appearance: none; appearance: none;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
@@ -58,107 +116,22 @@
             background-size: 1.25em 1.25em; padding-right: 2.5rem;
         }
         .input-field::placeholder { color: #9ca3af; }
-        .input-field:focus, .select-field:focus { 
-            border-color: var(--primary-color); 
-            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); 
-            outline: none;
-            background-color: var(--card-bg-color);
-        }
-        .input-field:disabled { 
-            background-color: #f3f4f6; 
-            color: var(--text-light); 
-            cursor: not-allowed; 
-        }
-
-        /* Button Styles */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: var(--input-radius);
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: var(--primary-color-dark);
-        }
-        .btn-secondary {
-            background-color: var(--card-bg-color);
-            color: var(--primary-text);
-            border-color: var(--border-color);
-        }
-        .btn-secondary:hover {
-            background-color: #f0f9ff; /* sky-50 */
-            border-color: #bae6fd; /* sky-200 */
-        }
-        .btn-icon {
-            width: 2.5rem; height: 2.5rem;
-            padding: 0;
-            border-radius: 9999px;
-            color: var(--text-light);
-        }
-        .btn-icon:hover {
-            background-color: #f3f4f6; /* gray-100 */
-            color: var(--text-color);
-        }
-        
-        .pin-btn.pinned { color: var(--primary-color); background-color: #f0f9ff; }
+        .input-field:disabled { background-color: #f3f4f6; color: var(--text-light); cursor: not-allowed; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; font-weight: 600; padding: 0.5rem 1rem; border-radius: var(--input-radius); transition: all 0.2s ease-in-out; cursor: pointer; }
+        .btn-icon { width: 2.5rem; height: 2.5rem; padding: 0; border-radius: 9999px; color: var(--text-light); }
         .pin-btn.balance-decrease { color: #f97316; background-color: #fff7ed; }
         .pin-btn.balance-increase { color: #16a34a; background-color: #f0fdf4; }
         .pin-btn.locked { color: #dc2626; background-color: #fef2f2; }
-
-        /* Modal styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(17, 24, 39, 0.6); /* gray-900 with opacity */
-            backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center; z-index: 50;
-            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--modal-bg); backdrop-filter: var(--modal-backdrop-blur); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
-        .modal-content {
-            position: relative; 
-            background-color: var(--card-bg-color); 
-            padding: 1.5rem;
-            border-radius: var(--card-radius); 
-            width: 90%; max-width: 500px;
-            transform: scale(0.95); transition: transform 0.3s;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
+        .modal-content { position: relative; background-color: var(--card-bg-color); padding: 1.5rem; border-radius: var(--card-radius); width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.3s; box-shadow: var(--modal-shadow); }
         .modal-overlay.visible .modal-content { transform: scale(1); }
         .modal-close-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
-
-        /* Utility button styles (for titration modes) */
-        .utility-btn-group {
-            display: inline-flex;
-            border: 1px solid var(--border-color);
-            border-radius: var(--input-radius);
-            overflow: hidden;
-            background-color: #f3f4f6;
-        }
-        .utility-btn {
-            background-color: transparent;
-            color: var(--text-light);
-            font-weight: 600;
-            padding: 0.35rem 0.75rem;
-            border-right: 1px solid var(--border-color);
-            transition: all 0.2s;
-            font-size: 0.8rem;
-        }
+        .utility-btn-group { display: inline-flex; border: 1px solid #e5e7eb; border-radius: var(--input-radius); overflow: hidden; background-color: #f3f4f6; }
+        .utility-btn { background-color: transparent; color: var(--text-light); font-weight: 600; padding: 0.35rem 0.75rem; border-right: 1px solid #e5e7eb; transition: all 0.2s; font-size: 0.8rem; }
         .utility-btn:last-child { border-right: none; }
         .utility-btn:hover { background-color: #e5e7eb; }
-        .utility-btn.active { 
-            background-color: var(--card-bg-color); 
-            color: var(--primary-text);
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        }
+        .utility-btn.active { background-color: var(--card-bg-color); color: var(--primary-text); box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
     </style>
 </head>
 <body class="p-3 sm:p-4 md:p-6">
@@ -171,6 +144,9 @@
                 <p class="text-sm text-gray-500">เครื่องมือคำนวณและหมุนเวียนยาสำหรับบุคลากรทางการแพทย์</p>
             </div>
             <div class="flex items-center gap-2">
+                <button id="theme-toggle-btn" class="btn btn-icon" title="สลับ Theme">
+                    <i class="fas fa-paint-brush"></i>
+                </button>
                 <button id="safety-checklist-btn" class="btn btn-icon" title="Clinical Pearls">
                     <i class="fas fa-check-circle text-yellow-500"></i>
                 </button>
@@ -186,13 +162,11 @@
             <!-- Left Column: Inputs & Tools -->
             <div class="lg:col-span-3 space-y-6">
                 
-                <!-- Current Opioids Card -->
                 <div class="card p-4 sm:p-6">
                     <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-3">ยา Opioids ที่ใช้อยู่ (Current Regimen)</h2>
                     <div id="medication-section" class="divide-y divide-gray-200"></div>
                 </div>
 
-                <!-- Titration Tool Card -->
                 <div id="titration-tool-container" class="card p-4 sm:p-6">
                      <div id="titration-tool-header" class="flex justify-between items-center cursor-pointer mb-4">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -239,7 +213,6 @@
 
             <!-- Right Column: Results & Rotation -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Total MME Card -->
                 <div id="total-mme-box" class="card text-center p-4 sm:p-6 sticky top-6">
                     <div id="total-mme-normal-view">
                         <h2 class="text-base font-semibold text-sky-800">Total Morphine Milligram Equivalents</h2>
@@ -262,7 +235,6 @@
                     </div>
                 </div>
 
-                <!-- Rotation Tools Card -->
                 <div id="rotation-tools" class="hidden card p-4 sm:p-6">
                     <h3 class="font-semibold text-green-800 text-lg border-b pb-3 mb-4">เครื่องมือหมุนเวียนยา (Rotation Tool)</h3>
                     <div id="rotation-mme-ref" class="text-right text-xs sm:text-sm text-gray-500 -mt-12 mb-4"></div>
@@ -299,7 +271,7 @@
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Modals (HTML structure is the same, styling will adapt via theme classes) -->
     <div id="drug-info-modal" class="modal-overlay">
         <div class="modal-content space-y-3">
             <button id="close-drug-info-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
@@ -307,7 +279,6 @@
             <div id="drug-info-content" class="text-sm text-gray-700 space-y-2"></div>
         </div>
     </div>
-
     <div id="tdd-helper-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
             <button id="close-tdd-helper-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
@@ -337,7 +308,6 @@
             <button id="confirm-tdd-helper-btn" class="btn btn-primary w-full">ยืนยัน</button>
         </div>
     </div>
-
     <div id="csci-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
             <button id="cancel-csci-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
@@ -381,7 +351,6 @@
             <button id="close-csci-modal-btn" class="btn btn-primary w-full">ยืนยัน</button>
         </div>
     </div>
-
     <div id="iv-infusion-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
             <button id="cancel-iv-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
@@ -417,7 +386,6 @@
             <button id="close-iv-infusion-modal-btn" class="btn btn-primary w-full">ยืนยัน</button>
         </div>
     </div>
-
     <div id="safety-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
             <button id="close-safety-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
@@ -442,7 +410,6 @@
             </div>
         </div>
     </div>
-
     <div id="quick-ref-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
             <button id="close-quick-ref-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
@@ -457,8 +424,6 @@
 
 
 <script>
-// The entire JavaScript from the original file is placed here, unchanged.
-// This ensures all functionality remains identical.
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURATION ---
@@ -466,100 +431,42 @@ document.addEventListener('DOMContentLoaded', () => {
         'fentanyl_patch': { 
             name: 'Fentanyl Patch', 
             factor: 2.4, unit: 'mcg/hr', type: 'patch', isBasal: true, step: 12.5,
-            info: `
-                <p><strong>Onset:</strong> 12-24 ชั่วโมง, ออกฤทธิ์เต็มที่ 72 ชั่วโมง</p>
-                <p><strong>ข้อควรระวัง:</strong></p>
-                <ul class="list-disc list-inside pl-4">
-                    <li>ไม่เหมาะสำหรับแก้ปวดเฉียบพลัน (Acute Pain) หรือในผู้ป่วยที่ยังปรับยาไม่คงที่</li>
-                    <li>ไข้สูง (Fever > 40°C) อาจเพิ่มการดูดซึมยาได้ถึง 1/3</li>
-                    <li>แนะนำให้ทิ้งแผ่นแปะที่ใช้แล้วอย่างถูกวิธี (พับด้านกาวเข้าหากัน)</li>
-                    <li>เป็นตัวเลือกที่ดีในผู้ป่วยไตวายรุนแรง (Severe Renal Impairment)</li>
-                </ul>
-            `
+            info: `<p><strong>Onset:</strong> 12-24 ชั่วโมง, ออกฤทธิ์เต็มที่ 72 ชั่วโมง</p><p><strong>ข้อควรระวัง:</strong></p><ul class="list-disc list-inside pl-4"><li>ไม่เหมาะสำหรับแก้ปวดเฉียบพลัน (Acute Pain) หรือในผู้ป่วยที่ยังปรับยาไม่คงที่</li><li>ไข้สูง (Fever > 40°C) อาจเพิ่มการดูดซึมยาได้ถึง 1/3</li><li>แนะนำให้ทิ้งแผ่นแปะที่ใช้แล้วอย่างถูกวิธี (พับด้านกาวเข้าหากัน)</li><li>เป็นตัวเลือกที่ดีในผู้ป่วยไตวายรุนแรง (Severe Renal Impairment)</li></ul>`
         },
         'mst_10': { 
             name: 'MST 10mg', 
             factor: 1, unit: 'เม็ด/day', type: 'oral', isBasal: true, strength: 10, step: 1,
-            info: `
-                <p><strong>Onset:</strong> ~1 ชั่วโมง, ออกฤทธิ์นาน 8-12 ชั่วโมง</p>
-                <p><strong>ข้อควรระวัง:</strong></p>
-                <ul class="list-disc list-inside pl-4">
-                    <li>ห้ามหัก แบ่ง หรือเคี้ยวยาเม็ด</li>
-                    <li>ควรระวังการใช้ในผู้ป่วยไตวาย (eGFR < 30 ml/min) เนื่องจาก Metabolites (M3G, M6G) อาจสะสมและเกิดพิษได้</li>
-                </ul>
-            `
+            info: `<p><strong>Onset:</strong> ~1 ชั่วโมง, ออกฤทธิ์นาน 8-12 ชั่วโมง</p><p><strong>ข้อควรระวัง:</strong></p><ul class="list-disc list-inside pl-4"><li>ห้ามหัก แบ่ง หรือเคี้ยวยาเม็ด</li><li>ควรระวังการใช้ในผู้ป่วยไตวาย (eGFR < 30 ml/min) เนื่องจาก Metabolites (M3G, M6G) อาจสะสมและเกิดพิษได้</li></ul>`
         },
         'mst_30': { 
             name: 'MST 30mg', 
             factor: 1, unit: 'เม็ด/day', type: 'oral', isBasal: true, strength: 30, step: 1,
-            info: `
-                <p><strong>Onset:</strong> ~1 ชั่วโมง, ออกฤทธิ์นาน 8-12 ชั่วโมง</p>
-                <p><strong>ข้อควรระวัง:</strong></p>
-                <ul class="list-disc list-inside pl-4">
-                    <li>ห้ามหัก แบ่ง หรือเคี้ยวยาเม็ด</li>
-                    <li>ควรระวังการใช้ในผู้ป่วยไตวาย (eGFR < 30 ml/min) เนื่องจาก Metabolites (M3G, M6G) อาจสะสมและเกิดพิษได้</li>
-                </ul>
-            `
+            info: `<p><strong>Onset:</strong> ~1 ชั่วโมง, ออกฤทธิ์นาน 8-12 ชั่วโมง</p><p><strong>ข้อควรระวัง:</strong></p><ul class="list-disc list-inside pl-4"><li>ห้ามหัก แบ่ง หรือเคี้ยวยาเม็ด</li><li>ควรระวังการใช้ในผู้ป่วยไตวาย (eGFR < 30 ml/min) เนื่องจาก Metabolites (M3G, M6G) อาจสะสมและเกิดพิษได้</li></ul>`
         },
         'kapanol_20': { 
             name: 'Kapanol 20mg', 
             factor: 1, unit: 'แคปซูล/day', type: 'oral', isBasal: true, strength: 20, step: 1,
-            info: `
-                <p><strong>Onset:</strong> ~1 ชั่วโมง, ออกฤทธิ์นาน 12-24 ชั่วโมง</p>
-                <p><strong>ข้อควรระวัง:</strong></p>
-                <ul class="list-disc list-inside pl-4">
-                    <li>ห้ามเคี้ยวเม็ด Granules ข้างใน แต่สามารถเปิดแคปซูลแล้วโรยบนอาหารเหลวได้ (สำหรับผู้ป่วยมีปัญหาการกลืน)</li>
-                    <li>ควรระวังการใช้ในผู้ป่วยไตวาย (eGFR < 30 ml/min) เช่นเดียวกับ MST</li>
-                </ul>
-            `
+            info: `<p><strong>Onset:</strong> ~1 ชั่วโมง, ออกฤทธิ์นาน 12-24 ชั่วโมง</p><p><strong>ข้อควรระวัง:</strong></p><ul class="list-disc list-inside pl-4"><li>ห้ามเคี้ยวเม็ด Granules ข้างใน แต่สามารถเปิดแคปซูลแล้วโรยบนอาหารเหลวได้ (สำหรับผู้ป่วยมีปัญหาการกลืน)</li><li>ควรระวังการใช้ในผู้ป่วยไตวาย (eGFR < 30 ml/min) เช่นเดียวกับ MST</li></ul>`
         },
         'morphine_iv_sc': { 
             name: 'Morphine IV/SC', 
             factor: 3, unit: 'mg/day', type: 'injectable', isBasal: true, isBreakthrough: true,
-            info: `
-                <p><strong>Onset:</strong> IV ~5 นาที, SC ~15-30 นาที</p>
-                <p><strong>ข้อควรระวัง:</strong></p>
-                <ul class="list-disc list-inside pl-4">
-                    <li>ใช้สำหรับผู้ป่วยที่มีอาการปวดรุนแรง หรือไม่สามารถรับประทานยาได้</li>
-                    <li>ต้องปรับลดขนาดยาในผู้ป่วยไตวาย (eGFR < 30 ml/min) และติดตามอาการข้างเคียงอย่างใกล้ชิด</li>
-                </ul>
-            `
+            info: `<p><strong>Onset:</strong> IV ~5 นาที, SC ~15-30 นาที</p><p><strong>ข้อควรระวัง:</strong></p><ul class="list-disc list-inside pl-4"><li>ใช้สำหรับผู้ป่วยที่มีอาการปวดรุนแรง หรือไม่สามารถรับประทานยาได้</li><li>ต้องปรับลดขนาดยาในผู้ป่วยไตวาย (eGFR < 30 ml/min) และติดตามอาการข้างเคียงอย่างใกล้ชิด</li></ul>`
         },
         'fentanyl_iv_sc': { 
             name: 'Fentanyl IV/SC', 
             factor: 0.3, unit: 'mcg/day', type: 'injectable', isBasal: true, isBreakthrough: true,
-            info: `
-                <p><strong>Onset:</strong> IV ~1-2 นาที, ออกฤทธิ์สั้น (30-60 นาที)</p>
-                <p><strong>ข้อดี:</strong></p>
-                <ul class="list-disc list-inside pl-4">
-                    <li>เป็นตัวเลือกที่ปลอดภัยในผู้ป่วยไตวายรุนแรง (Severe Renal Impairment)</li>
-                    <li>เหมาะสำหรับ Titrate อาการปวดที่รุนแรงและต้องการการตอบสนองที่รวดเร็ว</li>
-                </ul>
-            `
+            info: `<p><strong>Onset:</strong> IV ~1-2 นาที, ออกฤทธิ์สั้น (30-60 นาที)</p><p><strong>ข้อดี:</strong></p><ul class="list-disc list-inside pl-4"><li>เป็นตัวเลือกที่ปลอดภัยในผู้ป่วยไตวายรุนแรง (Severe Renal Impairment)</li><li>เหมาะสำหรับ Titrate อาการปวดที่รุนแรงและต้องการการตอบสนองที่รวดเร็ว</li></ul>`
         },
         'morphine_ir_tab_10': { 
             name: 'Morphine IR 10mg', 
             factor: 1, unit: 'เม็ด/day', type: 'oral', isBreakthrough: true, strength: 10, step: 1,
-            info: `
-                <p><strong>Onset:</strong> 30-60 นาที, ออกฤทธิ์นาน 4-6 ชั่วโมง</p>
-                <p><strong>การใช้งาน:</strong></p>
-                <ul class="list-disc list-inside pl-4">
-                    <li>ใช้สำหรับบรรเทาอาการปวดกำเริบ (Breakthrough Pain)</li>
-                    <li>ขนาดยาที่ใช้通常คิดเป็น 10-15% ของขนาดยาหลักต่อวัน (Total Daily Dose)</li>
-                </ul>
-            `
+            info: `<p><strong>Onset:</strong> 30-60 นาที, ออกฤทธิ์นาน 4-6 ชั่วโมง</p><p><strong>การใช้งาน:</strong></p><ul class="list-disc list-inside pl-4"><li>ใช้สำหรับบรรเทาอาการปวดกำเริบ (Breakthrough Pain)</li><li>ขนาดยาที่ใช้通常คิดเป็น 10-15% ของขนาดยาหลักต่อวัน (Total Daily Dose)</li></ul>`
         },
         'morphine_syrup': { 
             name: 'Morphine Syrup 2mg/ml', 
             factor: 1, unit: 'mL/day', type: 'oral', isBreakthrough: true, strength: 2,
-            info: `
-                <p><strong>Onset:</strong> 30-60 นาที, ออกฤทธิ์นาน 4-6 ชั่วโมง</p>
-                <p><strong>การใช้งาน:</strong></p>
-                <ul class="list-disc list-inside pl-4">
-                    <li>ใช้สำหรับบรรเทาอาการปวดกำเริบ (Breakthrough Pain) โดยเฉพาะในผู้ป่วยที่มีปัญหาการกลืน</li>
-                    <li>ง่ายต่อการปรับขนาดยา (Titration) ทีละน้อย</li>
-                </ul>
-            `
+            info: `<p><strong>Onset:</strong> 30-60 นาที, ออกฤทธิ์นาน 4-6 ชั่วโมง</p><p><strong>การใช้งาน:</strong></p><ul class="list-disc list-inside pl-4"><li>ใช้สำหรับบรรเทาอาการปวดกำเริบ (Breakthrough Pain) โดยเฉพาะในผู้ป่วยที่มีปัญหาการกลืน</li><li>ง่ายต่อการปรับขนาดยา (Titration) ทีละน้อย</li></ul>`
         },
     };
 
@@ -582,9 +489,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const SYRINGE_DATA = { 'BD': { 20: { length: 88.0 }, 30: { length: 87.5 }, 50: { length: 123.0 } } };
-    const LOCAL_STORAGE_KEY = 'opioidCalculatorDataV6_Material'; // Updated version key
+    const LOCAL_STORAGE_KEY = 'opioidCalculatorData_v7';
+    const THEME_KEY = 'opioidCalculatorTheme_v7';
 
     // --- STATE ---
+    let currentTheme = 'theme-material';
     let pinnedDrugKey = null;
     let rotationMME = null; 
     let titrationMode = 'prn';
@@ -599,6 +508,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM ELEMENTS ---
     const elements = {
+        body: document.body,
+        themeToggleBtn: document.getElementById('theme-toggle-btn'),
         medSection: document.getElementById('medication-section'),
         titrationToolContainer: document.getElementById('titration-tool-container'),
         titrationToolHeader: document.getElementById('titration-tool-header'),
@@ -637,33 +548,36 @@ document.addEventListener('DOMContentLoaded', () => {
         breakthroughCalcDrug: document.getElementById('breakthrough-calc-drug'),
         breakthroughCalcPercent: document.getElementById('breakthrough-calc-percent'),
         breakthroughRecommendationText: document.getElementById('breakthrough-recommendation-text'),
-        drugInfoModal: document.getElementById('drug-info-modal'),
-        closeDrugInfoModalBtn: document.getElementById('close-drug-info-modal-btn'),
-        drugInfoTitle: document.getElementById('drug-info-title'),
-        drugInfoContent: document.getElementById('drug-info-content'),
-        tddHelperModal: document.getElementById('tdd-helper-modal'),
-        closeTddHelperModalBtn: document.getElementById('close-tdd-helper-modal-btn'),
-        confirmTddHelperBtn: document.getElementById('confirm-tdd-helper-btn'),
-        tddHelperDrugName: document.getElementById('tdd-helper-drug-name'),
-        tddHelperDrugUnit: document.getElementById('tdd-helper-drug-unit'),
-        tddHelperDrugAmount: document.getElementById('tdd-helper-drug-amount'),
-        tddHelperFluidVolume: document.getElementById('tdd-helper-fluid-volume'),
-        tddHelperRate: document.getElementById('tdd-helper-rate'),
-        tddHelperResultDisplay: document.getElementById('tdd-helper-result-display'),
+        // (Modal elements are the same as before)
+        drugInfoModal: document.getElementById('drug-info-modal'), closeDrugInfoModalBtn: document.getElementById('close-drug-info-modal-btn'), drugInfoTitle: document.getElementById('drug-info-title'), drugInfoContent: document.getElementById('drug-info-content'),
+        tddHelperModal: document.getElementById('tdd-helper-modal'), closeTddHelperModalBtn: document.getElementById('close-tdd-helper-modal-btn'), confirmTddHelperBtn: document.getElementById('confirm-tdd-helper-btn'), tddHelperDrugName: document.getElementById('tdd-helper-drug-name'), tddHelperDrugUnit: document.getElementById('tdd-helper-drug-unit'), tddHelperDrugAmount: document.getElementById('tdd-helper-drug-amount'), tddHelperFluidVolume: document.getElementById('tdd-helper-fluid-volume'), tddHelperRate: document.getElementById('tdd-helper-rate'), tddHelperResultDisplay: document.getElementById('tdd-helper-result-display'),
         csciModal: document.getElementById('csci-modal'), closeCsciModalBtn: document.getElementById('close-csci-modal-btn'), cancelCsciModalBtn: document.getElementById('cancel-csci-modal-btn'), csciDrugName: document.getElementById('csci-drug-name'), csciTotalDoseInput: document.getElementById('csci-total-dose-input'), csciDoseUnit: document.getElementById('csci-dose-unit'), csciNewMme: document.getElementById('csci-new-mme'), csciSyringeSize: document.getElementById('csci-syringe-size'), csciTotalVolume: document.getElementById('csci-total-volume'), csciResultWrapper: document.getElementById('csci-result-wrapper'), csciError: document.getElementById('csci-error'), csciErrorText: document.getElementById('csci-error-text'), csciResult: document.getElementById('csci-result'), csciDrugVolume: document.getElementById('csci-drug-volume'), csciDiluentVolume: document.getElementById('csci-diluent-volume'), csciRateMl: document.getElementById('csci-rate-ml'), csciRateMm: document.getElementById('csci-rate-mm'), csciOrderText: document.getElementById('csci-order-text'), csciResetDoseBtn: document.getElementById('csci-reset-dose-btn'),
         ivInfusionModal: document.getElementById('iv-infusion-modal'), closeIvInfusionModalBtn: document.getElementById('close-iv-infusion-modal-btn'), cancelIvModalBtn: document.getElementById('cancel-iv-modal-btn'), ivDrugName: document.getElementById('iv-drug-name'), ivTotalDoseInput: document.getElementById('iv-total-dose-input'), ivDoseUnit: document.getElementById('iv-dose-unit'), ivNewMme: document.getElementById('iv-new-mme'), ivFluidVolume: document.getElementById('iv-fluid-volume'), ivError: document.getElementById('iv-error'), ivErrorText: document.getElementById('iv-error-text'), ivResult: document.getElementById('iv-result'), ivConcentration: document.getElementById('iv-concentration'), ivDoseHr: document.getElementById('iv-dose-hr'), ivOrderText: document.getElementById('iv-order-text'), ivResetDoseBtn: document.getElementById('iv-reset-dose-btn'),
-        quickRefModal: document.getElementById('quick-ref-modal'),
-        closeQuickRefModalBtn: document.getElementById('close-quick-ref-modal-btn'),
-        quickRefTitle: document.getElementById('quick-ref-title'),
-        quickRefMmeTotal: document.getElementById('quick-ref-mme-total'),
-        quickRefList: document.getElementById('quick-ref-list'),
+        quickRefModal: document.getElementById('quick-ref-modal'), closeQuickRefModalBtn: document.getElementById('close-quick-ref-modal-btn'), quickRefTitle: document.getElementById('quick-ref-title'), quickRefMmeTotal: document.getElementById('quick-ref-mme-total'), quickRefList: document.getElementById('quick-ref-list'),
     };
 
     function initialize() {
+        loadTheme();
         createMedicationInputs();
         populateDropdowns();
         setupEventListeners();
         loadFromLocalStorage();
+    }
+    
+    // --- THEME SWITCHER ---
+    function loadTheme() {
+        const savedTheme = localStorage.getItem(THEME_KEY) || 'theme-material';
+        setTheme(savedTheme);
+    }
+    function setTheme(themeName) {
+        elements.body.className = ''; // Clear existing theme classes
+        elements.body.classList.add(themeName);
+        currentTheme = themeName;
+        localStorage.setItem(THEME_KEY, themeName);
+    }
+    function toggleTheme() {
+        const newTheme = currentTheme === 'theme-material' ? 'theme-neumorphic' : 'theme-material';
+        setTheme(newTheme);
     }
 
     // --- UI CREATION ---
@@ -678,28 +592,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `<button class="btn btn-icon tdd-helper-btn text-sky-600" data-key="${key}" title="คำนวณ TDD จาก Rate"><i class="fas fa-calculator"></i></button>` 
                 : '<span class="w-10 h-10"></span>';
 
+            // UPDATED: Layout changed to move dose-change indicator up
             const inputHtml = `
                 <div class="drug-row py-3" data-row-key="${key}">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 items-center">
-                        <!-- Drug Name & MME -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 items-start">
+                        <!-- Drug Name, MME, and Dose Change Indicator -->
                         <div class="col-span-1">
                             <button class="drug-name-btn text-left w-full group" data-key="${key}">
                                 <span class="font-semibold text-gray-800 text-base group-hover:text-sky-700">${config.name}</span>
                             </button>
-                            <button class="row-mme-ref text-sm" data-key="${key}">
-                                <span class="font-bold text-sky-700">MME: <span id="mme-${key}">0</span></span>
-                                <span id="mg-day-${key}" class="text-xs text-gray-500 ml-2"></span>
-                            </button>
+                            <div class="flex items-center gap-3 text-sm mt-1">
+                                <button class="row-mme-ref" data-key="${key}">
+                                    <span class="font-bold text-sky-700">MME: <span id="mme-${key}">0</span></span>
+                                    <span id="mg-day-${key}" class="text-xs text-gray-500 ml-2"></span>
+                                </button>
+                                <div id="dose-change-${key}" class="text-xs font-medium h-4"></div>
+                            </div>
                         </div>
                         <!-- Input & Actions -->
                         <div class="col-span-1">
                             <div class="flex items-center gap-2">
-                                <div class="flex-1">
-                                    <div class="flex items-center">
-                                        <input type="number" inputmode="decimal" id="dose-${key}" data-key="${key}" class="input-field base-drug-input text-right w-full" placeholder="0" ${stepAttribute}>
-                                        <span class="text-gray-500 text-sm ml-2 w-20 text-left">${config.unit}</span>
-                                    </div>
-                                    <div id="dose-change-${key}" class="text-xs font-medium text-center mt-1 h-4"></div>
+                                <div class="flex-1 flex items-center">
+                                    <input type="number" inputmode="decimal" id="dose-${key}" data-key="${key}" class="input-field base-drug-input text-right w-full" placeholder="0" ${stepAttribute}>
+                                    <span class="text-gray-500 text-sm ml-2 w-20 text-left">${config.unit}</span>
                                 </div>
                                 ${tddHelperButton}
                                 <button class="btn btn-icon pin-btn" data-key="${key}" title="คลิกเพื่อเลือก, ดับเบิลคลิกเพื่อล็อก">
@@ -717,11 +632,11 @@ document.addEventListener('DOMContentLoaded', () => {
         prnCount++;
         const newRow = document.createElement('div');
         newRow.className = 'grid grid-cols-12 gap-2 items-center prn-row';
+        // UPDATED: Removed the unit span
         newRow.innerHTML = `
-            <div class="col-span-6"><select class="select-field w-full prn-drug-select" data-id="${prnCount}"></select></div>
-            <div class="col-span-5"><input type="number" inputmode="decimal" class="input-field w-full prn-dose-input text-right" placeholder="0" data-id="${prnCount}"></div>
+            <div class="col-span-7"><select class="select-field w-full prn-drug-select" data-id="${prnCount}"></select></div>
+            <div class="col-span-4"><input type="number" inputmode="decimal" class="input-field w-full prn-dose-input text-right" data-id="${prnCount}"></div>
             <div class="col-span-1"><button class="btn btn-icon !w-9 !h-9 text-red-500 remove-prn-btn"><i class="fas fa-times"></i></button></div>
-            <div class="col-span-12 text-center"><span class="text-gray-500 text-xs prn-dose-unit" data-id="${prnCount}"></span></div>
         `;
         const select = newRow.querySelector('.prn-drug-select');
         select.innerHTML = '<option value="">-- เลือกยา --</option>';
@@ -733,16 +648,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 select.appendChild(option);
             }
         });
+        
+        const doseInput = newRow.querySelector('.prn-dose-input');
+        
         elements.breakthroughRowsContainer.appendChild(newRow);
+        
         if(data.key) {
-            newRow.querySelector('.prn-drug-select').value = data.key;
-            newRow.querySelector('.prn-dose-input').value = data.dose;
-            const unitEl = newRow.querySelector('.prn-dose-unit');
-            unitEl.textContent = DRUG_CONFIG[data.key]?.unit || '';
+            select.value = data.key;
+            doseInput.value = data.dose;
+            // Set placeholder on load
+            const unit = DRUG_CONFIG[data.key]?.unit || '';
+            doseInput.placeholder = unit ? `Dose (${unit})` : 'Dose';
+        } else {
+            doseInput.placeholder = 'Dose';
         }
     }
 
     function populateDropdowns() {
+        // This function remains the same
         elements.breakthroughCalcDrug.innerHTML = '';
         Object.keys(DRUG_CONFIG).forEach(key => {
             if (DRUG_CONFIG[key].isBreakthrough) {
@@ -761,14 +684,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- CALCULATION & RENDER LOGIC (Identical to original) ---
+    // --- CALCULATION & RENDER LOGIC ---
     function calculateAndRender() {
         if (isBalancingFromUser) return;
         let totalMME = 0;
         let hasInput = false;
 
-        document.querySelectorAll('.drug-row.bg-sky-50, .pin-btn.pinned, .drug-row.bg-orange-50, .drug-row.bg-green-50, .pin-btn.balance-decrease, .pin-btn.balance-increase, .pin-btn.locked').forEach(el => {
-            el.classList.remove('bg-sky-50', 'pinned', 'bg-orange-50', 'bg-green-50', 'balance-decrease', 'balance-increase', 'locked');
+        document.querySelectorAll('.bg-red-50, .pin-btn.pinned, .bg-orange-50, .bg-green-50, .pin-btn.balance-decrease, .pin-btn.balance-increase, .pin-btn.locked').forEach(el => {
+            el.classList.remove('bg-red-50', 'pinned', 'bg-orange-50', 'bg-green-50', 'balance-decrease', 'balance-increase', 'locked');
         });
         document.querySelectorAll('[id^="dose-change-"]').forEach(el => el.innerHTML = '');
         elements.titrationTargetDisplay.textContent = '';
@@ -780,18 +703,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const pinBtn = document.querySelector(`.pin-btn[data-key="${key}"]`);
             if(pinBtn) pinBtn.classList.add('locked');
             const pinIcon = document.getElementById(`pin-icon-${key}`);
-            if(pinIcon) {
-                pinIcon.classList.remove('fa-thumbtack');
-                pinIcon.classList.add('fa-lock');
-            }
+            if(pinIcon) { pinIcon.classList.remove('fa-thumbtack'); pinIcon.classList.add('fa-lock'); }
         });
         Object.keys(DRUG_CONFIG).forEach(key => {
             if (!lockedDrugs.includes(key)) {
                 const pinIcon = document.getElementById(`pin-icon-${key}`);
-                if (pinIcon) {
-                    pinIcon.classList.remove('fa-lock');
-                    pinIcon.classList.add('fa-thumbtack');
-                }
+                if (pinIcon) { pinIcon.classList.remove('fa-lock'); pinIcon.classList.add('fa-thumbtack'); }
             }
         });
 
@@ -897,7 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.balanceTitrationSection.classList.toggle('hidden', titrationMode !== 'balance');
         
         if (titrationMode === 'percent' && pinnedDrugKey) {
-            document.querySelector(`.drug-row[data-row-key="${pinnedDrugKey}"]`)?.classList.add('bg-sky-50');
+            document.querySelector(`.drug-row[data-row-key="${pinnedDrugKey}"]`)?.classList.add('bg-red-50');
             document.querySelector(`.pin-btn[data-key="${pinnedDrugKey}"]`)?.classList.add('pinned');
             elements.titrationTargetDisplay.textContent = `Titrating: ${DRUG_CONFIG[pinnedDrugKey].name}`;
         } else if (titrationMode === 'balance') {
@@ -947,6 +864,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /**
+     * Handles clicks on the pin button. The behavior is contextual based on the current titration mode.
+     * - In 'percent' mode, it toggles a single drug as the titration target.
+     * - In 'balance' mode, it selects the drug to decrease and the drug to increase.
+     * - It does nothing if a drug is locked or if in rotation mode.
+     * @param {string} key - The drug key associated with the clicked pin button.
+     */
     function handlePinClick(key) {
         if (rotationMME !== null || lockedDrugs.includes(key)) return; 
 
@@ -967,6 +891,11 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateAndRender();
     }
 
+    /**
+     * Handles double-clicks on the pin button to lock/unlock a drug.
+     * A locked drug cannot be pinned or adjusted by titration tools.
+     * @param {string} key - The drug key to lock or unlock.
+     */
     function handlePinDoubleClick(key) {
         const index = lockedDrugs.indexOf(key);
         if (index > -1) {
@@ -983,6 +912,8 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateAndRender();
     }
 
+    // All other JS functions (handlePercentAdjustment, performBalance, etc.) remain identical
+    // ... (The rest of the JS functions are the same as the previous version)
     function handlePercentAdjustment(percent, fromUserInput = true) {
         percentAdjustment = percent;
         if(fromUserInput) {
@@ -995,50 +926,37 @@ document.addEventListener('DOMContentLoaded', () => {
             calculateAndRender();
         }
     }
-
     function performBalance(percent) {
         const { decreaseKey, increaseKey } = balancePair;
         if(!decreaseKey || !increaseKey) return;
         const decConfig = DRUG_CONFIG[decreaseKey];
         const incConfig = DRUG_CONFIG[increaseKey];
-
         const decInput = document.getElementById(`dose-${decreaseKey}`);
         const incInput = document.getElementById(`dose-${increaseKey}`);
-
         const decOriginalDose = parseFloat(decInput.dataset.originalDose);
         const incOriginalDose = parseFloat(incInput.dataset.originalDose);
-        
         const decOriginalMME = (decOriginalDose * (decConfig.strength || 1)) * decConfig.factor;
         let mmeToTransfer = decOriginalMME * (percent / 100);
         let newDecMME = decOriginalMME - mmeToTransfer;
-        
         const incOriginalMME = (incOriginalDose * (incConfig.strength || 1)) * incConfig.factor;
         let newIncMME = incOriginalMME + mmeToTransfer;
-
         if (newDecMME < 0) { newIncMME += newDecMME; newDecMME = 0; }
         if (newIncMME < 0) { newDecMME += newIncMME; newIncMME = 0; }
-
         const newDecDoseRaw = (newDecMME / decConfig.factor) / (decConfig.strength || 1);
         const newIncDoseRaw = (newIncMME / incConfig.factor) / (incConfig.strength || 1);
-
         const newDecDose = roundToStep(newDecDoseRaw, decConfig.step || 0.1);
         const newIncDose = roundToStep(newIncDoseRaw, incConfig.step || 0.1);
-
         isBalancingFromUser = true;
         decInput.value = newDecDose > 0 ? formatDose(newDecDose) : '';
         incInput.value = newIncDose > 0 ? formatDose(newIncDose) : '';
         isBalancingFromUser = false;
-        
         calculateAndRender();
         updateDoseChangeIndicators(percent, balancePair);
     }
-
     function performBalanceFromDoseChange(changedKey, newDose) {
         const { decreaseKey, increaseKey } = balancePair;
         if (!decreaseKey || !increaseKey) return;
-
         isBalancingFromUser = true;
-
         const decConfig = DRUG_CONFIG[decreaseKey];
         const incConfig = DRUG_CONFIG[increaseKey];
         const decInput = document.getElementById(`dose-${decreaseKey}`);
@@ -1048,9 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const decOriginalMME = (decOriginalDose * (decConfig.strength || 1)) * decConfig.factor;
         const incOriginalMME = (incOriginalDose * (incConfig.strength || 1)) * incConfig.factor;
         const pairTotalMME = decOriginalMME + incOriginalMME;
-
         let newDecMME, newIncMME;
-
         if (changedKey === decreaseKey) {
             newDecMME = (newDose * (decConfig.strength || 1)) * decConfig.factor;
             newIncMME = pairTotalMME - newDecMME;
@@ -1064,31 +980,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const newDecDoseRaw = (newDecMME / decConfig.factor) / (decConfig.strength || 1);
             decInput.value = formatDose(roundToStep(newDecDoseRaw, decConfig.step || 0.1));
         }
-        
         let newPercent = 0;
         if (decOriginalMME > 0) {
             const mmeMoved = decOriginalMME - newDecMME;
             newPercent = (mmeMoved / decOriginalMME) * 100;
         }
-        
         elements.customPercentInput.value = newPercent.toFixed(1);
         handlePercentAdjustment(newPercent, false);
-        
         isBalancingFromUser = false;
         calculateAndRender();
         updateDoseChangeIndicators(newPercent, balancePair);
     }
-    
     function roundToStep(value, step) {
         if (!step || step <= 0 || value <=0) return value;
         return Math.round(value / step) * step;
     }
-
     function formatDose(dose) {
         if (dose <= 0) return '';
         return parseFloat(dose.toFixed(4));
     }
-    
     function setTitrationMode(mode) {
         titrationMode = mode;
         pinnedDrugKey = null;
@@ -1108,26 +1018,20 @@ document.addEventListener('DOMContentLoaded', () => {
         handlePercentAdjustment(0);
         calculateAndRender();
     }
-
     function handleRotateClick() {
         const isEnteringRotation = rotationMME === null;
         rotationMME = isEnteringRotation ? parseFloat(elements.totalMmeDisplay.textContent) : null;
-        
         if (isEnteringRotation) {
             setTitrationMode('percent');
         }
         calculateAndRender();
     }
-
     function generatePrescriptionHtml(totalDose, strengthsConfig) {
         const smallestStrength = Math.min(...strengthsConfig.map(s => s.value));
         if (smallestStrength <= 0) return `<p>${totalDose.toFixed(0)} mg/day</p>`;
-
         const roundedDose = Math.round(totalDose / smallestStrength) * smallestStrength;
-        
         let remainingDose = roundedDose;
         const prescriptionItems = [];
-
         strengthsConfig.forEach(strengthInfo => {
             const numUnits = Math.floor(remainingDose / strengthInfo.value);
             if (numUnits > 0) {
@@ -1135,40 +1039,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 remainingDose %= strengthInfo.value;
             }
         });
-
         if (prescriptionItems.length === 0 && roundedDose > 0) {
             return `<p class="text-lg">${roundedDose} mg/day</p><p class="text-xs text-gray-600 mt-1 font-normal">ไม่สามารถจัดยาจาก Formulary ที่มีได้</p>`;
         }
-        
         let regimenSuggestion = '';
         const mst30 = prescriptionItems.find(p => p.strength === 30);
         if (mst30 && mst30.count > 0 && roundedDose % 30 === 0 && roundedDose > 0) {
              if (mst30.count === 3) regimenSuggestion = `แนะนำ: <strong>${mst30.name} (1) oral q 8 hr</strong>`;
              else if (mst30.count === 2) regimenSuggestion = `แนะนำ: <strong>${mst30.name} (1) oral q 12 hr</strong>`;
         }
-
         const listHtml = prescriptionItems.map(item => `<li>${item.name}: ${item.count} ${item.unit}</li>`).join('');
-
         return `<div class="text-left w-full"><p class="text-lg font-bold text-green-900">${roundedDose} mg/day</p><ul class="list-disc list-inside mt-1 text-xs text-gray-700 space-y-1 pl-2">${listHtml}</ul><p class="text-xs text-gray-600 mt-2">${regimenSuggestion}</p></div>`;
     }
-
     function updateBasalRecommendation(currentMME) {
         const key = elements.basalCalcDrug.value;
         const config = ROTATION_DRUGS[key];
         elements.basalHelperBtn.classList.toggle('hidden', !config.helper);
-
         if (!key || !currentMME) {
             elements.basalRecommendationText.innerHTML = ''; return;
         }
-        
         const equivalentDose = currentMME / config.factor;
-        
         if (rotationDoseInfo.drugKey !== key || Math.abs(rotationDoseInfo.originalDose - equivalentDose) > 0.01) {
              rotationDoseInfo = { drugKey: key, dose: equivalentDose, originalDose: equivalentDose, helperResult: null };
         }
-        
         let recommendationText = '';
-
         if (rotationDoseInfo.helperResult) {
             recommendationText = rotationDoseInfo.helperResult;
         } else if (config.prescriptionHelper) {
@@ -1181,19 +1075,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         elements.basalRecommendationText.innerHTML = recommendationText;
     }
-    
     function updateBreakthroughRecommendation(currentMME) {
         const key = elements.breakthroughCalcDrug.value;
         const percent = parseFloat(elements.breakthroughCalcPercent.value);
         if(!key || !percent || !currentMME) {
             elements.breakthroughRecommendationText.innerHTML = ''; return;
         };
-
         const breakthroughMME = currentMME * percent;
         const config = DRUG_CONFIG[key];
         const doseInMg_raw = breakthroughMME / config.factor;
         let recommendationText = '';
-
         if (config.strength) {
             const doseInUnit_raw = doseInMg_raw / config.strength;
             const finalDose = roundToStep(doseInUnit_raw, config.step || 1);
@@ -1212,7 +1103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         elements.breakthroughRecommendationText.innerHTML = recommendationText;
     }
-
     function openDrugInfoModal(key) {
         const config = DRUG_CONFIG[key];
         if (!config || !config.info) return;
@@ -1220,7 +1110,6 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.drugInfoContent.innerHTML = config.info;
         elements.drugInfoModal.classList.add('visible');
     }
-
     function openTddHelperModal(key) {
         tddHelperTargetKey = key;
         const config = DRUG_CONFIG[key];
@@ -1232,22 +1121,18 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.tddHelperResultDisplay.textContent = '0';
         elements.tddHelperModal.classList.add('visible');
     }
-
     function calculateTddFromRate() {
         const drugAmount = parseFloat(elements.tddHelperDrugAmount.value);
         const fluidVolume = parseFloat(elements.tddHelperFluidVolume.value);
         const rate = parseFloat(elements.tddHelperRate.value);
-
         if (isNaN(drugAmount) || isNaN(fluidVolume) || isNaN(rate) || fluidVolume === 0) {
             elements.tddHelperResultDisplay.textContent = '...';
             return;
         }
-
         const concentration = drugAmount / fluidVolume;
         const tdd = concentration * rate * 24;
         elements.tddHelperResultDisplay.textContent = tdd.toFixed(2);
     }
-
     function applyTddFromHelper() {
         const resultTDD = parseFloat(elements.tddHelperResultDisplay.textContent);
         if (!isNaN(resultTDD) && tddHelperTargetKey) {
@@ -1257,7 +1142,6 @@ document.addEventListener('DOMContentLoaded', () => {
             calculateAndRender();
         }
     }
-
     function calculateCsci() {
         const adjustedDose = parseFloat(elements.csciTotalDoseInput.value) || 0;
         const drugKey = rotationDoseInfo.drugKey;
@@ -1265,34 +1149,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const config = ROTATION_DRUGS[drugKey];
         if (!config || config.helper !== 'csci') return;
         const drugInfo = config.drugInfo;
-        
         const syringeSize = parseFloat(elements.csciSyringeSize.value);
         const totalVolume = parseFloat(elements.csciTotalVolume.value) || 0;
         const syringeLength = SYRINGE_DATA.BD[syringeSize]?.length;
-
         const newMME = adjustedDose * config.factor;
         elements.csciNewMme.textContent = adjustedDose > 0 ? `~ ${Math.round(newMME)} MME/day` : '';
-
         elements.csciResult.classList.add('hidden');
         elements.csciError.classList.add('hidden');
-
         if (totalVolume <= 0 || !syringeLength || adjustedDose <= 0) {
             rotationDoseInfo.helperResult = null;
             if (rotationMME !== null) updateBasalRecommendation(newMME);
             return;
         }
-
         const drugVolume = adjustedDose / drugInfo.concentration;
-
         if (drugVolume > totalVolume || totalVolume > syringeSize) {
             elements.csciErrorText.textContent = `ปริมาตรไม่ถูกต้อง`;
             elements.csciError.classList.remove('hidden'); return;
         }
-
         const diluentVolume = totalVolume - drugVolume;
         const rateMlPerHour = totalVolume / 24;
         const rateMmPerHour = (totalVolume / syringeSize) * (syringeLength / 24);
-        
         elements.csciDrugVolume.innerHTML = `${drugVolume.toFixed(2)} ml`;
         elements.csciDiluentVolume.textContent = `${diluentVolume.toFixed(2)} ml`;
         elements.csciRateMl.textContent = `${rateMlPerHour.toFixed(2)}`;
@@ -1302,7 +1178,6 @@ document.addEventListener('DOMContentLoaded', () => {
         rotationDoseInfo.helperResult = `<div class="w-full"><p class="text-lg">${Math.round(adjustedDose)} ${config.unit.split('/')[0]}</p><p class="text-xs text-gray-600 mt-1 font-normal">${orderText}</p></div>`;
         elements.csciResult.classList.remove('hidden');
     }
-
     function calculateIvInfusion() {
         const adjustedDose = parseFloat(elements.ivTotalDoseInput.value) || 0;
         const drugKey = rotationDoseInfo.drugKey;
@@ -1310,48 +1185,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const config = ROTATION_DRUGS[drugKey];
         if (!config || config.helper !== 'iv_infusion') return;
         const drugInfo = config.drugInfo;
-        
         const newMME = adjustedDose * config.factor;
         elements.ivNewMme.textContent = adjustedDose > 0 ? `~ ${Math.round(newMME)} MME/day` : '';
-
         elements.ivResult.classList.add('hidden');
         elements.ivError.classList.add('hidden');
-
         const fluidVolume = parseFloat(elements.ivFluidVolume.value) || 0;
         if (fluidVolume <= 0 || adjustedDose <= 0) {
              rotationDoseInfo.helperResult = null;
              if (rotationMME !== null) updateBasalRecommendation(newMME);
              return;
         }
-
         const drugAmountInUnit = adjustedDose;
         const drugVolumeMl = drugAmountInUnit / drugInfo.concentration;
         if (drugVolumeMl > fluidVolume) {
             elements.ivErrorText.textContent = `Drug vol (${drugVolumeMl.toFixed(1)}ml) > fluid vol (${fluidVolume}ml)`;
             elements.ivError.classList.remove('hidden'); return;
         }
-
         const rateMlPerHour = fluidVolume / 24;
         const finalConcentration = drugAmountInUnit / fluidVolume;
         const dosePerHour = finalConcentration * rateMlPerHour;
-
         elements.ivConcentration.textContent = `${finalConcentration.toFixed(2)} ${drugInfo.unit}/ml`;
         elements.ivDoseHr.textContent = `${dosePerHour.toFixed(2)} ${drugInfo.unit.split('/')[0]}/hr`;
         const orderText = `${drugInfo.name} ${Math.round(drugAmountInUnit)} ${drugInfo.unit.split('/')[0]} + NSS to ${fluidVolume}mL, IV drip @ ${rateMlPerHour.toFixed(1)} mL/hr`;
         elements.ivOrderText.textContent = orderText;
-
         elements.ivResult.classList.remove('hidden');
         rotationDoseInfo.helperResult = `<div class="w-full"><p class="text-lg">${Math.round(adjustedDose)} ${config.unit.split('/')[0]}</p><p class="text-xs text-gray-600 mt-1 font-normal">${orderText}</p></div>`;
     }
-
     function openHelperModal() {
         const key = elements.basalCalcDrug.value;
         const config = ROTATION_DRUGS[key];
         if (!config.helper) return;
-
         const dose = rotationDoseInfo.dose;
         const drugInfo = config.drugInfo;
-
         if (config.helper === 'csci') {
             elements.csciDrugName.textContent = drugInfo.name;
             elements.csciDoseUnit.textContent = config.unit.split('/')[0];
@@ -1367,17 +1232,14 @@ document.addEventListener('DOMContentLoaded', () => {
             calculateIvInfusion();
         }
     }
-
     function openQuickRefModal(mme, drugKey = null) {
         const quickRefList = elements.quickRefList;
         quickRefList.innerHTML = '';
-        
         if (drugKey) {
             elements.quickRefTitle.textContent = `Ref: ${DRUG_CONFIG[drugKey].name}`;
         } else {
             elements.quickRefTitle.textContent = 'Total MME Quick Reference';
         }
-
         elements.quickRefMmeTotal.textContent = Math.round(mme);
         const refDrugs = ['fentanyl_patch', 'morphine_sr', 'morphine_iv_infusion', 'fentanyl_iv_infusion'];
         refDrugs.forEach(key => {
@@ -1393,19 +1255,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         elements.quickRefModal.classList.add('visible');
     }
-    
     function closeHelperModal(type) {
         const inputEl = (type === 'csci') ? elements.csciTotalDoseInput : elements.ivTotalDoseInput;
         const finalUserDose = parseFloat(inputEl.value) || 0;
         const drugKey = rotationDoseInfo.drugKey;
         const config = ROTATION_DRUGS[drugKey];
-        
         if (config && rotationMME > 0) {
             const finalMME = finalUserDose * config.factor;
             const pctChange = ((finalMME / rotationMME) - 1) * 100;
             handlePercentAdjustment(pctChange);
         }
-
         if (type === 'csci') {
             calculateCsci(); 
             elements.csciModal.classList.remove('visible');
@@ -1413,17 +1272,14 @@ document.addEventListener('DOMContentLoaded', () => {
             calculateIvInfusion();
             elements.ivInfusionModal.classList.remove('visible');
         }
-        
         calculateAndRender();
     }
-    
     function toggleTitrationTool() {
         isTitrationToolCollapsed = !isTitrationToolCollapsed;
         elements.titrationToolContent.classList.toggle('hidden');
         elements.titrationToggleIcon.classList.toggle('rotate-180');
         calculateAndRender();
     }
-
     function saveToLocalStorage() {
         const baseDoses = {};
         document.querySelectorAll('.base-drug-input').forEach(input => { baseDoses[input.dataset.key] = input.value; });
@@ -1431,7 +1287,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const state = { baseDoses, prnDoses, titrationMode, percentAdjustment, pinnedDrugKey, rotationMME, rotationDoseInfo, balancePair, lockedDrugs, isTitrationToolCollapsed, rotationTools: { basalDrug: elements.basalCalcDrug.value, breakthroughDrug: elements.breakthroughCalcDrug.value, breakthroughPercent: elements.breakthroughCalcPercent.value } };
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
     }
-
     function loadFromLocalStorage() {
         const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (!savedState) { addBreakthroughRow(); calculateAndRender(); return; }
@@ -1458,7 +1313,6 @@ document.addEventListener('DOMContentLoaded', () => {
             calculateAndRender();
         } catch (error) { console.error("Failed to load state:", error); clearAllInputs(); }
     }
-
     function clearAllInputs() {
         localStorage.removeItem(LOCAL_STORAGE_KEY);
         document.querySelectorAll('input[type="number"]').forEach(i => { i.value = ''; delete i.dataset.originalDose; });
@@ -1473,8 +1327,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setTitrationMode('prn');
     }
-
     function setupEventListeners() {
+        elements.themeToggleBtn.addEventListener('click', toggleTheme);
         elements.medSection.addEventListener('input', e => {
             if (e.target.classList.contains('base-drug-input')) {
                 const key = e.target.dataset.key;
@@ -1488,17 +1342,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
         elements.medSection.addEventListener('click', e => { 
             const pinButton = e.target.closest('.pin-btn');
             if(pinButton) handlePinClick(pinButton.dataset.key);
-
             const tddHelperButton = e.target.closest('.tdd-helper-btn');
             if(tddHelperButton) openTddHelperModal(tddHelperButton.dataset.key);
-
             const drugNameButton = e.target.closest('.drug-name-btn');
             if(drugNameButton) openDrugInfoModal(drugNameButton.dataset.key);
-
             const rowMmeRef = e.target.closest('.row-mme-ref');
             if(rowMmeRef) {
                 const key = rowMmeRef.dataset.key;
@@ -1508,31 +1358,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
         elements.medSection.addEventListener('dblclick', e => {
             const pinButton = e.target.closest('.pin-btn');
             if(pinButton) handlePinDoubleClick(pinButton.dataset.key);
         });
-        
         elements.titrationToolHeader.addEventListener('click', (e) => {
             if (!e.target.closest('a, button, input, select')) {
                  toggleTitrationTool();
             }
         });
-
         elements.titrationModeToggle.addEventListener('click', e => { 
             const button = e.target.closest('.utility-btn'); 
             if (button && button.dataset.mode !== titrationMode) {
                 setTitrationMode(button.dataset.mode);
             }
         });
-
         elements.percentAdjustButtons.forEach(button => button.addEventListener('click', () => handlePercentAdjustment(parseInt(button.dataset.percent, 10))));
         elements.customPercentInput.addEventListener('input', e => handlePercentAdjustment(parseFloat(e.target.value) || 0));
         elements.addBreakthroughBtn.addEventListener('click', () => { addBreakthroughRow(); calculateAndRender(); });
-        elements.breakthroughRowsContainer.addEventListener('change', e => { if (e.target.classList.contains('prn-drug-select')) { e.target.closest('.prn-row').querySelector('.prn-dose-unit').textContent = (e.target.value && DRUG_CONFIG[e.target.value]) ? DRUG_CONFIG[e.target.value].unit : ''; calculateAndRender(); } });
+        // UPDATED: Event listener for breakthrough select to change placeholder
+        elements.breakthroughRowsContainer.addEventListener('change', e => { 
+            if (e.target.classList.contains('prn-drug-select')) {
+                const doseInput = e.target.closest('.prn-row').querySelector('.prn-dose-input');
+                const unit = (e.target.value && DRUG_CONFIG[e.target.value]) ? DRUG_CONFIG[e.target.value].unit : '';
+                doseInput.placeholder = unit ? `Dose (${unit})` : 'Dose';
+                calculateAndRender(); 
+            } 
+        });
         elements.breakthroughRowsContainer.addEventListener('input', e => { if (e.target.classList.contains('prn-dose-input')) calculateAndRender(); });
-        elements.breakthroughRowsContainer.addEventListener('click', e => { if (e.target.closest('.remove-prn-btn')) { if (elements.breakthroughRowsContainer.children.length > 1) { e.target.closest('.prn-row').remove(); } else { const row = elements.breakthroughRowsContainer.firstElementChild; row.querySelector('select').value = ''; row.querySelector('input').value = ''; row.querySelector('.prn-dose-unit').textContent = ''; } calculateAndRender(); } });
+        elements.breakthroughRowsContainer.addEventListener('click', e => { if (e.target.closest('.remove-prn-btn')) { if (elements.breakthroughRowsContainer.children.length > 1) { e.target.closest('.prn-row').remove(); } else { const row = elements.breakthroughRowsContainer.firstElementChild; row.querySelector('select').value = ''; row.querySelector('input').value = ''; row.querySelector('input').placeholder = 'Dose'; } calculateAndRender(); } });
         elements.clearAllBtn.addEventListener('click', clearAllInputs);
         elements.rotateBtn.addEventListener('click', handleRotateClick);
         elements.cancelRotateBtn.addEventListener('click', handleRotateClick);
@@ -1541,18 +1395,14 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.breakthroughCalcDrug.addEventListener('change', updateRotationTools);
         elements.breakthroughCalcPercent.addEventListener('change', updateRotationTools);
         elements.totalMmeDisplay.addEventListener('click', () => { if (rotationMME === null) { const totalMME = parseFloat(elements.totalMmeDisplay.textContent) || 0; if (totalMME > 0) openQuickRefModal(totalMME); } });
-        
         elements.safetyChecklistBtn.addEventListener('click', () => elements.safetyModal.classList.add('visible'));
         [elements.closeSafetyModalBtn, elements.safetyModal].forEach(el => el.addEventListener('click', (e) => { if(e.target === el) elements.safetyModal.classList.remove('visible')}));
         elements.quickRefModal.addEventListener('click', (e) => { if (e.target === elements.quickRefModal || e.target.closest('#close-quick-ref-modal-btn')) elements.quickRefModal.classList.remove('visible'); });
         elements.basalHelperBtn.addEventListener('click', openHelperModal);
-        
         elements.drugInfoModal.addEventListener('click', (e) => { if (e.target === elements.drugInfoModal || e.target.closest('#close-drug-info-modal-btn')) elements.drugInfoModal.classList.remove('visible'); });
-
         [elements.tddHelperDrugAmount, elements.tddHelperFluidVolume, elements.tddHelperRate].forEach(el => el.addEventListener('input', calculateTddFromRate));
         elements.confirmTddHelperBtn.addEventListener('click', applyTddFromHelper);
         elements.closeTddHelperModalBtn.addEventListener('click', () => elements.tddHelperModal.classList.remove('visible'));
-
         elements.csciTotalDoseInput.addEventListener('input', calculateCsci);
         elements.csciTotalVolume.addEventListener('input', calculateCsci);
         elements.csciSyringeSize.addEventListener('change', calculateCsci);
