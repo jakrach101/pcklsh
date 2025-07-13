@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opioid Calculator (Modern Design)</title>
+    <title>Opioid Calculator (Material Design)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- Modern Neumorphic Design --- */
+        /* --- Material Design Inspired Theme --- */
         :root {
-            --bg-color: #eef0f4;
-            --primary-color: #0891b2; /* Cyan-600 */
-            --primary-text: #0e7490; /* Cyan-700 */
-            --dark-shadow: #d1d9e6;
-            --light-shadow: #ffffff;
-            --text-color: #4b5563; /* Gray-600 */
-            --text-light: #6b7280; /* Gray-500 */
-            --card-radius: 1.25rem; /* 20px */
-            --input-radius: 0.75rem; /* 12px */
+            --bg-color: #f7f8fa;
+            --card-bg-color: #ffffff;
+            --primary-color: #0284c7; /* sky-600 */
+            --primary-color-dark: #0369a1; /* sky-700 */
+            --primary-text: #075985; /* sky-800 */
+            --text-color: #374151; /* gray-700 */
+            --text-light: #6b7280; /* gray-500 */
+            --border-color: #e5e7eb; /* gray-200 */
+            --card-radius: 0.75rem; /* 12px */
+            --input-radius: 0.5rem; /* 8px */
         }
 
         body { 
@@ -29,190 +30,203 @@
             color: var(--text-color);
         }
 
-        /* Main Card Style */
+        /* Card Style */
         .card {
-            background: var(--bg-color);
+            background: var(--card-bg-color);
             border-radius: var(--card-radius);
-            box-shadow: 8px 8px 16px var(--dark-shadow), -8px -8px 16px var(--light-shadow);
-            padding: 1.25rem; /* 20px */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid var(--border-color);
         }
         
         /* Input & Select Field Styles */
         .input-field, .select-field {
-            width: 100%;
-            border: none;
-            outline: none;
-            background: var(--bg-color);
-            border-radius: var(--input-radius);
-            padding: 0.75rem 1rem;
+            width: 100%; 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--input-radius); 
+            padding: 0.6rem 0.75rem; 
+            background-color: #f9fafb; 
+            transition: all 0.2s ease-in-out; 
             font-size: 16px; /* iOS zoom fix */
-            color: var(--text-color);
-            box-shadow: inset 5px 5px 10px var(--dark-shadow), inset -5px -5px 10px var(--light-shadow);
-            transition: all 0.2s ease-in-out;
         }
         @media (min-width: 640px) {
             .input-field, .select-field { font-size: 0.875rem; }
         }
-        .input-field:focus, .select-field:focus {
-            box-shadow: inset 2px 2px 4px var(--dark-shadow), inset -2px -2px 4px var(--light-shadow), 0 0 0 2px var(--primary-color);
-        }
-        .input-field:disabled {
-            color: var(--text-light);
-            box-shadow: inset 2px 2px 4px var(--dark-shadow), inset -2px -2px 4px var(--light-shadow);
-            cursor: not-allowed;
-        }
-
         .select-field { 
             -webkit-appearance: none; -moz-appearance: none; appearance: none;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.75rem center; background-repeat: no-repeat;
+            background-position: right 0.5rem center; background-repeat: no-repeat;
             background-size: 1.25em 1.25em; padding-right: 2.5rem;
+        }
+        .input-field::placeholder { color: #9ca3af; }
+        .input-field:focus, .select-field:focus { 
+            border-color: var(--primary-color); 
+            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); 
+            outline: none;
+            background-color: var(--card-bg-color);
+        }
+        .input-field:disabled { 
+            background-color: #f3f4f6; 
+            color: var(--text-light); 
+            cursor: not-allowed; 
         }
 
         /* Button Styles */
-        .action-btn {
-            background: var(--bg-color);
-            border-radius: 9999px;
-            width: 2.5rem; height: 2.5rem;
-            display: inline-flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            color: var(--text-light);
-            box-shadow: 4px 4px 8px var(--dark-shadow), -4px -4px 8px var(--light-shadow);
-            transition: all 0.2s ease-in-out;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-        .action-btn:hover {
-            color: var(--primary-text);
-        }
-        .action-btn:active {
-            box-shadow: inset 3px 3px 6px var(--dark-shadow), inset -3px -3px 6px var(--light-shadow);
-            transform: scale(0.98);
-        }
-        .pin-btn.pinned { color: #0e7490; box-shadow: inset 3px 3px 6px #a6d8e4, inset -3px -3px 6px #ffffff; }
-        .pin-btn.balance-decrease { color: #c2410c; box-shadow: inset 3px 3px 6px #fbc1aa, inset -3px -3px 6px #ffffff; }
-        .pin-btn.balance-increase { color: #15803d; box-shadow: inset 3px 3px 6px #bbf7d0, inset -3px -3px 6px #ffffff; }
-        .pin-btn.locked { color: #be123c; box-shadow: inset 3px 3px 6px #fecdd3, inset -3px -3px 6px #ffffff; }
-
-        .utility-btn {
-            background: var(--bg-color);
-            color: var(--text-light);
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 600;
             padding: 0.5rem 1rem;
             border-radius: var(--input-radius);
-            box-shadow: 3px 3px 6px var(--dark-shadow), -3px -3px 6px var(--light-shadow);
-            transition: all 0.2s;
-            font-size: 0.875rem;
-            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid transparent;
         }
-        .utility-btn:hover { color: var(--text-color); }
-        .utility-btn.active {
+        .btn-primary {
             background-color: var(--primary-color);
             color: white;
-            box-shadow: inset 3px 3px 6px #06738f, inset -3px -3px 6px #0acff7;
         }
-        .utility-btn.decrease.active { background-color: #dc2626; box-shadow: inset 3px 3px 6px #b01e1e, inset -3px -3px 6px #ff2e2e; }
+        .btn-primary:hover {
+            background-color: var(--primary-color-dark);
+        }
+        .btn-secondary {
+            background-color: var(--card-bg-color);
+            color: var(--primary-text);
+            border-color: var(--border-color);
+        }
+        .btn-secondary:hover {
+            background-color: #f0f9ff; /* sky-50 */
+            border-color: #bae6fd; /* sky-200 */
+        }
+        .btn-icon {
+            width: 2.5rem; height: 2.5rem;
+            padding: 0;
+            border-radius: 9999px;
+            color: var(--text-light);
+        }
+        .btn-icon:hover {
+            background-color: #f3f4f6; /* gray-100 */
+            color: var(--text-color);
+        }
+        
+        .pin-btn.pinned { color: var(--primary-color); background-color: #f0f9ff; }
+        .pin-btn.balance-decrease { color: #f97316; background-color: #fff7ed; }
+        .pin-btn.balance-increase { color: #16a34a; background-color: #f0fdf4; }
+        .pin-btn.locked { color: #dc2626; background-color: #fef2f2; }
 
         /* Modal styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px);
+            background-color: rgba(17, 24, 39, 0.6); /* gray-900 with opacity */
+            backdrop-filter: blur(4px);
             display: flex; align-items: center; justify-content: center; z-index: 50;
             opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
         }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
         .modal-content {
-            position: relative;
-            background: var(--bg-color);
+            position: relative; 
+            background-color: var(--card-bg-color); 
             padding: 1.5rem;
-            border-radius: var(--card-radius);
+            border-radius: var(--card-radius); 
             width: 90%; max-width: 500px;
             transform: scale(0.95); transition: transform 0.3s;
-            box-shadow: 12px 12px 24px rgba(0,0,0,0.2), -12px -12px 24px rgba(255,255,255,0.7);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
         .modal-overlay.visible .modal-content { transform: scale(1); }
-        .modal-close-btn { position: absolute; top: 0.75rem; right: 0.75rem; }
+        .modal-close-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
 
-        /* Drug Row Styles */
-        .drug-row {
-            transition: background-color 0.3s;
-            padding: 1rem 0.5rem;
-            border-bottom: 1px solid var(--dark-shadow);
+        /* Utility button styles (for titration modes) */
+        .utility-btn-group {
+            display: inline-flex;
+            border: 1px solid var(--border-color);
+            border-radius: var(--input-radius);
+            overflow: hidden;
+            background-color: #f3f4f6;
         }
-        .drug-row:last-child { border-bottom: none; }
-        .drug-row.pinned-row { background-color: #e0f2fe; }
-        .drug-row.balance-decrease-row { background-color: #fff7ed; }
-        .drug-row.balance-increase-row { background-color: #f0fdf4; }
-
-        .drug-name-btn:hover .drug-name-text { color: var(--primary-text); }
-        .row-mme-ref:hover { text-decoration: underline; }
+        .utility-btn {
+            background-color: transparent;
+            color: var(--text-light);
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-right: 1px solid var(--border-color);
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+        .utility-btn:last-child { border-right: none; }
+        .utility-btn:hover { background-color: #e5e7eb; }
+        .utility-btn.active { 
+            background-color: var(--card-bg-color); 
+            color: var(--primary-text);
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
     </style>
 </head>
-<body class="p-3 sm:p-4 md:p-8">
+<body class="p-3 sm:p-4 md:p-6">
 
-    <div class="max-w-4xl mx-auto space-y-6">
-        
+    <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <header class="flex justify-between items-center gap-4">
+        <header class="flex justify-between items-center gap-4 mb-6">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Opioid Calculator</h1>
-                <p class="text-sm text-gray-500">เครื่องมือคำนวณและหมุนเวียนยาแก้ปวด</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Opioid Equianalgesic Calculator</h1>
+                <p class="text-sm text-gray-500">เครื่องมือคำนวณและหมุนเวียนยาสำหรับบุคลากรทางการแพทย์</p>
             </div>
             <div class="flex items-center gap-2">
-                <button id="safety-checklist-btn" class="action-btn" title="Clinical Pearls">
+                <button id="safety-checklist-btn" class="btn btn-icon" title="Clinical Pearls">
                     <i class="fas fa-check-circle text-yellow-500"></i>
                 </button>
-                <button id="clear-all-btn" class="action-btn" title="ล้างข้อมูลทั้งหมด">
+                <button id="clear-all-btn" class="btn btn-icon" title="ล้างข้อมูลทั้งหมด">
                     <i class="fas fa-trash text-red-500"></i>
                 </button>
             </div>
         </header>
 
         <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             
-            <!-- Left Column: Inputs -->
-            <div class="lg:col-span-2 space-y-6">
+            <!-- Left Column: Inputs & Tools -->
+            <div class="lg:col-span-3 space-y-6">
                 
                 <!-- Current Opioids Card -->
-                <div class="card">
-                    <h2 class="text-lg font-bold text-gray-700 mb-4">Current Opioids</h2>
-                    <div id="medication-section" class="space-y-2"></div>
+                <div class="card p-4 sm:p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-3">ยา Opioids ที่ใช้อยู่ (Current Regimen)</h2>
+                    <div id="medication-section" class="divide-y divide-gray-200"></div>
                 </div>
 
                 <!-- Titration Tool Card -->
-                <div id="titration-tool-container" class="card">
-                     <div id="titration-tool-header" class="flex justify-between items-center cursor-pointer -m-2 p-2 rounded-lg">
+                <div id="titration-tool-container" class="card p-4 sm:p-6">
+                     <div id="titration-tool-header" class="flex justify-between items-center cursor-pointer mb-4">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <h2 class="text-lg font-bold text-gray-700">Dose Adjustment</h2>
-                            <span id="titration-target-display" class="text-xs font-semibold text-cyan-700 truncate bg-cyan-50 px-2 py-1 rounded-full"></span>
+                            <h2 class="text-lg font-semibold text-gray-700">เครื่องมือปรับยา (Dose Adjustment)</h2>
+                            <span id="titration-target-display" class="text-xs font-semibold text-sky-700 truncate bg-sky-100 px-2 py-1 rounded-full"></span>
                         </div>
-                        <button id="titration-toggle-btn" class="action-btn w-10 h-10">
+                        <button id="titration-toggle-btn" class="btn btn-icon -mr-2">
                             <i id="titration-toggle-icon" class="fas fa-chevron-down transition-transform"></i>
                         </button>
                      </div>
-                     <div id="titration-tool-content" class="mt-4 space-y-4 transition-all duration-300">
+                     <div id="titration-tool-content" class="space-y-4 transition-all duration-300">
                         <div class="flex justify-center">
-                            <div id="titration-mode-toggle" class="flex border border-slate-200 rounded-xl p-1 text-sm bg-slate-200/50 shadow-inner">
-                                 <button class="utility-btn titration-mode-btn !shadow-none !border-none" data-mode="prn">PRN</button>
-                                 <button class="utility-btn titration-mode-btn !shadow-none !border-none" data-mode="percent">%</button>
-                                 <button class="utility-btn titration-mode-btn !shadow-none !border-none" data-mode="balance">Balance</button>
+                            <div id="titration-mode-toggle" class="utility-btn-group">
+                                 <button class="utility-btn" data-mode="prn">PRN</button>
+                                 <button class="utility-btn" data-mode="percent">%</button>
+                                 <button class="utility-btn" data-mode="balance">Balance</button>
                             </div>
                         </div>
                         <div id="prn-titration-section" class="space-y-3">
-                            <div id="breakthrough-rows-container"></div>
-                            <button id="add-breakthrough-btn" class="w-full text-center py-2 text-cyan-700 hover:text-cyan-900 font-semibold text-sm flex items-center justify-center gap-2 border-2 border-dashed border-cyan-200 rounded-lg hover:bg-cyan-50 transition">
-                                <i class="fas fa-plus-circle"></i>
-                                <span>Add Breakthrough</span>
+                            <label class="text-sm font-medium text-gray-600">ยา Breakthrough (PRN) ที่ใช้ใน 24 ชม.</label>
+                            <div id="breakthrough-rows-container" class="space-y-2"></div>
+                            <button id="add-breakthrough-btn" class="btn btn-secondary w-full text-sm">
+                                <i class="fas fa-plus mr-2"></i>
+                                <span>เพิ่มรายการยา PRN</span>
                             </button>
                         </div>
                         <div id="percent-titration-section" class="hidden">
-                            <div class="flex items-center justify-center gap-2 flex-wrap">
-                                <button class="utility-btn percent-adjust-btn decrease" data-percent="-50">-50%</button>
-                                <button class="utility-btn percent-adjust-btn decrease" data-percent="-25">-25%</button>
-                                <button class="utility-btn percent-adjust-btn" data-percent="0">0%</button>
-                                <button class="utility-btn percent-adjust-btn increase" data-percent="30">+30%</button>
-                                <button class="utility-btn percent-adjust-btn increase" data-percent="50">+50%</button>
-                                <input type="number" inputmode="decimal" id="custom-percent-input" class="input-field w-24 text-center" placeholder="...">
+                            <div class="flex items-center justify-center gap-2 flex-wrap bg-gray-50 p-3 rounded-lg">
+                                <button class="btn btn-secondary text-red-600 percent-adjust-btn decrease" data-percent="-50">-50%</button>
+                                <button class="btn btn-secondary text-red-600 percent-adjust-btn decrease" data-percent="-25">-25%</button>
+                                <button class="btn btn-secondary percent-adjust-btn" data-percent="0">0%</button>
+                                <button class="btn btn-secondary text-green-600 percent-adjust-btn increase" data-percent="30">+30%</button>
+                                <button class="btn btn-secondary text-green-600 percent-adjust-btn increase" data-percent="50">+50%</button>
+                                <input type="number" inputmode="decimal" id="custom-percent-input" class="input-field w-24 text-center" placeholder="... %">
                             </div>
                         </div>
                         <div id="balance-titration-section" class="hidden text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
@@ -224,61 +238,60 @@
             </div>
 
             <!-- Right Column: Results & Rotation -->
-            <div class="lg:col-span-1 space-y-6">
+            <div class="lg:col-span-2 space-y-6">
                 <!-- Total MME Card -->
-                <div id="total-mme-box" class="card text-center">
+                <div id="total-mme-box" class="card text-center p-4 sm:p-6 sticky top-6">
                     <div id="total-mme-normal-view">
-                        <h2 class="text-lg font-semibold text-cyan-800">Total MME/day</h2>
-                        <p id="total-mme-display" class="text-6xl font-bold text-cyan-900 my-2 tracking-tight cursor-pointer" title="คลิกเพื่อดู Quick Reference">0</p>
-                        <p id="empty-state-message" class="text-gray-500 text-sm">กรอกขนาดยาเพื่อเริ่มคำนวณ</p>
-                        <button id="rotate-btn" class="utility-btn bg-cyan-600 text-white hover:bg-cyan-700 active:bg-cyan-800 w-full mt-4 hidden">
+                        <h2 class="text-base font-semibold text-sky-800">Total Morphine Milligram Equivalents</h2>
+                        <p id="total-mme-display" class="text-6xl font-bold text-sky-900 my-2 tracking-tight cursor-pointer" title="คลิกเพื่อดู Quick Reference">0</p>
+                        <p class="text-sm text-gray-500">MME / day</p>
+                        <p id="empty-state-message" class="text-gray-500 text-sm mt-4">กรอกขนาดยาเพื่อเริ่มคำนวณ</p>
+                        <button id="rotate-btn" class="btn btn-primary w-full mt-4 hidden">
                             <i class="fas fa-sync-alt mr-2"></i>
-                            Opioid Rotation
+                            เริ่มการหมุนเวียนยา (Opioid Rotation)
                         </button>
                     </div>
                     <div id="total-mme-rotation-view" class="hidden">
                         <div class="flex justify-between items-center mb-2">
                              <h2 class="text-lg font-semibold text-red-800">Opioid Rotation</h2>
-                             <button id="cancel-rotate-btn" class="action-btn w-9 h-9 bg-red-100 hover:bg-red-200" title="ยกเลิกการหมุนเวียนยา">
+                             <button id="cancel-rotate-btn" class="btn btn-icon" title="ยกเลิกการหมุนเวียนยา">
                                 <i class="fas fa-times text-red-700"></i>
                             </button>
                         </div>
-                        <div id="rotation-adjustment-display" class="text-gray-600 text-base"></div>
+                        <div id="rotation-adjustment-display" class="text-gray-600 text-base bg-gray-50 p-3 rounded-lg"></div>
                     </div>
                 </div>
 
                 <!-- Rotation Tools Card -->
-                <div id="rotation-tools" class="hidden card !p-0 overflow-hidden">
-                    <div class="p-5">
-                        <h3 class="font-bold text-green-800 text-lg">Rotation Tool</h3>
-                        <div id="rotation-mme-ref" class="text-right text-xs sm:text-sm text-gray-500 -mt-5"></div>
-                    </div>
-                    <div class="space-y-3 bg-green-50/50 p-5 border-t border-green-200">
-                        <div id="basal-recommendation" class="bg-white/70 p-3 rounded-lg shadow-sm border">
-                            <div class="flex justify-between items-center flex-wrap gap-2">
-                                 <label class="font-semibold text-gray-700 text-sm">Basal Dose</label>
+                <div id="rotation-tools" class="hidden card p-4 sm:p-6">
+                    <h3 class="font-semibold text-green-800 text-lg border-b pb-3 mb-4">เครื่องมือหมุนเวียนยา (Rotation Tool)</h3>
+                    <div id="rotation-mme-ref" class="text-right text-xs sm:text-sm text-gray-500 -mt-12 mb-4"></div>
+                    <div class="space-y-4">
+                        <div id="basal-recommendation" class="bg-gray-50 p-3 rounded-lg border">
+                            <div class="flex justify-between items-center flex-wrap gap-2 mb-2">
+                                 <label class="font-semibold text-gray-700 text-sm">ยา Basal ใหม่</label>
                                  <div class="flex items-center gap-2">
-                                    <select id="basal-calc-drug" class="select-field !text-xs !p-1 !rounded-md w-36 sm:w-40"></select>
-                                    <button id="basal-helper-btn" class="action-btn !w-8 !h-8 text-cyan-700 hover:bg-cyan-100 hidden" title="เครื่องมือช่วยคำนวณ">
+                                    <select id="basal-calc-drug" class="select-field !text-xs !p-1.5 !rounded-md w-36 sm:w-40"></select>
+                                    <button id="basal-helper-btn" class="btn btn-icon !w-8 !h-8 text-sky-700 hidden" title="เครื่องมือช่วยคำนวณ">
                                         <i class="fas fa-calculator"></i>
                                     </button>
                                  </div>
                             </div>
-                            <div id="basal-recommendation-text" class="text-lg text-green-800 font-bold mt-2 p-2 bg-green-50 rounded-md text-center"></div>
+                            <div id="basal-recommendation-text" class="text-lg text-green-800 font-bold mt-2 p-2 bg-green-100 rounded-md text-center"></div>
                         </div>
-                        <div id="breakthrough-recommendation" class="bg-white/70 p-3 rounded-lg shadow-sm border">
-                            <div class="flex justify-between items-center flex-wrap gap-2">
-                                 <label class="font-semibold text-gray-700 text-sm">Breakthrough</label>
+                        <div id="breakthrough-recommendation" class="bg-gray-50 p-3 rounded-lg border">
+                            <div class="flex justify-between items-center flex-wrap gap-2 mb-2">
+                                 <label class="font-semibold text-gray-700 text-sm">ยา Breakthrough ใหม่</label>
                                  <div class="flex items-center gap-2">
-                                    <select id="breakthrough-calc-drug" class="select-field !text-xs !p-1 !rounded-md w-36 sm:w-40"></select>
-                                    <select id="breakthrough-calc-percent" class="select-field !text-xs !p-1 !rounded-md w-20">
+                                    <select id="breakthrough-calc-drug" class="select-field !text-xs !p-1.5 !rounded-md w-36 sm:w-40"></select>
+                                    <select id="breakthrough-calc-percent" class="select-field !text-xs !p-1.5 !rounded-md w-24">
                                         <option value="0.1667">1/6 TDD</option>
                                         <option value="0.15">15% TDD</option>
                                         <option value="0.1">10% TDD</option>
                                     </select>
                                  </div>
                             </div>
-                            <p id="breakthrough-recommendation-text" class="text-base sm:text-lg text-green-800 font-bold mt-2 p-2 bg-green-50 rounded-md text-center"></p>
+                            <p id="breakthrough-recommendation-text" class="text-base sm:text-lg text-green-800 font-bold mt-2 p-2 bg-green-100 rounded-md text-center"></p>
                         </div>
                     </div>
                 </div>
@@ -289,7 +302,7 @@
     <!-- Modals -->
     <div id="drug-info-modal" class="modal-overlay">
         <div class="modal-content space-y-3">
-            <button id="close-drug-info-modal-btn" class="action-btn modal-close-btn">&times;</button>
+            <button id="close-drug-info-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
             <h3 id="drug-info-title" class="text-xl font-bold text-gray-800"></h3>
             <div id="drug-info-content" class="text-sm text-gray-700 space-y-2"></div>
         </div>
@@ -297,11 +310,11 @@
 
     <div id="tdd-helper-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
-            <button id="close-tdd-helper-modal-btn" class="action-btn modal-close-btn">&times;</button>
-            <h3 class="text-lg font-bold text-gray-800">TDD from IV Rate</h3>
+            <button id="close-tdd-helper-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
+            <h3 class="text-lg font-bold text-gray-800">คำนวณ TDD จาก IV Rate</h3>
             <div class="bg-gray-50 p-3 rounded-lg">
                 <p class="text-sm font-medium text-gray-500">ยาที่คำนวณ</p>
-                <p id="tdd-helper-drug-name" class="text-lg font-bold text-cyan-700"></p>
+                <p id="tdd-helper-drug-name" class="text-lg font-bold text-sky-700"></p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
@@ -321,22 +334,22 @@
                 <p class="text-sm font-medium text-gray-500">Calculated TDD</p>
                 <p id="tdd-helper-result-display" class="text-2xl font-bold text-blue-800">0</p>
             </div>
-            <button id="confirm-tdd-helper-btn" class="w-full utility-btn !bg-cyan-600 !text-white hover:!bg-cyan-700 active:!bg-cyan-800">ยืนยัน</button>
+            <button id="confirm-tdd-helper-btn" class="btn btn-primary w-full">ยืนยัน</button>
         </div>
     </div>
 
     <div id="csci-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
-            <button id="cancel-csci-modal-btn" class="action-btn modal-close-btn">&times;</button>
+            <button id="cancel-csci-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
             <h3 class="text-lg font-bold text-gray-800">CSCI Helper</h3>
             <div class="bg-gray-50 p-3 rounded-lg">
                 <p class="text-sm font-medium text-gray-500">ยาที่คำนวณ</p>
-                <p id="csci-drug-name" class="text-lg font-bold text-cyan-700 mb-2"></p>
+                <p id="csci-drug-name" class="text-lg font-bold text-sky-700 mb-2"></p>
                 <div class="flex justify-between items-center">
                     <label for="csci-total-dose-input" class="block text-sm font-medium text-gray-700">Dose/24hr (<span id="csci-dose-unit"></span>)</label>
-                    <button id="csci-reset-dose-btn" class="action-btn !w-7 !h-7" title="Reset Dose"><i class="fas fa-undo"></i></button>
+                    <button id="csci-reset-dose-btn" class="btn btn-icon !w-7 !h-7" title="Reset Dose"><i class="fas fa-undo"></i></button>
                 </div>
-                <input type="number" inputmode="decimal" id="csci-total-dose-input" class="input-field mt-1 text-lg font-bold text-cyan-700">
+                <input type="number" inputmode="decimal" id="csci-total-dose-input" class="input-field mt-1 text-lg font-bold text-sky-700">
                 <p id="csci-new-mme" class="text-xs text-center text-gray-500 mt-1 h-4"></p>
             </div>
             <div class="space-y-3">
@@ -365,22 +378,22 @@
                     </div>
                 </div>
             </div>
-            <button id="close-csci-modal-btn" class="w-full utility-btn !bg-cyan-600 !text-white hover:!bg-cyan-700 active:!bg-cyan-800">ยืนยัน</button>
+            <button id="close-csci-modal-btn" class="btn btn-primary w-full">ยืนยัน</button>
         </div>
     </div>
 
     <div id="iv-infusion-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
-            <button id="cancel-iv-modal-btn" class="action-btn modal-close-btn">&times;</button>
+            <button id="cancel-iv-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
             <h3 class="text-lg font-bold text-gray-800">IV Infusion Helper</h3>
             <div class="bg-gray-50 p-3 rounded-lg">
                 <p class="text-sm font-medium text-gray-500">ยาที่คำนวณ</p>
-                <p id="iv-drug-name" class="text-lg font-bold text-cyan-700 mb-2"></p>
+                <p id="iv-drug-name" class="text-lg font-bold text-sky-700 mb-2"></p>
                 <div class="flex justify-between items-center">
                     <label for="iv-total-dose-input" class="block text-sm font-medium text-gray-700">Dose/24hr (<span id="iv-dose-unit"></span>)</label>
-                     <button id="iv-reset-dose-btn" class="action-btn !w-7 !h-7" title="Reset Dose"><i class="fas fa-undo"></i></button>
+                     <button id="iv-reset-dose-btn" class="btn btn-icon !w-7 !h-7" title="Reset Dose"><i class="fas fa-undo"></i></button>
                 </div>
-                <input type="number" inputmode="decimal" id="iv-total-dose-input" class="input-field mt-1 text-lg font-bold text-cyan-700">
+                <input type="number" inputmode="decimal" id="iv-total-dose-input" class="input-field mt-1 text-lg font-bold text-sky-700">
                 <p id="iv-new-mme" class="text-xs text-center text-gray-500 mt-1 h-4"></p>
             </div>
              <div>
@@ -401,13 +414,13 @@
                     </div>
                 </div>
             </div>
-            <button id="close-iv-infusion-modal-btn" class="w-full utility-btn !bg-cyan-600 !text-white hover:!bg-cyan-700 active:!bg-cyan-800">ยืนยัน</button>
+            <button id="close-iv-infusion-modal-btn" class="btn btn-primary w-full">ยืนยัน</button>
         </div>
     </div>
 
     <div id="safety-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
-            <button id="close-safety-modal-btn" class="action-btn modal-close-btn">&times;</button>
+            <button id="close-safety-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
             <h3 class="text-lg font-bold text-yellow-800 flex items-center gap-2"><i class="fas fa-check-circle"></i> Clinical Pearls</h3>
             <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
                 <li><strong>การประเมินผู้ป่วย:</strong> อายุ, การทำงานของไตและตับ, ภาวะสับสน (Delirium), ประวัติการใช้ Opioids.</li>
@@ -432,11 +445,11 @@
 
     <div id="quick-ref-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
-            <button id="close-quick-ref-modal-btn" class="action-btn modal-close-btn">&times;</button>
+            <button id="close-quick-ref-modal-btn" class="btn btn-icon modal-close-btn">&times;</button>
             <h3 id="quick-ref-title" class="text-lg font-bold text-gray-800">Quick Reference</h3>
             <div class="bg-gray-50 p-3 rounded-lg text-center">
                 <p class="text-sm font-medium text-gray-500">MME/day</p>
-                <p id="quick-ref-mme-total" class="text-2xl font-bold text-cyan-700"></p>
+                <p id="quick-ref-mme-total" class="text-2xl font-bold text-sky-700"></p>
             </div>
             <div id="quick-ref-list" class="space-y-2"></div>
         </div>
@@ -569,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const SYRINGE_DATA = { 'BD': { 20: { length: 88.0 }, 30: { length: 87.5 }, 50: { length: 123.0 } } };
-    const LOCAL_STORAGE_KEY = 'opioidCalculatorDataV5_Modern'; // Updated version key
+    const LOCAL_STORAGE_KEY = 'opioidCalculatorDataV6_Material'; // Updated version key
 
     // --- STATE ---
     let pinnedDrugKey = null;
@@ -662,32 +675,34 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const stepAttribute = config.step ? `step="${config.step}"` : '';
             const tddHelperButton = (key === 'morphine_iv_sc' || key === 'fentanyl_iv_sc') 
-                ? `<button class="action-btn tdd-helper-btn !w-10 !h-10 text-cyan-600" data-key="${key}" title="คำนวณ TDD จาก Rate"><i class="fas fa-calculator"></i></button>` 
+                ? `<button class="btn btn-icon tdd-helper-btn text-sky-600" data-key="${key}" title="คำนวณ TDD จาก Rate"><i class="fas fa-calculator"></i></button>` 
                 : '<span class="w-10 h-10"></span>';
 
             const inputHtml = `
-                <div class="drug-row" data-row-key="${key}">
-                    <div class="grid grid-cols-12 gap-x-2 items-center">
+                <div class="drug-row py-3" data-row-key="${key}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 items-center">
                         <!-- Drug Name & MME -->
-                        <div class="col-span-12 sm:col-span-6">
+                        <div class="col-span-1">
                             <button class="drug-name-btn text-left w-full group" data-key="${key}">
-                                <span class="font-semibold text-gray-800 text-base drug-name-text">${config.name}</span>
+                                <span class="font-semibold text-gray-800 text-base group-hover:text-sky-700">${config.name}</span>
                             </button>
-                            <button class="row-mme-ref" data-key="${key}">
-                                <span class="font-bold text-cyan-700 text-sm">MME: <span id="mme-${key}">0</span></span>
+                            <button class="row-mme-ref text-sm" data-key="${key}">
+                                <span class="font-bold text-sky-700">MME: <span id="mme-${key}">0</span></span>
                                 <span id="mg-day-${key}" class="text-xs text-gray-500 ml-2"></span>
                             </button>
                         </div>
                         <!-- Input & Actions -->
-                        <div class="col-span-12 sm:col-span-6 mt-2 sm:mt-0">
+                        <div class="col-span-1">
                             <div class="flex items-center gap-2">
-                                <div class="flex-1 relative">
-                                    <input type="number" inputmode="decimal" id="dose-${key}" data-key="${key}" class="input-field base-drug-input text-right w-full" placeholder="0" ${stepAttribute}>
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">${config.unit}</span>
-                                    <div id="dose-change-${key}" class="text-xs text-red-600 font-medium text-center mt-1"></div>
+                                <div class="flex-1">
+                                    <div class="flex items-center">
+                                        <input type="number" inputmode="decimal" id="dose-${key}" data-key="${key}" class="input-field base-drug-input text-right w-full" placeholder="0" ${stepAttribute}>
+                                        <span class="text-gray-500 text-sm ml-2 w-20 text-left">${config.unit}</span>
+                                    </div>
+                                    <div id="dose-change-${key}" class="text-xs font-medium text-center mt-1 h-4"></div>
                                 </div>
                                 ${tddHelperButton}
-                                <button class="action-btn pin-btn !w-10 !h-10" data-key="${key}" title="คลิกเพื่อเลือก, ดับเบิลคลิกเพื่อล็อก">
+                                <button class="btn btn-icon pin-btn" data-key="${key}" title="คลิกเพื่อเลือก, ดับเบิลคลิกเพื่อล็อก">
                                     <i id="pin-icon-${key}" class="fas fa-thumbtack"></i>
                                 </button>
                             </div>
@@ -705,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
         newRow.innerHTML = `
             <div class="col-span-6"><select class="select-field w-full prn-drug-select" data-id="${prnCount}"></select></div>
             <div class="col-span-5"><input type="number" inputmode="decimal" class="input-field w-full prn-dose-input text-right" placeholder="0" data-id="${prnCount}"></div>
-            <div class="col-span-1"><button class="action-btn !w-9 !h-9 text-red-500 remove-prn-btn"><i class="fas fa-trash-alt"></i></button></div>
+            <div class="col-span-1"><button class="btn btn-icon !w-9 !h-9 text-red-500 remove-prn-btn"><i class="fas fa-times"></i></button></div>
             <div class="col-span-12 text-center"><span class="text-gray-500 text-xs prn-dose-unit" data-id="${prnCount}"></span></div>
         `;
         const select = newRow.querySelector('.prn-drug-select');
@@ -752,14 +767,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let totalMME = 0;
         let hasInput = false;
 
-        // Reset UI states
-        document.querySelectorAll('.drug-row.pinned-row, .pin-btn.pinned, .drug-row.balance-decrease-row, .drug-row.balance-increase-row, .pin-btn.balance-decrease, .pin-btn.balance-increase, .pin-btn.locked').forEach(el => {
-            el.classList.remove('pinned-row', 'pinned', 'balance-decrease-row', 'balance-increase-row', 'balance-decrease', 'balance-increase', 'locked');
+        document.querySelectorAll('.drug-row.bg-sky-50, .pin-btn.pinned, .drug-row.bg-orange-50, .drug-row.bg-green-50, .pin-btn.balance-decrease, .pin-btn.balance-increase, .pin-btn.locked').forEach(el => {
+            el.classList.remove('bg-sky-50', 'pinned', 'bg-orange-50', 'bg-green-50', 'balance-decrease', 'balance-increase', 'locked');
         });
         document.querySelectorAll('[id^="dose-change-"]').forEach(el => el.innerHTML = '');
         elements.titrationTargetDisplay.textContent = '';
 
-        // Apply lock states first
         document.querySelectorAll('.base-drug-input').forEach(input => input.disabled = false);
         lockedDrugs.forEach(key => {
             const input = document.getElementById(`dose-${key}`);
@@ -772,7 +785,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 pinIcon.classList.add('fa-lock');
             }
         });
-        // Reset non-locked pin icons
         Object.keys(DRUG_CONFIG).forEach(key => {
             if (!lockedDrugs.includes(key)) {
                 const pinIcon = document.getElementById(`pin-icon-${key}`);
@@ -782,7 +794,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
 
         handleUIMode();
 
@@ -830,7 +841,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pinnedDose = parseFloat(pinnedInput.value) || 0;
                 baseForTitration = (pinnedDose > 0) ? (pinnedDose * (pinnedConfig.strength || 1)) * pinnedConfig.factor : 0;
             } else if (!pinnedDrugKey) {
-                // If no drug is pinned, titrate all non-locked drugs
                 document.querySelectorAll('.base-drug-input:not(:disabled)').forEach(input => {
                     const key = input.dataset.key;
                     const config = DRUG_CONFIG[key];
@@ -854,9 +864,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (percentAdjustment !== 0) {
                 const arrow = percentAdjustment > 0 ? '▲' : '▼';
                 const color = percentAdjustment > 0 ? 'text-green-600' : 'text-red-600';
-                elements.rotationAdjustmentDisplay.innerHTML = `New Goal: <strong class="text-lg text-cyan-900">${Math.round(adjustedMME)}</strong> MME <span class="text-sm ${color}">(${arrow}${percentAdjustment > 0 ? '+' : ''}${percentAdjustment.toFixed(1)}%)</span>`;
+                elements.rotationAdjustmentDisplay.innerHTML = `New Goal: <strong class="text-lg text-sky-900">${Math.round(adjustedMME)}</strong> MME <span class="text-sm ${color}">(${arrow}${percentAdjustment > 0 ? '+' : ''}${percentAdjustment.toFixed(1)}%)</span>`;
             } else {
-                elements.rotationAdjustmentDisplay.innerHTML = `Goal: <strong class="text-lg text-cyan-900">${rotationMME.toFixed(0)}</strong> MME`;
+                elements.rotationAdjustmentDisplay.innerHTML = `Goal: <strong class="text-lg text-sky-900">${rotationMME.toFixed(0)}</strong> MME`;
             }
             elements.rotationTools.classList.remove('hidden');
             updateBasalRecommendation(adjustedMME);
@@ -867,7 +877,6 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.totalMmeNormalView.classList.remove('hidden');
             elements.totalMmeRotationView.classList.add('hidden');
             elements.rotationTools.classList.add('hidden');
-            // Re-apply lock state after potential disable-all from rotation mode
             lockedDrugs.forEach(key => {
                 const input = document.getElementById(`dose-${key}`);
                 if (input) input.disabled = true;
@@ -882,27 +891,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleUIMode() {
-        document.querySelectorAll('.titration-mode-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === titrationMode));
+        document.querySelectorAll('.utility-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === titrationMode));
         elements.prnTitrationSection.classList.toggle('hidden', titrationMode !== 'prn');
         elements.percentTitrationSection.classList.toggle('hidden', titrationMode !== 'percent' && titrationMode !== 'balance');
         elements.balanceTitrationSection.classList.toggle('hidden', titrationMode !== 'balance');
         
-        if (titrationMode === 'percent') {
-            if (pinnedDrugKey) {
-                document.querySelector(`.drug-row[data-row-key="${pinnedDrugKey}"]`)?.classList.add('pinned-row');
-                document.querySelector(`.pin-btn[data-key="${pinnedDrugKey}"]`)?.classList.add('pinned');
-                elements.titrationTargetDisplay.textContent = `Titrating: ${DRUG_CONFIG[pinnedDrugKey].name}`;
-            } else {
-                elements.titrationTargetDisplay.textContent = 'Titrating All';
-            }
+        if (titrationMode === 'percent' && pinnedDrugKey) {
+            document.querySelector(`.drug-row[data-row-key="${pinnedDrugKey}"]`)?.classList.add('bg-sky-50');
+            document.querySelector(`.pin-btn[data-key="${pinnedDrugKey}"]`)?.classList.add('pinned');
+            elements.titrationTargetDisplay.textContent = `Titrating: ${DRUG_CONFIG[pinnedDrugKey].name}`;
         } else if (titrationMode === 'balance') {
             const { decreaseKey, increaseKey } = balancePair;
             if (decreaseKey) {
-                document.querySelector(`.drug-row[data-row-key="${decreaseKey}"]`)?.classList.add('balance-decrease-row');
+                document.querySelector(`.drug-row[data-row-key="${decreaseKey}"]`)?.classList.add('bg-orange-50');
                 document.querySelector(`.pin-btn[data-key="${decreaseKey}"]`)?.classList.add('balance-decrease');
             }
             if (increaseKey) {
-                document.querySelector(`.drug-row[data-row-key="${increaseKey}"]`)?.classList.add('balance-increase-row');
+                document.querySelector(`.drug-row[data-row-key="${increaseKey}"]`)?.classList.add('bg-green-50');
                 document.querySelector(`.pin-btn[data-key="${increaseKey}"]`)?.classList.add('balance-increase');
             }
             if (!decreaseKey) {
@@ -912,8 +917,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 elements.balanceInstruction.innerHTML = `<i class="fas fa-check-circle text-blue-600"></i> พร้อมปรับสมดุล!`;
             }
-        } else {
-            elements.titrationTargetDisplay.textContent = '';
         }
     }
     
@@ -967,9 +970,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function handlePinDoubleClick(key) {
         const index = lockedDrugs.indexOf(key);
         if (index > -1) {
-            lockedDrugs.splice(index, 1); // Unlock
+            lockedDrugs.splice(index, 1);
         } else {
-            lockedDrugs.push(key); // Lock
+            lockedDrugs.push(key);
         }
         if (lockedDrugs.includes(balancePair.decreaseKey) || lockedDrugs.includes(balancePair.increaseKey)) {
             balancePair = { decreaseKey: null, increaseKey: null };
@@ -985,8 +988,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(fromUserInput) {
             elements.customPercentInput.value = percent;
         }
-        elements.percentAdjustButtons.forEach(b => b.classList.toggle('active', Math.abs(parseInt(b.dataset.percent) - percent) < 1));
-
+        
         if (fromUserInput && titrationMode === 'balance' && balancePair.decreaseKey && balancePair.increaseKey) {
             performBalance(percent);
         } else {
@@ -1007,7 +1009,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const incOriginalDose = parseFloat(incInput.dataset.originalDose);
         
         const decOriginalMME = (decOriginalDose * (decConfig.strength || 1)) * decConfig.factor;
-        
         let mmeToTransfer = decOriginalMME * (percent / 100);
         let newDecMME = decOriginalMME - mmeToTransfer;
         
@@ -1056,7 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (newIncMME < 0) { newDecMME += newIncMME; newIncMME = 0; }
             const newIncDoseRaw = (newIncMME / incConfig.factor) / (incConfig.strength || 1);
             incInput.value = formatDose(roundToStep(newIncDoseRaw, incConfig.step || 0.1));
-        } else { // changedKey === increaseKey
+        } else { 
             newIncMME = (newDose * (incConfig.strength || 1)) * incConfig.factor;
             newDecMME = pairTotalMME - newIncMME;
             if (newDecMME < 0) { newIncMME += newDecMME; newDecMME = 0; }
@@ -1150,7 +1151,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return `<div class="text-left w-full"><p class="text-lg font-bold text-green-900">${roundedDose} mg/day</p><ul class="list-disc list-inside mt-1 text-xs text-gray-700 space-y-1 pl-2">${listHtml}</ul><p class="text-xs text-gray-600 mt-2">${regimenSuggestion}</p></div>`;
     }
-
 
     function updateBasalRecommendation(currentMME) {
         const key = elements.basalCalcDrug.value;
@@ -1454,7 +1454,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 elements.breakthroughCalcDrug.value = state.rotationTools.breakthroughDrug;
                 elements.breakthroughCalcPercent.value = state.rotationTools.breakthroughPercent;
             }
-            handlePercentAdjustment(state.percentAdjustment || 0);
+            handlePercentAdjustment(state.percentAdjustment || 0, false);
             calculateAndRender();
         } catch (error) { console.error("Failed to load state:", error); clearAllInputs(); }
     }
@@ -1515,13 +1515,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         elements.titrationToolHeader.addEventListener('click', (e) => {
-            if (!e.target.closest('.titration-mode-btn') && !e.target.closest('a, button, input, select')) {
+            if (!e.target.closest('a, button, input, select')) {
                  toggleTitrationTool();
             }
         });
 
         elements.titrationModeToggle.addEventListener('click', e => { 
-            const button = e.target.closest('.titration-mode-btn'); 
+            const button = e.target.closest('.utility-btn'); 
             if (button && button.dataset.mode !== titrationMode) {
                 setTitrationMode(button.dataset.mode);
             }
