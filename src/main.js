@@ -8,6 +8,8 @@ import { CalculationEngine } from './services/calculation-engine.js';
 import { stateManager } from './services/state-manager.js';
 import { modalsComponent } from './components/modals.js';
 import { medicationInput } from './components/medication-input.js';
+import { titrationTool } from './components/titration-tool.js';
+import { performanceMonitor } from './utils/performance.js';
 
 class MedicalCalculatorApp {
     constructor() {
@@ -227,6 +229,10 @@ class MedicalCalculatorApp {
         });
 
         document.addEventListener('medicationChange', (e) => {
+            this.calculateAndRender();
+        });
+
+        document.addEventListener('titrationCalculated', (e) => {
             this.calculateAndRender();
         });
 
