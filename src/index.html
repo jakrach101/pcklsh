@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opioid Calculator - Medical Tool</title>
+    <meta name="description" content="Professional medical calculator for opioid titration with multiple helper tools">
+    <meta name="theme-color" content="#0284c7">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="p-3 sm:p-4 md:p-6">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center gap-4 mb-6">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Opioid Equianalgesic Calculator</h1>
+                <p class="text-sm text-gray-500">เครื่องมือคำนวณและหมุนเวียนยาสำหรับบุคลากรทางการแพทย์</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="theme-toggle-btn" class="btn btn-icon" title="สลับ Theme">
+                    <i class="fas fa-paint-brush"></i>
+                </button>
+                <button id="safety-checklist-btn" class="btn btn-icon" title="Clinical Pearls">
+                    <i class="fas fa-check-circle text-yellow-500"></i>
+                </button>
+                <button id="clear-all-btn" class="btn btn-icon" title="ล้างข้อมูลทั้งหมด">
+                    <i class="fas fa-trash text-red-500"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left Column: Inputs & Tools -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="card p-4 sm:p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-3">ยา Opioids ที่ใช้อยู่ (Current Regimen)</h2>
+                    <div id="medication-section" class="divide-y divide-gray-200"></div>
+                </div>
+
+                <div id="titration-tool-container" class="card p-4 sm:p-6">
+                     <div id="titration-tool-header" class="flex justify-between items-center cursor-pointer mb-4">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <h2 class="text-lg font-semibold text-gray-700">เครื่องมือปรับยา (Dose Adjustment)</h2>
+                            <span id="titration-target-display" class="text-xs font-semibold text-sky-700 truncate bg-sky-100 px-2 py-1 rounded-full"></span>
+                        </div>
+                        <button id="titration-toggle-btn" class="btn btn-icon -mr-2">
+                            <i id="titration-toggle-icon" class="fas fa-chevron-down transition-transform"></i>
+                        </button>
+                     </div>
+                     <div id="titration-tool-content" class="space-y-4 transition-all duration-300">
+                        <div class="flex justify-center">
+                            <div id="titration-mode-toggle" class="utility-btn-group">
+                                 <button class="utility-btn" data-mode="prn">PRN</button>
+                                 <button class="utility-btn" data-mode="percent">%</button>
+                                 <button class="utility-btn" data-mode="balance">Balance</button>
+                            </div>
+                        </div>
+                        <div id="prn-titration-section" class="space-y-3">
+                            <label class="text-sm font-medium text-gray-600">ยา Breakthrough (PRN) ที่ใช้ใน 24 ชม.</label>
+                            <div id="breakthrough-rows-container" class="space-y-2"></div>
+                            <button id="add-breakthrough-btn" class="btn btn-secondary w-full text-sm">
+                                <i class="fas fa-plus mr-2"></i>
+                                <span>เพิ่มรายการยา PRN</span>
+                            </button>
+                        </div>
+                        <div id="percent-titration-section" class="hidden">
+                            <div class="flex items-center justify-center gap-2 flex-wrap bg-gray-50 p-3 rounded-lg">
+                                <button class="btn btn-secondary text-red-600 percent-adjust-btn decrease" data-percent="-50">-50%</button>
+                                <button class="btn btn-secondary text-red-600 percent-adjust-btn decrease" data-percent="-25">-25%</button>
+                                <button class="btn btn-secondary percent-adjust-btn" data-percent="0">0%</button>
+                                <button class="btn btn-secondary text-green-600 percent-adjust-btn increase" data-percent="30">+30%</button>
+                                <button class="btn btn-secondary text-green-600 percent-adjust-btn increase" data-percent="50">+50%</button>
+                                <input type="number" inputmode="decimal" id="custom-percent-input" class="input-field w-24 text-center" placeholder="... %">
+                            </div>
+                        </div>
+                        <div id="balance-titration-section" class="hidden">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-center">
+                                    <p id="balance-instruction" class="text-sm text-gray-600 mb-2">เลือกยาที่ต้องการลดและยาที่ต้องการเพิ่ม</p>
+                                    <div class="flex justify-center gap-2 flex-wrap">
+                                        <button class="btn btn-secondary text-red-600 balance-adjust-btn decrease" data-percent="-25">-25%</button>
+                                        <button class="btn btn-secondary text-red-600 balance-adjust-btn decrease" data-percent="-50">-50%</button>
+                                        <button class="btn btn-secondary balance-adjust-btn" data-percent="0">0%</button>
+                                        <button class="btn btn-secondary text-green-600 balance-adjust-btn increase" data-percent="25">+25%</button>
+                                        <button class="btn btn-secondary text-green-600 balance-adjust-btn increase" data-percent="50">+50%</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 sm:p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-3">ยา Breakthrough (PRN) ที่แนะนำ</h2>
+                    <div class="space-y-4">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="flex-1">
+                                <label class="font-semibold text-gray-700 text-sm">ยา Breakthrough ใหม่</label>
+                                <select id="breakthrough-calc-drug" class="select-field mt-1 w-full">
+                                    <option value="">เลือกยา</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label class="font-semibold text-gray-700 text-sm">เปอร์เซนต์ของ Total MME</label>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <input type="number" inputmode="decimal" id="breakthrough-calc-percent" class="input-field flex-1 text-center" value="10" min="5" max="20">
+                                    <span class="text-sm text-gray-500">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="breakthrough-recommendation" class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                            <p class="text-sm font-medium text-blue-800">คำแนะนำยา Breakthrough</p>
+                            <p id="breakthrough-recommendation-text" class="text-blue-700 mt-1"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 sm:p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-3">Opioid Rotation Helper</h2>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-sm font-medium text-gray-600">ยา Basal ปัจจุบัน</label>
+                                <button id="add-rotation-basal-btn" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-plus text-xs mr-1"></i>
+                                    <span>เพิ่มยา</span>
+                                </button>
+                            </div>
+                            <div id="rotation-basal-rows-container" class="space-y-2"></div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <label class="text-sm font-medium text-gray-600">ยาใหม่ที่ต้องการ</label>
+                            <select id="rotation-target-drug" class="select-field mt-1 w-full">
+                                <option value="">เลือกยาที่ต้องการหมุนเวียน</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-center">
+                            <button id="rotate-btn" class="btn btn-primary">
+                                <i class="fas fa-sync-alt mr-2"></i>
+                                <span>คำนวณการหมุนเวียนยา</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: MME Display & Results -->
+            <div class="space-y-6">
+                
+                <div id="total-mme-box" class="card p-4 sm:p-6">
+                    <div id="total-mme-normal-view">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-4 text-center">Total MME per Day</h2>
+                        <div class="text-center">
+                            <p id="total-mme-display" class="text-6xl font-bold text-sky-900 my-2 tracking-tight cursor-pointer" title="คลิกเพื่อดู Quick Reference">0</p>
+                            <p class="text-sm text-gray-500">mg morphine equivalent</p>
+                        </div>
+                    </div>
+                    <div id="total-mme-rotation-view" class="hidden">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-4 text-center">Rotation Result</h2>
+                        <div class="text-center">
+                            <p id="rotation-result-display" class="text-4xl font-bold text-green-700 my-2 tracking-tight">0</p>
+                            <p id="rotation-result-unit" class="text-sm text-gray-500">unit</p>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <button id="cancel-rotate-btn" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                <span>กลับ</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 sm:p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-3">Clinical Calculations</h2>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Total Basal MME</span>
+                                <span id="basal-mme-display" class="text-lg font-bold text-sky-700">0</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Total PRN MME</span>
+                                <span id="prn-mme-display" class="text-lg font-bold text-orange-600">0</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">PRN/Total Ratio</span>
+                                <span id="prn-ratio-display" class="text-lg font-bold text-purple-600">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 sm:p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-3">Clinical Pearls</h2>
+                    <div class="space-y-3 text-sm">
+                        <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                            <p class="font-medium text-yellow-800">ข้อแนะนำ PRN:</p>
+                            <p class="text-yellow-700">โดยปกติ PRN ควรเป็น 10-15% ของ Total Daily Dose</p>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                            <p class="font-medium text-blue-800">ความปลอดภัย:</p>
+                            <p class="text-blue-700">ควรลดขนาดยา 25-50% เมื่อหมุนเวียนยา</p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg border border-green-200">
+                            <p class="font-medium text-green-800">การติดตาม:</p>
+                            <p class="text-green-700">ประเมินประสิทธิภาพและผลข้างเคียงทุก 24-48 ชม.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include all modal content here -->
+    <div id="modals-container"></div>
+
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
