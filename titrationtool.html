@@ -75,6 +75,7 @@
             transition: all 0.2s ease-in-out;
             border-bottom: 1px solid #f3f4f6;
         }
+        .drug-row:hover { background-color: #f9fafb; }
         .drug-row.pinned-row { background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
         .drug-row.balance-decrease-row { background-color: #fff7ed; border-left: 4px solid #f97316; }
         .drug-row.balance-increase-row { background-color: #f0fdf4; border-left: 4px solid #22c55e; }
@@ -480,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const SYRINGE_DATA = { 'BD': { 20: { length: 88.0 }, 30: { length: 87.5 }, 50: { length: 123.0 } } };
-    const LOCAL_STORAGE_KEY = 'opioidCalculatorDataV39'; // Updated version key
+    const LOCAL_STORAGE_KEY = 'opioidCalculatorDataV40'; // Updated version key
 
     // --- STATE ---
     let pinnedDrugKey = null;
@@ -492,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isBalancingFromUser = false;
     let rotationDoseInfo = { drugKey: '', dose: 0, helperResult: null, originalDose: 0 };
     let tddHelperTargetKey = null;
-    let lockedDrugs = []; // NEW: For locking drug doses
+    let lockedDrugs = [];
 
     // --- DOM ELEMENTS ---
     const elements = {
@@ -547,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ivInfusionModal: document.getElementById('iv-infusion-modal'), closeIvInfusionModalBtn: document.getElementById('close-iv-infusion-modal-btn'), cancelIvModalBtn: document.getElementById('cancel-iv-modal-btn'), ivDrugName: document.getElementById('iv-drug-name'), ivTotalDoseInput: document.getElementById('iv-total-dose-input'), ivDoseUnit: document.getElementById('iv-dose-unit'), ivNewMme: document.getElementById('iv-new-mme'), ivFluidVolume: document.getElementById('iv-fluid-volume'), ivError: document.getElementById('iv-error'), ivErrorText: document.getElementById('iv-error-text'), ivResult: document.getElementById('iv-result'), ivConcentration: document.getElementById('iv-concentration'), ivDoseHr: document.getElementById('iv-dose-hr'), ivOrderText: document.getElementById('iv-order-text'), ivResetDoseBtn: document.getElementById('iv-reset-dose-btn'),
         quickRefModal: document.getElementById('quick-ref-modal'),
         closeQuickRefModalBtn: document.getElementById('close-quick-ref-modal-btn'),
-        quickRefTitle: document.getElementById('quick-ref-title'), // NEW
+        quickRefTitle: document.getElementById('quick-ref-title'),
         quickRefMmeTotal: document.getElementById('quick-ref-mme-total'),
         quickRefList: document.getElementById('quick-ref-list'),
     };
@@ -559,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadFromLocalStorage();
     }
 
-    // --- UI CREATION (REVAMPED) ---
+    // --- UI CREATION (REFINED) ---
     function createMedicationInputs() {
         elements.medSection.innerHTML = ''; 
         Object.keys(DRUG_CONFIG).forEach(key => {
@@ -577,34 +578,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const inputHtml = `
                 <div class="drug-row p-2" data-row-key="${key}">
-                    <div class="grid grid-cols-12 gap-x-2 items-center">
-                        <div class="col-span-12 sm:col-span-4 flex items-center">
+                    <div class="flex flex-wrap items-center gap-x-2">
+                        <!-- Drug Label (takes up remaining space) -->
+                        <div class="flex-1 flex items-center min-w-0">
                             ${infoButton}
-                            <label for="dose-${key}" class="font-medium text-gray-700 text-sm drug-label flex-1">${config.name}</label>
+                            <label for="dose-${key}" class="font-medium text-gray-700 text-sm drug-label ml-1">${config.name}</label>
                         </div>
                         
-                        <div class="col-span-6 sm:col-span-3">
-                            <div class="flex items-center gap-2">
+                        <!-- Controls (grouped to the right) -->
+                        <div class="flex-shrink-0 flex items-center gap-2">
+                            <div class="w-20">
                                 <input type="number" inputmode="decimal" id="dose-${key}" data-key="${key}" class="input-field base-drug-input text-right w-full" placeholder="0" ${stepAttribute}>
-                                <span class="text-gray-500 text-xs w-16 truncate">${config.unit}</span>
                             </div>
-                        </div>
-
-                        <div class="col-span-4 sm:col-span-3 text-right">
-                            <button class="row-mme-ref" data-key="${key}">
-                                <span class="font-semibold text-cyan-700 text-sm">MME: <span id="mme-${key}">0</span></span>
-                            </button>
-                            <div id="mg-day-${key}" class="text-xs text-gray-500 h-4"></div>
-                        </div>
-
-                        <div class="col-span-2 sm:col-span-2 flex items-center justify-end">
+                            <span class="text-gray-500 text-xs w-14 text-left">${config.unit}</span>
+                            
+                            <div class="text-right w-20">
+                                <button class="row-mme-ref" data-key="${key}">
+                                    <span class="font-semibold text-cyan-700 text-sm">MME: <span id="mme-${key}">0</span></span>
+                                </button>
+                                <div id="mg-day-${key}" class="text-xs text-gray-500 h-4"></div>
+                            </div>
+                            
                             ${tddHelperButton}
                             <button class="action-btn pin-btn" data-key="${key}" title="คลิกเพื่อเลือก, ดับเบิลคลิกเพื่อล็อก">
                                 <i id="pin-icon-${key}" class="fas fa-thumbtack fa-xs"></i>
                             </button>
                         </div>
                     </div>
-                     <div id="dose-change-${key}" class="text-sm text-center text-gray-600 mt-1 h-5"></div>
+                    <div id="dose-change-${key}" class="text-sm text-center text-gray-600 mt-1 h-5"></div>
                 </div>`;
             elements.medSection.insertAdjacentHTML('beforeend', inputHtml);
         });
@@ -1454,4 +1455,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 </body>
-</html>
+</ht
