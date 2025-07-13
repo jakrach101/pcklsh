@@ -79,9 +79,6 @@
         .drug-row.pinned-row { background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
         .drug-row.balance-decrease-row { background-color: #fff7ed; border-left: 4px solid #f97316; }
         .drug-row.balance-increase-row { background-color: #f0fdf4; border-left: 4px solid #22c55e; }
-        .drug-label {
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
         .row-mme-ref { cursor: pointer; }
         .row-mme-ref:hover { text-decoration: underline; }
     </style>
@@ -481,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const SYRINGE_DATA = { 'BD': { 20: { length: 88.0 }, 30: { length: 87.5 }, 50: { length: 123.0 } } };
-    const LOCAL_STORAGE_KEY = 'opioidCalculatorDataV40'; // Updated version key
+    const LOCAL_STORAGE_KEY = 'opioidCalculatorDataV41'; // Updated version key
 
     // --- STATE ---
     let pinnedDrugKey = null;
@@ -560,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadFromLocalStorage();
     }
 
-    // --- UI CREATION (REFINED) ---
+    // --- UI CREATION (MOBILE-FIRST OVERHAUL) ---
     function createMedicationInputs() {
         elements.medSection.innerHTML = ''; 
         Object.keys(DRUG_CONFIG).forEach(key => {
@@ -578,31 +575,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const inputHtml = `
                 <div class="drug-row p-2" data-row-key="${key}">
-                    <div class="flex flex-wrap items-center gap-x-2">
-                        <!-- Drug Label (takes up remaining space) -->
+                    <!-- Responsive container: flex-col on mobile, flex-row on larger screens -->
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <!-- Line 1 (Mobile) / Left Side (Desktop): Drug Name -->
                         <div class="flex-1 flex items-center min-w-0">
                             ${infoButton}
-                            <label for="dose-${key}" class="font-medium text-gray-700 text-sm drug-label ml-1">${config.name}</label>
+                            <label for="dose-${key}" class="font-medium text-gray-700 text-sm ml-1">${config.name}</label>
                         </div>
                         
-                        <!-- Controls (grouped to the right) -->
-                        <div class="flex-shrink-0 flex items-center gap-2">
+                        <!-- Line 2 (Mobile) / Right Side (Desktop): Controls -->
+                        <div class="w-full sm:w-auto flex-shrink-0 flex items-center gap-2">
                             <div class="w-20">
                                 <input type="number" inputmode="decimal" id="dose-${key}" data-key="${key}" class="input-field base-drug-input text-right w-full" placeholder="0" ${stepAttribute}>
                             </div>
-                            <span class="text-gray-500 text-xs w-14 text-left">${config.unit}</span>
+                            <span class="text-gray-500 text-xs w-16 text-left">${config.unit}</span>
                             
-                            <div class="text-right w-20">
+                            <div class="text-right w-24">
                                 <button class="row-mme-ref" data-key="${key}">
                                     <span class="font-semibold text-cyan-700 text-sm">MME: <span id="mme-${key}">0</span></span>
                                 </button>
                                 <div id="mg-day-${key}" class="text-xs text-gray-500 h-4"></div>
                             </div>
                             
-                            ${tddHelperButton}
-                            <button class="action-btn pin-btn" data-key="${key}" title="คลิกเพื่อเลือก, ดับเบิลคลิกเพื่อล็อก">
-                                <i id="pin-icon-${key}" class="fas fa-thumbtack fa-xs"></i>
-                            </button>
+                            <div class="flex items-center">
+                                ${tddHelperButton}
+                                <button class="action-btn pin-btn" data-key="${key}" title="คลิกเพื่อเลือก, ดับเบิลคลิกเพื่อล็อก">
+                                    <i id="pin-icon-${key}" class="fas fa-thumbtack fa-xs"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div id="dose-change-${key}" class="text-sm text-center text-gray-600 mt-1 h-5"></div>
@@ -1455,4 +1455,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 </body>
-</ht
+</html>
