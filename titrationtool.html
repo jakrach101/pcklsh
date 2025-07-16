@@ -660,16 +660,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Main controls
         const mainControls = `
             <div class="grid grid-cols-12 gap-2 items-center">
-                <div class="col-span-6">
+                <div class="col-span-5">
                     <select class="select-field !text-xs !p-1.5 !rounded-md rotation-basal-drug" data-row-id="${rowId}">
                         <option value="">-- เลือกยา Basal --</option>
                         ${Object.keys(ROTATION_DRUGS).map(key => `<option value="${key}">${ROTATION_DRUGS[key].name}</option>`).join('')}
                     </select>
                 </div>
-                <div class="col-span-4 input-stepper">
-                    <button class="btn stepper-btn minus !w-8 !h-8" data-target="rotation-percent-${rotationBasalCount}" data-amount="-5">-</button>
-                    <input type="number" id="rotation-percent-${rotationBasalCount}" class="input-field !text-xs !p-1.5 !rounded-none text-center rotation-basal-percent" placeholder="%" step="5">
-                    <button class="btn stepper-btn plus !w-8 !h-8" data-target="rotation-percent-${rotationBasalCount}" data-amount="5">+</button>
+                <div class="col-span-5 flex items-center gap-1">
+                    <div class="flex-1 input-stepper">
+                        <button class="btn stepper-btn minus !w-7 !h-8" data-target="rotation-percent-${rotationBasalCount}" data-amount="-5">-</button>
+                        <input type="number" id="rotation-percent-${rotationBasalCount}" class="input-field !text-xs !p-1.5 !rounded-none text-center rotation-basal-percent" placeholder="%" step="5">
+                        <button class="btn stepper-btn plus !w-7 !h-8" data-target="rotation-percent-${rotationBasalCount}" data-amount="5">+</button>
+                    </div>
+                    <span class="text-xs text-gray-500 w-14 text-center font-medium rotation-mme-value"></span>
                 </div>
                 <button class="btn btn-icon !w-7 !h-7 text-sky-600 col-span-1 rotation-lock-btn" title="ล็อกสัดส่วน">
                     <i class="fas fa-unlock-alt"></i>
@@ -1112,10 +1115,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function generatePrescriptionHtml(totalDose, strengthsConfig) {
+        // 1. Calculate rounded dose and pill composition
         const smallestStrength = Math.min(...strengthsConfig.map(s => s.value));
         if (smallestStrength <= 0) return `<p>${totalDose.toFixed(0)} mg/day</p>`;
 
         const roundedDose = Math.round(totalDose / smallestStrength) * smallestStrength;
+        if (roundedDose <= 0) return '';
         
         let remainingDose = roundedDose;
         const prescriptionItems = [];
@@ -1123,25 +1128,31 @@ document.addEventListener('DOMContentLoaded', () => {
         strengthsConfig.forEach(strengthInfo => {
             const numUnits = Math.floor(remainingDose / strengthInfo.value);
             if (numUnits > 0) {
-                prescriptionItems.push({ name: strengthInfo.name, count: numUnits, unit: strengthInfo.unit, strength: strengthInfo.value });
-                remainingDose %= strengthInfo.value;
+                prescriptionItems.push({ name: strengthInfo.name, count: numUnits, unit: strengthInfo.unit });
+                remainingDose -= numUnits * strengthInfo.value;
             }
         });
 
-        if (prescriptionItems.length === 0 && roundedDose > 0) {
+        if (prescriptionItems.length === 0) {
             return `<p class="text-lg">${roundedDose} mg/day</p><p class="text-xs text-gray-600 mt-1 font-normal">ไม่สามารถจัดยาจาก Formulary ที่มีได้</p>`;
         }
         
+        // 2. NEW: More robust regimen suggestion logic
         let regimenSuggestion = '';
-        const mst30 = prescriptionItems.find(p => p.strength === 30);
-        if (mst30 && mst30.count > 0 && roundedDose % 30 === 0 && roundedDose > 0) {
-             if (mst30.count === 3) regimenSuggestion = `แนะนำ: <strong>${mst30.name} (1) oral q 8 hr</strong>`;
-             else if (mst30.count === 2) regimenSuggestion = `แนะนำ: <strong>${mst30.name} (1) oral q 12 hr</strong>`;
+        const hasMST = prescriptionItems.some(p => p.name.includes('MST'));
+        const hasKapanol = prescriptionItems.some(p => p.name.includes('Kapanol'));
+
+        if (hasKapanol && !hasMST) {
+            regimenSuggestion = `แนะนำให้บริหารยาวันละครั้ง (q 24 hr)`;
+        } else if (hasMST) {
+            regimenSuggestion = `แนะนำให้แบ่งบริหารยาทุก 12 ชั่วโมง (q 12 hr)`;
         }
 
+        // 3. Combine and return
         const listHtml = prescriptionItems.map(item => `<li>${item.name}: ${item.count} ${item.unit}</li>`).join('');
+        const suggestionHtml = regimenSuggestion ? `<p class="text-xs text-green-800 mt-2"><strong>การบริหารยา:</strong> ${regimenSuggestion}</p>` : '';
 
-        return `<div class="text-left w-full"><p class="text-lg font-bold text-green-900">${roundedDose.toFixed(0)} mg/day</p><ul class="list-disc list-inside mt-1 text-xs text-gray-700 space-y-1 pl-2">${listHtml}</ul><p class="text-xs text-gray-600 mt-2">${regimenSuggestion}</p></div>`;
+        return `<div class="text-left w-full"><p class="text-lg font-bold text-green-900">${roundedDose.toFixed(0)} mg/day</p><ul class="list-disc list-inside mt-1 text-xs text-gray-700 space-y-1 pl-2">${listHtml}</ul>${suggestionHtml}</div>`;
     }
 
     function updateRotationRecommendations(targetMME) {
@@ -1151,12 +1162,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const percent = parseFloat(row.querySelector('.rotation-basal-percent').value) || 0;
             totalPercent += percent;
             const resultEl = row.querySelector('.rotation-basal-result');
+            const mmeValueEl = row.querySelector('.rotation-mme-value');
             resultEl.innerHTML = '';
+            mmeValueEl.textContent = '';
 
-            if (drugKey && percent > 0) {
+            if (drugKey && percent > 0 && targetMME > 0) {
                 const config = ROTATION_DRUGS[drugKey];
                 const mmeForDrug = targetMME * (percent / 100);
                 const equivalentDose = mmeForDrug / config.factor;
+                
+                if (mmeValueEl) {
+                    mmeValueEl.textContent = `(${Math.round(mmeForDrug)} MME)`;
+                }
                 
                 if (config.prescriptionHelper) {
                     resultEl.innerHTML = generatePrescriptionHtml(equivalentDose, config.prescriptionHelper.strengths);
@@ -1195,10 +1212,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     resultEl.innerHTML = `<p class="text-xs text-gray-700 bg-gray-100 p-2 rounded"><strong>Dose:</strong> ${equivalentDose.toFixed(0)} ${config.unit.split('/')[0]}<br><strong>Order:</strong> Drug ${equivalentDose.toFixed(0)} ${config.drugInfo.unit.split('/')[0]} + NSS to ${fluidVolume}ml @ ${rateMlPerHour.toFixed(1)} ml/hr</p>`;
 
                 } else {
-                    let doseText = (drugKey === 'fentanyl_patch') 
-                        ? `${roundToStep(equivalentDose, 12.5)} mcg/hr`
-                        : `${Math.round(equivalentDose)} ${config.unit.split('/')[0]}`;
-                    resultEl.innerHTML = `<p class="text-lg font-bold text-green-900">${doseText}</p>`;
+                    let doseText = '';
+                    let regimenText = '';
+                    if (drugKey === 'fentanyl_patch') {
+                        doseText = `${roundToStep(equivalentDose, 12.5)} mcg/hr`;
+                        regimenText = `<p class="text-xs text-gray-600 mt-1">(เปลี่ยนแผ่นแปะทุก 72 ชั่วโมง)</p>`;
+                    } else {
+                        doseText = `${Math.round(equivalentDose)} ${config.unit.split('/')[0]}`;
+                    }
+                    resultEl.innerHTML = `<p class="text-lg font-bold text-green-900">${doseText}</p>${regimenText}`;
                 }
             }
         });
@@ -1211,7 +1233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateBreakthroughRecommendation(currentMME) {
         const key = elements.breakthroughCalcDrug.value;
         const percent = parseFloat(elements.breakthroughCalcPercent.value);
-        if(!key || !percent || !currentMME) {
+        if(!key || !percent || !currentMME || currentMME <= 0) {
             elements.breakthroughRecommendationText.innerHTML = ''; return;
         };
         const breakthroughMME = currentMME * percent;
