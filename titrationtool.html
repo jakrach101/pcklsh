@@ -275,9 +275,14 @@
                                  <span id="rotation-total-percent" class="text-xs font-bold"></span>
                             </div>
                             <div id="rotation-basal-rows-container" class="space-y-3"></div>
-                             <button id="add-rotation-basal-btn" class="btn btn-secondary w-full text-sm mt-3">
+                            <button id="add-rotation-basal-btn" class="btn btn-secondary w-full text-sm mt-3">
                                 <i class="fas fa-plus mr-2"></i>
                                 <span>เพิ่มยา Basal</span>
+                            </button>
+                            <!-- NEW BUTTON -->
+                            <button id="recalculate-mme-btn" class="btn btn-primary w-full text-sm mt-2 hidden">
+                                <i class="fas fa-calculator mr-2"></i>
+                                <span>ยืนยันและคำนวณ MME สุดท้าย</span>
                             </button>
                         </div>
                         <div id="breakthrough-recommendation" class="bg-gray-50 p-3 rounded-lg border">
@@ -456,8 +461,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const SYRINGE_DATA = { 'BD': { 20: { length: 88.0 }, 30: { length: 87.5 }, 50: { length: 123.0 } } };
-    const LOCAL_STORAGE_KEY = 'opioidCalculatorData_v12_lockable'; // Updated key for new structure
-    const THEME_KEY = 'opioidCalculatorTheme_v12';
+    const LOCAL_STORAGE_KEY = 'opioidCalculatorData_v13_finalMME'; // Updated key for new structure
+    const THEME_KEY = 'opioidCalculatorTheme_v13';
 
     // --- STATE ---
     let currentTheme = 'theme-material';
@@ -505,6 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         basalRecommendation: document.getElementById('basal-recommendation'),
         rotationBasalRowsContainer: document.getElementById('rotation-basal-rows-container'),
         addRotationBasalBtn: document.getElementById('add-rotation-basal-btn'),
+        recalculateMmeBtn: document.getElementById('recalculate-mme-btn'),
         rotationTotalPercent: document.getElementById('rotation-total-percent'),
         breakthroughRecommendation: document.getElementById('breakthrough-recommendation'),
         safetyChecklistBtn: document.getElementById('safety-checklist-btn'),
@@ -854,8 +860,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rotationTargetMME !== null) {
             elements.totalMmeNormalView.classList.add('hidden');
             elements.totalMmeRotationView.classList.remove('hidden');
-            const reductionPercent = rotationSourceMME > 0 ? ((rotationSourceMME - rotationTargetMME) / rotationSourceMME) * 100 : 0;
-            elements.rotationGoalDisplay.innerHTML = `เป้าหมาย: <strong class="text-lg text-sky-900">${Math.round(rotationTargetMME)}</strong> MME <span class="text-sm text-gray-500">(จาก ${Math.round(rotationSourceMME)}, ลด ${reductionPercent.toFixed(0)}%)</span>`;
+            
+            // Show recalculate button if not disabled
+            elements.recalculateMmeBtn.classList.remove('hidden');
+
+            if (!elements.recalculateMmeBtn.disabled) {
+                 const reductionPercent = rotationSourceMME > 0 ? ((rotationSourceMME - rotationTargetMME) / rotationSourceMME) * 100 : 0;
+                elements.rotationGoalDisplay.innerHTML = `เป้าหมาย: <strong class="text-lg text-sky-900">${Math.round(rotationTargetMME)}</strong> MME <span class="text-sm text-gray-500">(จาก ${Math.round(rotationSourceMME)}, ลด ${reductionPercent.toFixed(0)}%)</span>`;
+            }
             
             elements.rotationTools.classList.remove('hidden');
             updateRotationRecommendations(rotationTargetMME);
@@ -1098,6 +1110,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         rotationTargetMME = rotationSourceMME * (1 - (reductionPercent / 100));
         closeModal('guided-reduction-modal');
+        
+        // Reset and enable the recalculate button
+        elements.recalculateMmeBtn.disabled = false;
+        elements.recalculateMmeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
 
         // Setup rotation view
         if (elements.rotationBasalRowsContainer.children.length === 0) {
@@ -1114,8 +1130,64 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateAndRender();
     }
 
+    function getActualDoseFromRow(row, equivalentDose) {
+        const drugKey = row.querySelector('.rotation-basal-drug').value;
+        const config = ROTATION_DRUGS[drugKey];
+        if (!config) return equivalentDose;
+
+        if (drugKey === 'fentanyl_patch') {
+            return roundToStep(equivalentDose, 12.5);
+        } else if (config.prescriptionHelper) {
+            const smallestStrength = Math.min(...config.prescriptionHelper.strengths.map(s => s.value));
+            return smallestStrength > 0 ? Math.round(equivalentDose / smallestStrength) * smallestStrength : equivalentDose;
+        } else {
+            return Math.round(equivalentDose);
+        }
+    }
+
+    function recalculateMMEAndAdjustBreakthrough() {
+        let actualMME = 0;
+        document.querySelectorAll('.rotation-basal-row').forEach(row => {
+            const drugKey = row.querySelector('.rotation-basal-drug').value;
+            const percent = parseFloat(row.querySelector('.rotation-basal-percent').value) || 0;
+            
+            if (drugKey && percent > 0 && rotationTargetMME > 0) {
+                const config = ROTATION_DRUGS[drugKey];
+                const mmeForDrug = rotationTargetMME * (percent / 100);
+                let equivalentDose = mmeForDrug / config.factor;
+                
+                const actualDose = getActualDoseFromRow(row, equivalentDose);
+                
+                // For oral SR, the actual dose is in mg/day, which is 1:1 with MME.
+                // For others, we need to convert back.
+                if (drugKey === 'morphine_sr') {
+                    actualMME += actualDose; // factor is 1
+                } else {
+                    actualMME += actualDose * config.factor;
+                }
+            }
+        });
+
+        if (actualMME > 0) {
+            // Update the state and UI
+            const oldTargetMME = rotationTargetMME;
+            rotationTargetMME = actualMME; // The new source of truth
+            elements.rotationGoalDisplay.innerHTML = `MME สุดท้าย: <strong class="text-lg text-red-700">${Math.round(rotationTargetMME)}</strong> <span class="text-sm text-gray-500">(จากเป้าหมาย ${Math.round(oldTargetMME)})</span>`;
+            
+            // Recalculate breakthrough with the final MME
+            updateBreakthroughRecommendation(rotationTargetMME);
+            
+            // Disable the button to prevent re-calculation
+            elements.recalculateMmeBtn.disabled = true;
+            elements.recalculateMmeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            // Also disable all rotation controls
+            document.querySelectorAll('.rotation-basal-row input, .rotation-basal-row select, .rotation-lock-btn, .remove-rotation-basal-btn, #add-rotation-basal-btn').forEach(el => el.disabled = true);
+        }
+    }
+
+
     function generatePrescriptionHtml(totalDose, strengthsConfig) {
-        // 1. Calculate rounded dose and pill composition
         const smallestStrength = Math.min(...strengthsConfig.map(s => s.value));
         if (smallestStrength <= 0) return `<p>${totalDose.toFixed(0)} mg/day</p>`;
 
@@ -1124,31 +1196,28 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let remainingDose = roundedDose;
         const prescriptionItems = [];
+        const isKapanolRegimen = strengthsConfig.some(s => s.name.includes('Kapanol'));
 
-        strengthsConfig.forEach(strengthInfo => {
+        // Prioritize Kapanol if it's the regimen, otherwise use MST
+        const sortedStrengths = isKapanolRegimen 
+            ? strengthsConfig.filter(s => s.name.includes('Kapanol'))
+            : strengthsConfig.filter(s => s.name.includes('MST'));
+
+        sortedStrengths.forEach(strengthInfo => {
             const numUnits = Math.floor(remainingDose / strengthInfo.value);
             if (numUnits > 0) {
                 prescriptionItems.push({ name: strengthInfo.name, count: numUnits, unit: strengthInfo.unit });
                 remainingDose -= numUnits * strengthInfo.value;
             }
         });
-
-        if (prescriptionItems.length === 0) {
-            return `<p class="text-lg">${roundedDose} mg/day</p><p class="text-xs text-gray-600 mt-1 font-normal">ไม่สามารถจัดยาจาก Formulary ที่มีได้</p>`;
-        }
         
-        // 2. NEW: More robust regimen suggestion logic
         let regimenSuggestion = '';
-        const hasMST = prescriptionItems.some(p => p.name.includes('MST'));
-        const hasKapanol = prescriptionItems.some(p => p.name.includes('Kapanol'));
-
-        if (hasKapanol && !hasMST) {
-            regimenSuggestion = `แนะนำให้บริหารยาวันละครั้ง (q 24 hr)`;
-        } else if (hasMST) {
-            regimenSuggestion = `แนะนำให้แบ่งบริหารยาทุก 12 ชั่วโมง (q 12 hr)`;
+        if (isKapanolRegimen) {
+            regimenSuggestion = 'แนะนำให้บริหารยาวันละครั้ง (q 24 hr)';
+        } else {
+            regimenSuggestion = 'แนะนำให้แบ่งบริหารยาทุก 12 ชั่วโมง (q 12 hr)';
         }
 
-        // 3. Combine and return
         const listHtml = prescriptionItems.map(item => `<li>${item.name}: ${item.count} ${item.unit}</li>`).join('');
         const suggestionHtml = regimenSuggestion ? `<p class="text-xs text-green-800 mt-2"><strong>การบริหารยา:</strong> ${regimenSuggestion}</p>` : '';
 
@@ -1557,6 +1626,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 elements.reductionCustomPercent.value = btn.dataset.percent;
             });
         });
+        elements.recalculateMmeBtn.addEventListener('click', recalculateMMEAndAdjustBreakthrough);
+
 
         // Rotation Tools Listeners
         elements.addRotationBasalBtn.addEventListener('click', () => {
