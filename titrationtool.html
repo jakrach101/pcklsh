@@ -193,7 +193,6 @@
 <body class="p-3 sm:p-4 md:p-6">
 
     <div class="max-w-4xl mx-auto">
-        <!-- Header -->
         <header class="flex justify-between items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Opioid Equianalgesic Calculator</h1>
@@ -212,10 +211,8 @@
             </div>
         </header>
 
-        <!-- Main Content Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Left Column: Inputs & Tools -->
             <div class="lg:col-span-2 space-y-6">
                 
                 <div class="card p-4 sm:p-6">
@@ -267,7 +264,6 @@
 
             </div>
 
-            <!-- Right Column: Results & Rotation -->
             <div class="lg:col-span-1 space-y-6">
                 <div id="total-mme-box" class="card text-center p-4 sm:p-6 sticky top-6">
                     <div id="total-mme-normal-view">
@@ -332,7 +328,6 @@
         </footer>
     </div>
 
-    <!-- Modals -->
     <div id="guided-reduction-modal" class="modal-overlay">
         <div class="modal-content space-y-4">
              <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i class="fas fa-shield-alt text-blue-500"></i> เพื่อความปลอดภัยในการหมุนเวียนยา</h3>
@@ -468,17 +463,17 @@ document.addEventListener('DOMContentLoaded', () => {
         'fentanyl_iv_sc': { 
             name: 'Fentanyl IV/SC', 
             factor: 0.3, unit: 'mcg/day', type: 'injectable', isBasal: true, isBreakthrough: true,
-            info: `<p><strong>Onset:</strong> IV ~1-2 นาที, ออกฤทธิ์สั้น (30-60 นาที)</p><p><strong>ข้อดี:</strong></p><ul class="list-disc list-inside pl-4"><li>เป็นตัวเลือกที่ปลอดภัยในผู้ป่วยไตวายรุนแรง (Severe Renal Impairment)</li><li>เหมาะสำหรับ Titrate อาการปวดที่รุนแรงและต้องการการตอบสนองที่รวดเร็ว</li></ul>`
+            info: `<p><strong>Onset:</strong> IV ~1-2 นาที, ออกฤทธิ์สั้น (30-60 นาที)</p><p><strong>ข้อดี:</strong></p><ul class="list-disc list-inside pl-4"><li>เป็นตัวเลือกที่ปลอดภัยในผู้ป่วยไตวายรุนแรง (Severe Renal Impairment)</li><li>เหมาะสำหรับ Titrate อาการปวดที่รุนแรงและต้องการการตอบสนองที่รวดเร็ว (ให้ยา PRN q 1-2h)</li></ul>`
         },
         'morphine_ir_tab_10': { 
             name: 'Morphine IR 10mg', 
             factor: 1, unit: 'เม็ด/day', type: 'oral', isBreakthrough: true, strength: 10, step: 1,
-            info: `<p><strong>Onset:</strong> 30-60 นาที, ออกฤทธิ์นาน 4-6 ชั่วโมง</p><p><strong>การใช้งาน:</strong></p><ul class="list-disc list-inside pl-4"><li>ใช้สำหรับบรรเทาอาการปวดกำเริบ (Breakthrough Pain)</li><li>ขนาดยาที่ใช้ปกติคิดเป็น 10-15% ของขนาดยาหลักต่อวัน (Total Daily Dose)</li></ul>`
+            info: `<p><strong>Onset:</strong> 30-60 นาที, ออกฤทธิ์นาน 2-4 ชั่วโมง</p><p><strong>การใช้งาน:</strong></p><ul class="list-disc list-inside pl-4"><li>ใช้สำหรับบรรเทาอาการปวดกำเริบ (Breakthrough Pain) โดยให้ยาทุก 2-4 ชั่วโมง</li><li>ขนาดยาที่ใช้ปกติคิดเป็น 10-15% ของขนาดยาหลักต่อวัน (Total Daily Dose)</li></ul>`
         },
         'morphine_syrup': { 
             name: 'Morphine Syrup 2mg/ml', 
             factor: 1, unit: 'mL/day', type: 'oral', isBreakthrough: true, strength: 2,
-            info: `<p><strong>Onset:</strong> 30-60 นาที, ออกฤทธิ์นาน 4-6 ชั่วโมง</p><p><strong>การใช้งาน:</strong></p><ul class="list-disc list-inside pl-4"><li>ใช้สำหรับบรรเทาอาการปวดกำเริบ (Breakthrough Pain) โดยเฉพาะในผู้ป่วยที่มีปัญหาการกลืน</li><li>ง่ายต่อการปรับขนาดยา (Titration) ทีละน้อย</li></ul>`
+            info: `<p><strong>Onset:</strong> 30-60 นาที, ออกฤทธิ์นาน 2-4 ชั่วโมง</p><p><strong>การใช้งาน:</strong></p><ul class="list-disc list-inside pl-4"><li>ใช้สำหรับบรรเทาอาการปวดกำเริบ (Breakthrough Pain) โดยให้ยาทุก 2-4 ชั่วโมง โดยเฉพาะในผู้ป่วยที่มีปัญหาการกลืน</li><li>ง่ายต่อการปรับขนาดยา (Titration) ทีละน้อย</li></ul>`
         },
     };
 
@@ -1210,9 +1205,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (actualMME > 0) {
-                const oldTargetMME = rotationTargetMME;
+                const oldTargetMMEValue = rotationTargetMME;
                 rotationTargetMME = actualMME;
-                elements.rotationGoalDisplay.innerHTML = `MME สุดท้าย: <strong class="text-lg text-red-700">${Math.round(rotationTargetMME)}</strong> <span class="text-sm text-gray-500">(จากเป้าหมาย ${Math.round(oldTargetMME)})</span>`;
+
+                let percentChange = 0;
+                let changeText = '';
+                if (oldTargetMMEValue > 0) {
+                    percentChange = ((rotationTargetMME - oldTargetMMEValue) / oldTargetMMEValue) * 100;
+                }
+                if (Math.abs(percentChange) > 0.1) {
+                    const changeWord = percentChange > 0 ? 'เพิ่ม' : 'ลด';
+                    const changeColor = percentChange > 0 ? 'text-green-600' : 'text-red-600';
+                    changeText = `, <span class="${changeColor}">${changeWord} ${Math.abs(percentChange).toFixed(1)}%</span>`;
+                }
+
+                elements.rotationGoalDisplay.innerHTML = `MME สุดท้าย: <strong class="text-lg text-red-700">${Math.round(rotationTargetMME)}</strong> <span class="text-sm text-gray-500">(จากเป้าหมาย ${Math.round(oldTargetMMEValue)}${changeText})</span>`;
                 updateBreakthroughRecommendation(rotationTargetMME);
                 toggleRecalculateButton(true);
             }
@@ -1347,13 +1354,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     let doseText = '';
                     let regimenText = '';
+                    let wrapperClass = '';
                     if (drugKey === 'fentanyl_patch') {
                         doseText = `${roundToStep(equivalentDose, 12.5)} mcg/hr`;
                         regimenText = `<p class="text-xs text-gray-600 mt-1">(เปลี่ยนแผ่นแปะทุก 72 ชั่วโมง)</p>`;
+                        wrapperClass = 'text-left';
                     } else {
                         doseText = `${Math.round(equivalentDose)} ${config.unit.split('/')[0]}`;
                     }
-                    resultEl.innerHTML = `<p class="text-lg font-bold text-green-900">${doseText}</p>${regimenText}`;
+                    resultEl.innerHTML = `<div class="${wrapperClass}"><p class="text-lg font-bold text-green-900">${doseText}</p>${regimenText}</div>`;
                 }
             }
         });
@@ -1373,18 +1382,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const config = DRUG_CONFIG[key];
         const doseInMg_raw = breakthroughMME / config.factor;
         let recommendationText = '';
+
+        let prnFrequency = 'q 4-6h PRN'; // Default
+        if (key.includes('morphine')) {
+            prnFrequency = 'q 2-4h PRN';
+        } else if (key.includes('fentanyl')) {
+            prnFrequency = 'q 1-2h PRN';
+        }
+
         if (config.strength) {
             const doseInUnit_raw = doseInMg_raw / config.strength;
             const finalDose = roundToStep(doseInUnit_raw, config.step || 1);
             if (finalDose > 0) {
-                recommendationText = `<strong>${finalDose} ${config.unit.split('/')[0]}</strong> <span class="text-xs text-gray-500 font-normal">(~${(finalDose * config.strength).toFixed(1)} mg)</span> q 4-6h PRN`;
+                recommendationText = `<strong>${finalDose} ${config.unit.split('/')[0]}</strong> <span class="text-xs text-gray-500 font-normal">(~${(finalDose * config.strength).toFixed(1)} mg)</span> ${prnFrequency}`;
             } else {
                 recommendationText = `<span class="text-xs text-gray-500 font-normal">ขนาดยาน้อยเกินไป</span>`;
             }
         } else { 
             const finalDose = Math.round(doseInMg_raw);
             if (finalDose > 0) {
-                recommendationText = `<strong>${finalDose} ${config.unit.split('/')[0]}</strong> q 4-6h PRN`;
+                recommendationText = `<strong>${finalDose} ${config.unit.split('/')[0]}</strong> ${prnFrequency}`;
             } else {
                 recommendationText = `<span class="text-xs text-gray-500 font-normal">ขนาดยาน้อยเกินไป</span>`;
             }
